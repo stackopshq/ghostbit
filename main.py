@@ -1,3 +1,4 @@
+import logging
 import time
 from contextlib import asynccontextmanager
 from typing import Optional
@@ -42,7 +43,21 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Ghostbit", lifespan=lifespan, docs_url=None, redoc_url=None)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.get("/healthz", include_in_schema=False)
+async def healthz(request: Request):
+    return JSONResponse({"status": "ok", "storage": settings.storage_backend})
+
+
 app.include_router(api_router)
+
+# Silence uvicorn access logs for /healthz so probes don't pollute logs
+logging.getLogger("uvicorn.access").addFilter(
+    type("_HealthzFilter", (logging.Filter,), {
+        "filter": lambda self, r: "/healthz" not in r.getMessage()
+    })()
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
