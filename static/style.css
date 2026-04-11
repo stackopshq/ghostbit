@@ -963,7 +963,7 @@ kbd {
   gap: 6px;
   padding: 10px 20px;
   font-size: 0.72rem;
-  color: rgba(248,248,242,0.2);
+  color: rgba(248,248,242,0.5);
   border-top: 1px solid rgba(255,255,255,0.05);
 }
 [data-theme="light"] .site-footer {
