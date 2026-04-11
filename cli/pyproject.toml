@@ -9,14 +9,6 @@ description = "Ghostbit CLI — create end-to-end encrypted pastes from the term
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
-dependencies = [
-    "cryptography>=42.0.0",
-]
-
-[project.optional-dependencies]
-color = ["pygments>=2.17.0"]
-markdown = ["rich>=13.0.0"]
-all = ["pygments>=2.17.0", "rich>=13.0.0"]
 keywords = ["paste", "cli", "encryption", "privacy", "ghostbit"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -33,6 +25,14 @@ classifiers = [
     "Topic :: Security :: Cryptography",
     "Topic :: Utilities",
 ]
+dependencies = [
+    "cryptography>=42.0.0",
+]
+
+[project.optional-dependencies]
+color = ["pygments>=2.17.0"]
+markdown = ["rich>=13.0.0"]
+all = ["pygments>=2.17.0", "rich>=13.0.0"]
 
 [project.urls]
 Homepage = "https://github.com/stackopshq/ghostbit"
