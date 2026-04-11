@@ -1,5 +1,14 @@
 FROM python:3.12-slim
 
+# ── OCI image annotations ─────────────────────────────────────────────────────
+LABEL org.opencontainers.image.title="Ghostbit" \
+      org.opencontainers.image.description="Self-hosted, end-to-end encrypted paste service" \
+      org.opencontainers.image.url="https://github.com/stackopshq/ghostbit" \
+      org.opencontainers.image.source="https://github.com/stackopshq/ghostbit" \
+      org.opencontainers.image.documentation="https://docs.ghostbit.dev" \
+      org.opencontainers.image.vendor="StackOps HQ" \
+      org.opencontainers.image.licenses="MIT"
+
 WORKDIR /app
 
 COPY requirements.txt .
