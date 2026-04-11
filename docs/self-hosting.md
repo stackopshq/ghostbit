@@ -1,5 +1,16 @@
 # Self-hosting
 
+## Docker images
+
+| Registry | Image |
+|----------|-------|
+| Docker Hub | [`stackopshq/ghostbit`](https://hub.docker.com/r/stackopshq/ghostbit) |
+| GHCR | `ghcr.io/stackopshq/ghostbit` |
+
+Available tags: `latest`, `edge`, semver (`1.0.0`, `1.0`, `1`).
+
+---
+
 ## Docker Compose (recommended)
 
 ### SQLite

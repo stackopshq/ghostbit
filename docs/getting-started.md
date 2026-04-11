@@ -9,6 +9,13 @@
 
 ## Docker (recommended)
 
+Images are available on Docker Hub and GHCR:
+
+```bash
+docker pull stackopshq/ghostbit          # Docker Hub
+docker pull ghcr.io/stackopshq/ghostbit  # GitHub Container Registry
+```
+
 ```bash
 git clone https://github.com/stackopshq/ghostbit
 cd ghostbit

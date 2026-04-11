@@ -93,6 +93,11 @@ gb config set server https://paste.example.com
 ### Docker
 
 ```bash
+docker pull stackopshq/ghostbit          # Docker Hub
+docker pull ghcr.io/stackopshq/ghostbit  # GHCR
+```
+
+```bash
 git clone https://github.com/stackopshq/ghostbit
 cd ghostbit
 cp .env.example .env
