@@ -18,11 +18,16 @@ from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from config import settings
 from detect import detect_language
 from storage.base import PasteData
 import webhook
+from webhook import _is_ssrf_safe
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api/v1", tags=["API"])
 
@@ -75,11 +80,15 @@ def _base_url(request: Request) -> str:
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @router.post("/pastes", response_model=PasteCreateResponse, status_code=201)
+@limiter.limit("30/minute")
 async def create_paste(body: PasteCreateRequest, request: Request):
     # Content is base64 ciphertext; max size check with base64 overhead (~4/3 expansion)
     max_b64 = int(settings.max_paste_size * 1.4)
     if len(body.content) > max_b64:
         raise HTTPException(400, f"Content too large (max {settings.max_paste_size // 1024} KB).")
+
+    if body.webhook_url and not _is_ssrf_safe(body.webhook_url):
+        raise HTTPException(400, "Invalid webhook URL.")
 
     delete_token = secrets.token_urlsafe(16)
     delete_token_hash = hashlib.sha256(delete_token.encode()).hexdigest()

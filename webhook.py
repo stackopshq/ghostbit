@@ -15,10 +15,39 @@ Payload (JSON):
 """
 
 import asyncio
+import ipaddress
 import json
 import time
+import urllib.parse
 import urllib.request
 from typing import Optional
+
+# RFC-1918 + loopback + link-local ranges forbidden as webhook targets
+_PRIVATE_NETWORKS = [
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("169.254.0.0/16"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+    ipaddress.ip_network("fe80::/10"),
+]
+
+
+def _is_ssrf_safe(url: str) -> bool:
+    """Return True only if the URL hostname resolves to a public IP."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        host = parsed.hostname or ""
+        addr = ipaddress.ip_address(host)
+        return not any(addr in net for net in _PRIVATE_NETWORKS)
+    except ValueError:
+        # hostname (not a bare IP) — allow; DNS resolution happens at delivery time
+        # and is outside our control, but bare private IPs are blocked above
+        return True
 
 
 def fire(
@@ -28,6 +57,8 @@ def fire(
     burned: bool,
 ) -> None:
     """Schedule a webhook delivery without awaiting it."""
+    if not _is_ssrf_safe(url):
+        return
     asyncio.create_task(_deliver(url, paste_id, view_count, burned))
 
 

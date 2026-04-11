@@ -3,13 +3,18 @@ from contextlib import asynccontextmanager
 from typing import Optional
 
 from fastapi import FastAPI, Form, HTTPException, Path, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from api import router as api_router
 from config import settings
 from storage import get_storage
+
+limiter = Limiter(key_func=get_remote_address)
 
 TTL_OPTIONS = {
     0: "Never",
@@ -35,6 +40,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Ghostbit", lifespan=lifespan, docs_url=None, redoc_url=None)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(api_router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
