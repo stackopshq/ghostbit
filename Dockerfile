@@ -1,5 +1,5 @@
 # ── Stage 1: build dependencies ──────────────────────────────────────────────
-FROM python:3.13-alpine AS builder
+FROM python:3.14-alpine AS builder
 
 # Build deps needed to compile cryptography (Rust/C) and other native packages
 RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev cargo
@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
 # ── Stage 2: runtime image ────────────────────────────────────────────────────
-FROM python:3.13-alpine
+FROM python:3.14-alpine
 
 # ── OCI image annotations ─────────────────────────────────────────────────────
 LABEL org.opencontainers.image.title="Ghostbit" \
@@ -19,7 +19,7 @@ LABEL org.opencontainers.image.title="Ghostbit" \
       org.opencontainers.image.url="https://github.com/stackopshq/ghostbit" \
       org.opencontainers.image.source="https://github.com/stackopshq/ghostbit" \
       org.opencontainers.image.documentation="https://docs.ghostbit.dev" \
-      org.opencontainers.image.vendor="StackOps HQ" \
+      org.opencontainers.image.vendor="StackOps" \
       org.opencontainers.image.licenses="MIT"
 
 # Runtime deps only (no compiler, no Rust, no build tools)
