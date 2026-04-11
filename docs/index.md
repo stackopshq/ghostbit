@@ -2,6 +2,7 @@
 
 **Self-hosted, end-to-end encrypted paste service.**
 
+
 All content is encrypted in your browser before being sent to the server. The server stores ciphertext only — it can never read your pastes.
 
 ## Quickstart
