@@ -477,6 +477,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#view-a-paste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View a paste
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -686,6 +697,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#view-a-paste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        View a paste
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -731,29 +753,34 @@
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ghostbit-cli
 </span></code></pre></div>
-<p>This installs the <code>gb</code> command.</p>
+<p>This installs the <code>gb</code> and <code>ghostbit</code> commands.</p>
+<p>With optional extras for terminal rendering:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[all]&quot;</span><span class="w">       </span><span class="c1"># pygments + rich (recommended)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[color]&quot;</span><span class="w">     </span><span class="c1"># pygments — syntax highlighting</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[markdown]&quot;</span><span class="w">  </span><span class="c1"># rich — Markdown rendering</span>
+</span></code></pre></div>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Set your self-hosted server</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>server<span class="w"> </span>https://paste.example.com
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Show current config</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gb<span class="w"> </span>config<span class="w"> </span>show
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Remove a key</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>server
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Set your self-hosted server</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>server<span class="w"> </span>https://paste.example.com
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Show current config</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>gb<span class="w"> </span>config<span class="w"> </span>show
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Remove a key</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>server
 </span></code></pre></div>
 <p>Config is stored at <code>~/.config/ghostbit.toml</code>.</p>
 <hr />
 <h2 id="create-a-paste">Create a paste<a class="headerlink" href="#create-a-paste" title="Permanent link">&para;</a></h2>
 <h3 id="from-stdin">From stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cat<span class="w"> </span>main.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>git<span class="w"> </span>diff<span class="w"> </span>HEAD~1<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cat<span class="w"> </span>main.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>git<span class="w"> </span>diff<span class="w"> </span>HEAD~1<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
 </span></code></pre></div>
 <h3 id="from-a-file">From a file<a class="headerlink" href="#from-a-file" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gb<span class="w"> </span>main.py
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gb<span class="w"> </span>secrets.env
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gb<span class="w"> </span>main.py
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>gb<span class="w"> </span>secrets.env
 </span></code></pre></div>
 <p>Language is auto-detected from the file extension.</p>
 <hr />
@@ -810,25 +837,43 @@
 </tbody>
 </table>
 <hr />
+<h2 id="view-a-paste">View a paste<a class="headerlink" href="#view-a-paste" title="Permanent link">&para;</a></h2>
+<p>Download, decrypt, and display a paste directly in the terminal:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Non-password paste (key is in the URL fragment)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Password-protected paste (prompts for password interactively)</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#~TOKEN
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Pipe to another tool</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN<span class="w"> </span><span class="p">|</span><span class="w"> </span>less
+</span></code></pre></div>
+<ul>
+<li>Markdown pastes are rendered with titles, bold, lists, and code blocks (requires <code>rich</code>)</li>
+<li>Other languages are syntax-highlighted (requires <code>pygments</code>)</li>
+<li>Falls back to plain text if neither is installed</li>
+<li>Burn-after-read pastes display a warning on stderr after decryption</li>
+</ul>
+<hr />
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Burn after read</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cat<span class="w"> </span>deploy.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--burn
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Expire in 1 hour, max 3 views</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>gb<span class="w"> </span>config.yml<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--max-views<span class="w"> </span><span class="m">3</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Password protected</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;db_password=s3cr3t&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--password<span class="w"> </span>mysecret
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Language override</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>curl<span class="w"> </span>api.example.com/data<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--lang<span class="w"> </span>json
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1"># Scripting: URL only</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="nv">URL</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--quiet<span class="k">)</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Paste created: </span><span class="nv">$URL</span><span class="s2">&quot;</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="c1"># Full JSON response</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>cat<span class="w"> </span>data.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--json
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Burn after read</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>cat<span class="w"> </span>deploy.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--burn
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Expire in 1 hour, max 3 views</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>gb<span class="w"> </span>config.yml<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--max-views<span class="w"> </span><span class="m">3</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Password protected</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;db_password=s3cr3t&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--password<span class="w"> </span>mysecret
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Language override</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>curl<span class="w"> </span>api.example.com/data<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--lang<span class="w"> </span>json
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># Scripting: URL only</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="nv">URL</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--quiet<span class="k">)</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Paste created: </span><span class="nv">$URL</span><span class="s2">&quot;</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="c1"># Full JSON response</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>cat<span class="w"> </span>data.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--json
 </span></code></pre></div>
 <hr />
 <h2 id="supported-language-extensions">Supported language extensions<a class="headerlink" href="#supported-language-extensions" title="Permanent link">&para;</a></h2>

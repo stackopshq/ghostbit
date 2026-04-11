@@ -654,7 +654,7 @@
 </tr>
 <tr>
 <td><code>SQLITE_PATH</code></td>
-<td><code>ghostbit.db</code></td>
+<td><code>/data/ghostbit.db</code></td>
 <td>No</td>
 <td>Path to the SQLite database file</td>
 </tr>
@@ -669,6 +669,18 @@
 <td><code>524288</code></td>
 <td>No</td>
 <td>Maximum paste size in bytes (default: 512 KB)</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td><code>8000</code></td>
+<td>No</td>
+<td>HTTP port the server listens on</td>
+</tr>
+<tr>
+<td><code>WEBHOOK_SECRET</code></td>
+<td>—</td>
+<td>No</td>
+<td>If set, signs webhook deliveries with HMAC-SHA256 (<code>X-Ghostbit-Signature</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -701,6 +713,10 @@
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>STORAGE_BACKEND=sqlite
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>SQLITE_PATH=/data/ghostbit.db
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>PORT=8000
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a># Optional: sign webhook deliveries
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div>
 
 
