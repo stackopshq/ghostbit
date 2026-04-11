@@ -379,6 +379,16 @@
     submitPaste();
   });
 
+  // ── "/" focuses the editor (like GitHub) ─────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== '/') return;
+    const tag = document.activeElement?.tagName;
+    if (tag === 'TEXTAREA' || tag === 'INPUT' || tag === 'SELECT') return;
+    e.preventDefault();
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  });
+
   // ── Hero toggle ──────────────────────────────────────────────────────────
   (function() {
     const heroWrap = document.getElementById('heroWrap');
