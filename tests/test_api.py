@@ -2,12 +2,18 @@
 
 import base64
 import os
+import tempfile
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 os.environ.setdefault("ENCRYPTION_KEY", "a" * 64)
+os.environ.setdefault("STORAGE_BACKEND", "sqlite")
+# Use a temp file so tests work in any environment (CI has no /data/)
+_tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+os.environ["SQLITE_PATH"] = _tmp_db.name
+_tmp_db.close()
 
 from main import app
 from storage import get_storage
