@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  A modern, privacy-first alternative to Pastebin and PrivateBin.
+</p>
+
+<p align="center">
   <a href="https://docs.ghostbit.dev">Documentation</a>
   &nbsp;·&nbsp;
   <a href="https://pypi.org/project/ghostbit-cli">CLI on PyPI</a>
