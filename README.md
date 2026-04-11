@@ -101,6 +101,42 @@ docker compose up -d
 STORAGE_BACKEND=redis docker compose --profile redis up -d
 ```
 
+### Podman Quadlet
+
+Create `/etc/containers/systemd/ghostbit.container` (system-wide) or `~/.config/containers/systemd/ghostbit.container` (rootless):
+
+```ini
+[Unit]
+Description=Ghostbit paste service
+After=network-online.target
+
+[Container]
+Image=ghcr.io/stackopshq/ghostbit:latest
+PublishPort=8000:8000
+Volume=ghostbit_data:/data
+
+Environment=STORAGE_BACKEND=sqlite
+Environment=SQLITE_PATH=/data/ghostbit.db
+Environment=MAX_PASTE_SIZE=524288
+Environment=PORT=8000
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
+```
+
+```bash
+# Reload systemd and start
+systemctl --user daemon-reload
+systemctl --user enable --now ghostbit
+```
+
+For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-redis.service` + `Environment=STORAGE_BACKEND=redis` + `Environment=REDIS_URL=redis://ghostbit-redis:6379`. Podman Quadlet handles the pod networking automatically.
+
+---
+
 ### Environment variables
 
 | Variable | Default | Description |
