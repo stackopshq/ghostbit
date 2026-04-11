@@ -1,4 +1,17 @@
-FROM python:3.12-slim
+# ── Stage 1: build dependencies ──────────────────────────────────────────────
+FROM python:3.13-alpine AS builder
+
+# Build deps needed to compile cryptography (Rust/C) and other native packages
+RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev cargo
+
+WORKDIR /build
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+
+# ── Stage 2: runtime image ────────────────────────────────────────────────────
+FROM python:3.13-alpine
 
 # ── OCI image annotations ─────────────────────────────────────────────────────
 LABEL org.opencontainers.image.title="Ghostbit" \
@@ -9,29 +22,22 @@ LABEL org.opencontainers.image.title="Ghostbit" \
       org.opencontainers.image.vendor="StackOps HQ" \
       org.opencontainers.image.licenses="MIT"
 
+# Runtime deps only (no compiler, no Rust, no build tools)
+RUN apk add --no-cache libffi openssl
+
+# Copy installed packages from builder
+COPY --from=builder /install /usr/local
+
 WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
 
 RUN mkdir -p /data
 
 # ── Runtime configuration ─────────────────────────────────────────────────────
-# Storage backend: "sqlite" or "redis"
 ENV STORAGE_BACKEND=sqlite
-
-# SQLite database path (only used when STORAGE_BACKEND=sqlite)
 ENV SQLITE_PATH=/data/ghostbit.db
-
-# Redis connection URL (only used when STORAGE_BACKEND=redis)
 ENV REDIS_URL=redis://localhost:6379
-
-# Maximum paste size in bytes (default: 512 KB)
 ENV MAX_PASTE_SIZE=524288
-
-# Server port
 ENV PORT=8000
 
 EXPOSE ${PORT}
