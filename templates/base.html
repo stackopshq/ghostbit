@@ -45,6 +45,41 @@
   {% block page %}{% endblock %}
 
   <script>
+    // ── GitHub star count ─────────────────────────────────────────────────────
+    (function() {
+      const el    = document.getElementById('starCount');
+      const key   = 'gb_stars';
+      const tsKey = 'gb_stars_ts';
+      const TTL   = 3600 * 1000; // 1h cache
+
+      function fmt(n) {
+        return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+      }
+
+      function show(n) {
+        if (!el || n == null) return;
+        el.textContent = fmt(n);
+        el.style.display = 'inline';
+      }
+
+      const cached = localStorage.getItem(key);
+      const ts     = parseInt(localStorage.getItem(tsKey) || '0');
+      if (cached && Date.now() - ts < TTL) { show(parseInt(cached)); return; }
+
+      fetch('https://api.github.com/repos/stackopshq/ghostbit')
+        .then(r => r.json())
+        .then(d => {
+          const n = d.stargazers_count;
+          if (n == null) return;
+          localStorage.setItem(key, n);
+          localStorage.setItem(tsKey, Date.now());
+          show(n);
+        })
+        .catch(() => {});
+    })();
+  </script>
+
+  <script>
     const html = document.documentElement;
     const toggle = document.getElementById('themeToggle');
     const saved = localStorage.getItem('theme') || 'dark';
