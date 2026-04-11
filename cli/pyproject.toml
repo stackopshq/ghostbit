@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ghostbit-cli"
+version = "1.0.0"
+description = "Ghostbit CLI — create end-to-end encrypted pastes from the terminal"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "cryptography>=42.0.0",
+]
+keywords = ["paste", "cli", "encryption", "privacy", "ghostbit"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/stackopshq/ghostbit"
+Repository = "https://github.com/stackopshq/ghostbit"
+"Bug Tracker" = "https://github.com/stackopshq/ghostbit/issues"
+
+[project.scripts]
+gb = "cli:main"
+ghostbit = "cli:main"
+
+[tool.setuptools]
+py-modules = ["cli"]

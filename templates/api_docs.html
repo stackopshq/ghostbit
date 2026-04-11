@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}API — Ghostbit{% endblock %}
+
+{% block page %}
+<div class="page-plain">
+  <div class="paste-layout">
+
+    <div class="api-header">
+      <h1>REST API</h1>
+      <p class="api-sub">Base URL: <code>{{ base_url }}/api/v1</code></p>
+    </div>
+
+    <!-- Create -->
+    <div class="api-section">
+      <div class="api-method-line">
+        <span class="method post">POST</span>
+        <code>/api/v1/pastes</code>
+      </div>
+      <p class="api-desc">Create a new paste. Returns the paste ID, URL, and a delete token.</p>
+
+      <div class="api-block-label">Request body <span class="muted">(JSON)</span></div>
+      <pre class="api-code">{
+  "content":    "string  (required)",
+  "language":   "string  (optional, e.g. python)",
+  "expires_in": "integer (optional, seconds — e.g. 86400 for 1 day)",
+  "burn":       "boolean (optional, default false)",
+  "max_views":  "integer (optional, minimum 1)",
+  "password":   "string  (optional)"
+}</pre>
+
+      <div class="api-block-label">Response <span class="muted">201</span></div>
+      <pre class="api-code">{
+  "id":           "abc123",
+  "url":          "{{ base_url }}/abc123",
+  "delete_token": "xxxxxxxxxxxxxxxxxxxx",
+  "expires_at":   1234567890,
+  "burn":         false,
+  "max_views":    null
+}</pre>
+
+      <div class="api-block-label">Example</div>
+      <pre class="api-code">curl -X POST {{ base_url }}/api/v1/pastes \
+  -H "Content-Type: application/json" \
+  -d '{"content": "print(\"hello\")", "language": "python", "expires_in": 86400}'</pre>
+    </div>
+
+    <!-- Get -->
+    <div class="api-section">
+      <div class="api-method-line">
+        <span class="method get">GET</span>
+        <code>/api/v1/pastes/{id}</code>
+      </div>
+      <p class="api-desc">Retrieve a paste. For password-protected pastes, pass the password via the <code>X-Password</code> header.</p>
+
+      <div class="api-block-label">Headers <span class="muted">(optional)</span></div>
+      <pre class="api-code">X-Password: your_password</pre>
+
+      <div class="api-block-label">Response <span class="muted">200</span></div>
+      <pre class="api-code">{
+  "id":         "abc123",
+  "content":    "print(\"hello\")",
+  "language":   "python",
+  "created_at": 1234567890,
+  "expires_at": 1234567890,
+  "burn":       false,
+  "max_views":  5,
+  "view_count": 1
+}</pre>
+
+      <div class="api-block-label">Example</div>
+      <pre class="api-code">curl {{ base_url }}/api/v1/pastes/abc123</pre>
+    </div>
+
+    <!-- Delete -->
+    <div class="api-section">
+      <div class="api-method-line">
+        <span class="method delete">DELETE</span>
+        <code>/api/v1/pastes/{id}</code>
+      </div>
+      <p class="api-desc">Delete a paste. Requires the <code>X-Delete-Token</code> header returned at creation.</p>
+
+      <div class="api-block-label">Headers <span class="muted">(required)</span></div>
+      <pre class="api-code">X-Delete-Token: xxxxxxxxxxxxxxxxxxxx</pre>
+
+      <div class="api-block-label">Example</div>
+      <pre class="api-code">curl -X DELETE {{ base_url }}/api/v1/pastes/abc123 \
+  -H "X-Delete-Token: xxxxxxxxxxxxxxxxxxxx"</pre>
+    </div>
+
+    <!-- Errors -->
+    <div class="api-section">
+      <h2 class="api-section-title">Error codes</h2>
+      <table class="api-table">
+        <tr><td><code>400</code></td><td>Content too large or invalid input</td></tr>
+        <tr><td><code>401</code></td><td>Password required (missing X-Password header)</td></tr>
+        <tr><td><code>403</code></td><td>Incorrect password or invalid delete token</td></tr>
+        <tr><td><code>404</code></td><td>Paste not found or expired</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}{{ paste.id }} — Ghostbit{% endblock %}
+
+{% block page %}
+<div class="page-plain">
+  <div class="paste-layout">
+
+    <!-- ── State: password form ──────────────────────────────────────────── -->
+    <div id="statePassword" style="display:none">
+      <div class="password-page">
+        <div class="password-card">
+          <div class="lock-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h2>Password required</h2>
+          <span class="sub">This paste is protected. Enter the password to view it.</span>
+
+          <div class="notice notice-error" id="pwError" style="display:none; text-align:left; margin-bottom:16px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Incorrect password.
+          </div>
+
+          <form id="pwForm">
+            <input type="password" id="pwInput" placeholder="Password" autofocus autocomplete="current-password">
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Unlock
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── State: decryption error ───────────────────────────────────────── -->
+    <div id="stateError" style="display:none">
+      <div class="notice notice-error">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errorMsg">Could not decrypt this paste.</span>
+      </div>
+    </div>
+
+    <!-- ── State: paste content (shown after successful decryption) ───────── -->
+    <div id="statePaste" style="display:none">
+
+      <div class="notice notice-warning" id="burnNotice" style="display:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c0 0-5 5.5-5 10a5 5 0 0 0 10 0c0-4.5-5-10-5-10z"/></svg>
+        This paste was deleted after this read.
+      </div>
+
+      <div class="notice notice-info" id="ownerNotice" style="display:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Save this link — it's the only way to delete your paste.
+      </div>
+
+      <!-- Code view -->
+      <div class="paste-content" id="viewCode">
+
+        <div class="paste-inbar">
+          <div class="paste-inbar-meta">
+            <span class="paste-id"># {{ paste.id }}</span>
+            {% if paste.language %}<span class="badge">{{ paste.language }}</span>{% endif %}
+            {% if paste.burn %}<span class="badge badge-neutral">burn after read</span>{% endif %}
+            <span id="pasteConditions"></span>
+            {% if paste.language == "markdown" %}
+            <div class="tab-switcher">
+              <button class="tab active" id="tabCode" onclick="switchTab('code')">Code</button>
+              <button class="tab" id="tabPreview" onclick="switchTab('preview')">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Preview
+              </button>
+            </div>
+            {% endif %}
+          </div>
+          <div class="paste-inbar-actions">
+            <button class="icon-btn" id="copyBtn" onclick="copyContent()" title="Copy">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <form method="post" action="/{{ paste.id }}/delete" id="deleteForm" style="display:none"
+                  onsubmit="return confirm('Delete this paste?')">
+              <input type="hidden" name="key" id="deleteKey">
+              <button type="submit" class="icon-btn icon-btn-danger" title="Delete">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="paste-body">
+          <div class="line-gutter" id="lineGutter"></div>
+          <pre id="pasteContent"></pre>
+        </div>
+      </div>
+
+      <!-- Markdown preview -->
+      {% if paste.language == "markdown" %}
+      <div class="paste-content md-preview" id="viewPreview" style="display:none;">
+        <div class="md-body" id="mdBody"></div>
+      </div>
+      {% endif %}
+
+    </div><!-- /statePaste -->
+
+  </div>
+</div>
+
+<!-- Paste metadata for client-side bootstrap (no ciphertext — fetched from API) -->
+<script id="paste-meta" type="application/json">
+{
+  "id":           {{ paste.id | tojson }},
+  "has_password": {{ "true" if paste.has_password else "false" }}
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/e2e.js"></script>
+{% if paste.language == "markdown" %}
+<script src="/static/marked.min.js"></script>
+{% endif %}
+<script>
+(async () => {
+  'use strict';
+
+  const meta = JSON.parse(document.getElementById('paste-meta').textContent);
+
+  // ── Fragment parsing ─────────────────────────────────────────────────────
+  // Format: KEY_B64URL~DELETE_TOKEN  (non-password)
+  //         ~DELETE_TOKEN            (password)
+  const fragment    = window.location.hash.slice(1);
+  const tildeIdx    = fragment.indexOf('~');
+  const keyPart     = tildeIdx >= 0 ? fragment.slice(0, tildeIdx) : fragment;
+  const deleteToken = tildeIdx >= 0 ? fragment.slice(tildeIdx + 1) : '';
+
+  // ── State helpers ────────────────────────────────────────────────────────
+  function showState(id) {
+    ['statePassword', 'stateError', 'statePaste'].forEach(s => {
+      document.getElementById(s).style.display = (s === id) ? '' : 'none';
+    });
+  }
+
+  function showError(msg) {
+    document.getElementById('errorMsg').textContent = msg;
+    showState('stateError');
+  }
+
+  // ── Fetch ciphertext from API (this is the "view" event server-side) ─────
+  async function fetchCiphertext() {
+    const resp = await fetch(`/api/v1/pastes/${meta.id}`);
+    if (resp.status === 404) throw new Error('This paste has expired or no longer exists.');
+    if (!resp.ok) throw new Error(`Server error ${resp.status}.`);
+    return resp.json();
+  }
+
+  // ── Render decrypted paste ───────────────────────────────────────────────
+  function renderPaste(plaintext, apiData) {
+    const pre    = document.getElementById('pasteContent');
+    const gutter = document.getElementById('lineGutter');
+    pre.textContent = plaintext;
+    const lines = plaintext.replace(/\n$/, '').split('\n');
+    gutter.textContent = lines.map((_, i) => i + 1).join('\n');
+
+    // Burn notice: shown if paste was burned (burn flag or max_views reached)
+    const burned = apiData.burn || (apiData.max_views && apiData.view_count >= apiData.max_views);
+    if (burned) document.getElementById('burnNotice').style.display = '';
+
+    // ── Dynamic conditions after | ───────────────────────────────────────
+    const conditions = [];
+
+    if (apiData.max_views) {
+      const left = apiData.max_views - apiData.view_count;
+      if (left > 0) conditions.push(`${left} view${left > 1 ? 's' : ''} left`);
+    }
+
+    if (apiData.expires_at) {
+      const delta = apiData.expires_at - Math.floor(Date.now() / 1000);
+      if (delta > 0) {
+        let label;
+        if (delta < 3600)       label = `${Math.floor(delta / 60)}m left`;
+        else if (delta < 86400) label = `${Math.floor(delta / 3600)}h left`;
+        else                    label = `${Math.floor(delta / 86400)}d left`;
+        conditions.push(label);
+      }
+    }
+
+    const slot = document.getElementById('pasteConditions');
+    if (conditions.length > 0) {
+      slot.innerHTML =
+        `<span class="paste-conditions-sep">|</span>` +
+        conditions.map(c => `<span class="badge badge-condition">${c}</span>`).join('');
+    }
+
+    if (deleteToken) {
+      document.getElementById('ownerNotice').style.display = '';
+      document.getElementById('deleteForm').style.display  = '';
+      document.getElementById('deleteKey').value = deleteToken;
+    }
+
+    showState('statePaste');
+  }
+
+  // ── Main decryption flow ─────────────────────────────────────────────────
+  if (!meta.has_password) {
+    if (!keyPart) {
+      showError('Decryption key missing from URL. Make sure you copied the full link including the # fragment.');
+      return;
+    }
+    try {
+      const [key, apiData] = await Promise.all([
+        E2E.importKey(keyPart),
+        fetchCiphertext(),
+      ]);
+      const plaintext = await E2E.decrypt(apiData.content, apiData.nonce, key);
+      renderPaste(plaintext, apiData);
+    } catch (err) {
+      showError(err.message || 'Decryption failed. The URL may be incomplete or the paste may have been tampered with.');
+    }
+
+  } else {
+    // Fetch ciphertext first (we need kdf_salt before we can show the password form)
+    let apiData;
+    try {
+      apiData = await fetchCiphertext();
+    } catch (err) {
+      showError(err.message);
+      return;
+    }
+
+    showState('statePassword');
+    const pwForm  = document.getElementById('pwForm');
+    const pwInput = document.getElementById('pwInput');
+    const pwError = document.getElementById('pwError');
+
+    pwForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = pwInput.value;
+      if (!password) return;
+
+      const btn = pwForm.querySelector('[type=submit]');
+      btn.disabled = true;
+      pwError.style.display = 'none';
+
+      try {
+        const key       = await E2E.deriveKey(password, apiData.kdf_salt);
+        const plaintext = await E2E.decrypt(apiData.content, apiData.nonce, key);
+        renderPaste(plaintext, apiData);
+      } catch {
+        pwError.style.display = '';
+        pwInput.value = '';
+        pwInput.focus();
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // ── Copy ─────────────────────────────────────────────────────────────────
+  window.copyContent = function() {
+    const text = document.getElementById('pasteContent').textContent;
+    const btn  = document.getElementById('copyBtn');
+    const iconCopy  = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    const iconCheck = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const done = () => {
+      btn.innerHTML = iconCheck;
+      btn.style.color = 'var(--drac-green)';
+      setTimeout(() => { btn.innerHTML = iconCopy; btn.style.color = ''; }, 2000);
+    };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(() => _fallbackCopy(text, done));
+    else _fallbackCopy(text, done);
+  };
+
+  function _fallbackCopy(text, cb) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); cb(); } finally { document.body.removeChild(ta); }
+  }
+
+  {% if paste.language == "markdown" %}
+  // ── Markdown tab switcher ─────────────────────────────────────────────────
+  marked.setOptions({ breaks: true, gfm: true });
+
+  window.switchTab = function(tab) {
+    const viewCode    = document.getElementById('viewCode');
+    const viewPreview = document.getElementById('viewPreview');
+    const tabCode     = document.getElementById('tabCode');
+    const tabPreview  = document.getElementById('tabPreview');
+
+    if (tab === 'preview') {
+      document.getElementById('mdBody').innerHTML = marked.parse(
+        document.getElementById('pasteContent').textContent
+      );
+      viewCode.style.display    = 'none';
+      viewPreview.style.display = '';
+      tabCode.classList.remove('active');
+      tabPreview.classList.add('active');
+    } else {
+      viewCode.style.display    = '';
+      viewPreview.style.display = 'none';
+      tabCode.classList.add('active');
+      tabPreview.classList.remove('active');
+    }
+  };
+  {% endif %}
+})();
+</script>
+{% endblock %}

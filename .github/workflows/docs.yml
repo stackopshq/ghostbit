@@ -1,0 +1,41 @@
+name: Deploy docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    name: Build & deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # git-revision-date plugin needs full history
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MkDocs + Material
+        run: |
+          pip install \
+            mkdocs-material \
+            mkdocs-minify-plugin
+
+      - name: Copy logo into docs/assets
+        run: cp static/logo.png docs/assets/logo.png
+
+      - name: Deploy to GitHub Pages
+        run: mkdocs gh-deploy --force --clean

@@ -1,0 +1,15 @@
+.env
+.env.*
+*.db
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+.git
+.github
+.claude
+site
+docs
+cli/dist
+cli/build
+cli/*.egg-info

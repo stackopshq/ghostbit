@@ -1,0 +1,36 @@
+services:
+  ghostbit:
+    build: .
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    environment:
+      - STORAGE_BACKEND=${STORAGE_BACKEND:-sqlite}
+      - SQLITE_PATH=${SQLITE_PATH:-/data/ghostbit.db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - MAX_PASTE_SIZE=${MAX_PASTE_SIZE:-524288}
+      - PORT=${PORT:-8000}
+    volumes:
+      - ghostbit_data:/data
+    restart: unless-stopped
+
+  redis:
+    profiles: ["redis"]
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 60 1
+      --save 300 1
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  ghostbit_data:
+  redis_data:

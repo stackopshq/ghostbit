@@ -1,0 +1,156 @@
+/* ── Ghostbit brand variables ─────────────────────────────────────────────── */
+:root {
+  --brand-primary:  #BC13FE;
+  --brand-light:    #D067FF;
+  --brand-ghost:    #F3E5FF;
+  --brand-gradient: linear-gradient(135deg, #BC13FE 0%, #7A18FF 100%);
+  --brand-glow:     0 0 20px rgba(188, 19, 254, 0.35);
+}
+
+/* ── Dark scheme ──────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:          #BC13FE;
+  --md-primary-fg-color--light:   #D067FF;
+  --md-primary-fg-color--dark:    #9400d3;
+  --md-accent-fg-color:           #D067FF;
+
+  --md-default-bg-color:          #0D0B14;
+  --md-default-bg-color--light:   #110720;
+  --md-default-bg-color--lighter: #16092a;
+  --md-default-bg-color--lightest:#1a0b30;
+
+  --md-default-fg-color:          #f8f8f2;
+  --md-default-fg-color--light:   #8f98b8;
+  --md-default-fg-color--lighter: #6272a4;
+  --md-default-fg-color--lightest:#44475a;
+
+  --md-code-bg-color:             #1a1b26;
+  --md-code-fg-color:             #f8f8f2;
+
+  --md-typeset-a-color:           #BC13FE;
+}
+
+/* ── Light scheme ─────────────────────────────────────────────────────────── */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:          #7c55d4;
+  --md-primary-fg-color--light:   #9b77e8;
+  --md-primary-fg-color--dark:    #5e3db8;
+  --md-accent-fg-color:           #BC13FE;
+
+  --md-default-bg-color:          #f0eff8;
+  --md-typeset-a-color:           #7c55d4;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.md-header {
+  background: rgba(14, 14, 20, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(188, 19, 254, 0.2);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+[data-md-color-scheme="default"] .md-header {
+  background: rgba(240, 239, 248, 0.9);
+  border-bottom: 1px solid rgba(124, 85, 212, 0.2);
+  box-shadow: 0 2px 12px rgba(40, 42, 54, 0.1);
+}
+
+.md-header__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── Logo text glow ───────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-header__title {
+  background: linear-gradient(135deg, #BC13FE 0%, #7A18FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(188, 19, 254, 0.5));
+}
+
+/* ── Navigation sidebar ───────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-nav__link--active,
+[data-md-color-scheme="slate"] .md-nav__link:hover {
+  color: var(--brand-light);
+}
+
+[data-md-color-scheme="slate"] .md-nav__link--active {
+  font-weight: 600;
+}
+
+/* ── Code blocks ──────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .highlight pre,
+[data-md-color-scheme="slate"] code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85em;
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background: rgba(188, 19, 254, 0.1);
+  border: 1px solid rgba(188, 19, 254, 0.2);
+  border-radius: 4px;
+  color: var(--brand-light);
+  padding: 0.1em 0.35em;
+}
+
+/* ── Admonitions ──────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-typeset .admonition,
+[data-md-color-scheme="slate"] .md-typeset details {
+  border-color: rgba(188, 19, 254, 0.3);
+  background: rgba(188, 19, 254, 0.05);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .admonition-title,
+[data-md-color-scheme="slate"] .md-typeset summary {
+  background: rgba(188, 19, 254, 0.12);
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background: rgba(188, 19, 254, 0.15);
+  border-color: rgba(188, 19, 254, 0.25);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) td {
+  border-color: rgba(68, 71, 90, 0.6);
+}
+
+/* ── Copy button ──────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-clipboard:hover {
+  color: var(--brand-light);
+}
+
+/* ── Search ───────────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-search__input {
+  background: rgba(188, 19, 254, 0.08);
+  border: 1px solid rgba(188, 19, 254, 0.2);
+}
+
+[data-md-color-scheme="slate"] .md-search__input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(188, 19, 254, 0.2);
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-footer {
+  background: #080a10;
+  border-top: 1px solid rgba(188, 19, 254, 0.15);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] ::-webkit-scrollbar {
+  width: 6px;
+}
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-track {
+  background: #0D0B14;
+}
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb {
+  background: rgba(188, 19, 254, 0.4);
+  border-radius: 3px;
+}
+[data-md-color-scheme="slate"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
+}

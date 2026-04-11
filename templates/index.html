@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block header_actions %}{% endblock %}
+
+{% block page %}
+<div class="page-bg index-layout">
+
+  <div class="index-hero" id="heroWrap">
+    <h1 class="terminal-hero">
+      <span class="terminal-prompt">~ $&nbsp;</span><span id="terminalText"></span><span class="terminal-cursor">▊</span>
+    </h1>
+    <button class="hero-toggle" id="heroToggle" title="Hide terminal">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+  </div>
+
+  <form method="post" action="/" id="pasteForm" class="index-form">
+
+    {% if error %}
+    <script>window.__serverError = {{ error | tojson }};</script>
+    {% endif %}
+
+    <!-- Card 1: Code editor -->
+    <div class="card card-editor">
+      <div class="editor-topbar">
+        <div class="editor-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="char-counter" id="charCounter"></span>
+        <div class="lang-picker-wrap">
+          <span class="lang-picker-label">Language</span>
+          <select name="language" id="language" class="lang-picker">
+            <option value="">Plain text</option>
+            {% for lang in languages %}{% if lang %}
+            <option value="{{ lang }}">{{ lang }}</option>
+            {% endif %}{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="editor-body">
+        <div class="editor-gutter" id="editorGutter">1</div>
+        <textarea
+          name="content"
+          id="content"
+          placeholder="Paste your code or snippet here…"
+          spellcheck="false"
+          autocorrect="off"
+          autocapitalize="off"
+          autofocus
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="index-sidebar">
+    <!-- Card 2: Options -->
+    <div class="card card-options">
+
+      <div class="option-row option-row-column">
+        <div class="option-text">
+          <div class="option-label">Expiration</div>
+          <div class="option-desc">Content permanently deleted after this delay.</div>
+        </div>
+        <select name="expires_in" id="expires_in">
+          {% for value, label in ttl_options.items() %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="option-row option-row-column">
+        <div class="option-text">
+          <div class="option-label">Max views</div>
+          <div class="option-desc">Delete after N reads. Leave empty for unlimited.</div>
+        </div>
+        <input type="number" name="max_views" id="max_views" min="1" placeholder="∞" class="input-small">
+      </div>
+
+      <div class="option-row">
+        <div class="option-text">
+          <div class="option-label">Burn after read</div>
+          <div class="option-desc">Deleted permanently after the first view.</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" name="burn" value="true" id="burnToggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="option-row option-row-password">
+        <div class="option-text">
+          <div class="option-label">Password protection</div>
+          <div class="option-desc">Content is encrypted with your password.</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="passwordToggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="password-input-wrap" id="passwordWrap">
+        <input type="password" name="password" id="password" placeholder="Enter a password…" autocomplete="new-password">
+      </div>
+
+      <div class="option-row option-row-webhook">
+        <div class="option-text">
+          <div class="option-label">Webhook on read</div>
+          <div class="option-desc">POST to this URL each time the paste is viewed.</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="webhookToggle">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="webhook-input-wrap" id="webhookWrap">
+        <input type="url" name="webhook_url" id="webhook_url" placeholder="https://…" autocomplete="off">
+      </div>
+
+    </div>
+
+    <!-- Submit -->
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Create paste
+      </button>
+      <span class="shortcut-hint">
+        <kbd>Ctrl</kbd>+<kbd>Enter</kbd>
+      </span>
+    </div>
+
+    </div><!-- /index-sidebar -->
+  </form>
+  <footer class="site-footer">
+    <span>Ghostbit</span>
+    <span class="sep">·</span>
+    <span>End-to-end encrypted</span>
+    <span class="sep">·</span>
+    <span>No tracking</span>
+    <span class="sep">·</span>
+    <a href="/api">API docs</a>
+  </footer>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/e2e.js"></script>
+<script>
+  const textarea = document.getElementById('content');
+  const gutter   = document.getElementById('editorGutter');
+  const counter  = document.getElementById('charCounter');
+  const MAX = {{ max_paste_size }};
+
+  function fmt(n) {
+    return n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB';
+  }
+
+  function updateGutter() {
+    const lines = textarea.value.split('\n').length;
+    gutter.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
+  }
+
+  function updateCounter() {
+    const bytes = new TextEncoder().encode(textarea.value).length;
+    counter.textContent = bytes > 0 ? fmt(bytes) + ' / ' + fmt(MAX) : '';
+    counter.classList.toggle('warn',  bytes > MAX * 0.8 && bytes <= MAX);
+    counter.classList.toggle('error', bytes > MAX);
+  }
+
+  function syncScroll() {
+    gutter.scrollTop = textarea.scrollTop;
+  }
+
+  textarea.addEventListener('input', () => { updateGutter(); updateCounter(); });
+  textarea.addEventListener('scroll', syncScroll);
+
+  // Tab key inserts 2 spaces
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = textarea.selectionStart;
+      const v = textarea.value;
+      textarea.value = v.slice(0, s) + '  ' + v.slice(textarea.selectionEnd);
+      textarea.selectionStart = textarea.selectionEnd = s + 2;
+      updateGutter();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      submitPaste();
+    }
+  });
+
+  // Language auto-detection
+  const langSelect = document.getElementById('language');
+  const langLabel  = document.querySelector('.lang-picker-label');
+  let detectTimer  = null;
+
+  function runDetect() {
+    const content = textarea.value;
+    if (content.length < 20 || langSelect.value !== '') return;
+
+    fetch('/api/v1/detect', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({content})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.language && langSelect.value === '') {
+        langSelect.value = data.language;
+        langLabel.textContent = 'Detected';
+        langLabel.style.color = 'var(--drac-green)';
+        setTimeout(() => {
+          langLabel.textContent = 'Language';
+          langLabel.style.color = '';
+        }, 2500);
+      }
+    })
+    .catch(() => {});
+  }
+
+  textarea.addEventListener('input', () => {
+    clearTimeout(detectTimer);
+    detectTimer = setTimeout(runDetect, 1000);
+  });
+
+  textarea.addEventListener('paste', () => {
+    clearTimeout(detectTimer);
+    detectTimer = setTimeout(runDetect, 200);
+  });
+
+  // Reset label if user manually changes language
+  langSelect.addEventListener('change', () => {
+    langLabel.textContent = 'Language';
+    langLabel.style.color = '';
+  });
+
+  // Password toggle
+  const pwToggle = document.getElementById('passwordToggle');
+  const pwWrap   = document.getElementById('passwordWrap');
+  pwToggle.addEventListener('change', () => {
+    pwWrap.classList.toggle('visible', pwToggle.checked);
+    if (!pwToggle.checked) document.getElementById('password').value = '';
+  });
+
+  // Webhook toggle
+  const whToggle = document.getElementById('webhookToggle');
+  const whWrap   = document.getElementById('webhookWrap');
+  whToggle.addEventListener('change', () => {
+    whWrap.classList.toggle('visible', whToggle.checked);
+    if (!whToggle.checked) document.getElementById('webhook_url').value = '';
+  });
+
+  // ── Toast notifications ───────────────────────────────────────────────────
+  function showToast(msg, type = 'error') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML =
+      `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` +
+      `<span>${msg}</span>` +
+      `<button class="toast-close" onclick="this.parentElement.remove()">` +
+      `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+    document.body.appendChild(toast);
+    // Trigger animation
+    requestAnimationFrame(() => toast.classList.add('toast-visible'));
+    // Auto-dismiss after 4s
+    const timer = setTimeout(() => dismissToast(toast), 4000);
+    toast.addEventListener('mouseenter', () => clearTimeout(timer));
+    toast.addEventListener('mouseleave', () => setTimeout(() => dismissToast(toast), 1500));
+  }
+
+  function dismissToast(toast) {
+    toast.classList.remove('toast-visible');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }
+
+  function showFormError(msg) { showToast(msg, 'error'); }
+
+  if (window.__serverError) showToast(window.__serverError, 'error');
+
+  async function submitPaste() {
+    const content = textarea.value;
+    if (!content.trim()) { showFormError('Content cannot be empty.'); return; }
+
+    const bytes = new TextEncoder().encode(content).length;
+    if (bytes > MAX) { showFormError(`Paste too large (max ${(MAX/1024).toFixed(0)} KB).`); return; }
+
+    if (!window.isSecureContext) {
+      const localhostUrl = location.href.replace(location.hostname, 'localhost');
+      showFormError(
+        `Encryption requires a Secure Context. ` +
+        `<a href="${localhostUrl}" style="color:inherit;text-decoration:underline">` +
+        `Click here to switch to localhost</a> — or use HTTPS in production.`
+      );
+      return;
+    }
+
+    const btn = document.querySelector('#pasteForm [type=submit]');
+    btn.disabled = true;
+
+    try {
+      const hasPassword = document.getElementById('passwordToggle').checked;
+      const password    = hasPassword ? document.getElementById('password').value : '';
+
+      let key, kdfSalt = null;
+      if (hasPassword && password) {
+        kdfSalt = E2E.generateSalt();
+        key     = await E2E.deriveKey(password, kdfSalt);
+      } else {
+        key = await E2E.generateKey();
+      }
+
+      const { ciphertext, nonce } = await E2E.encrypt(content, key);
+
+      const expiresIn  = parseInt(document.getElementById('expires_in').value) || null;
+      const maxViews   = parseInt(document.getElementById('max_views').value)  || null;
+      const webhookUrl = whToggle.checked ? (document.getElementById('webhook_url').value.trim() || null) : null;
+
+      const payload = {
+        content:     ciphertext,
+        nonce:       nonce,
+        kdf_salt:    kdfSalt,
+        language:    langSelect.value || null,
+        expires_in:  expiresIn,
+        burn:        document.getElementById('burnToggle').checked,
+        max_views:   maxViews,
+        webhook_url: webhookUrl,
+      };
+
+      const resp = await fetch('/api/v1/pastes', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        showFormError(err.detail || `Server error ${resp.status}.`);
+        btn.disabled = false;
+        return;
+      }
+
+      const result = await resp.json();
+
+      // Fragment: KEY~DELETE_TOKEN (non-password) or ~DELETE_TOKEN (password)
+      const fragment = (hasPassword && password)
+        ? `~${result.delete_token}`
+        : `${await E2E.exportKey(key)}~${result.delete_token}`;
+
+      window.location.href = `/${result.id}#${fragment}`;
+
+    } catch (err) {
+      console.error('submitPaste error:', err);
+      showFormError(err?.message ? `Error: ${err.message}` : 'Unexpected error. Please try again.');
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById('pasteForm').addEventListener('submit', e => {
+    e.preventDefault();
+    submitPaste();
+  });
+
+  // ── Hero toggle ──────────────────────────────────────────────────────────
+  (function() {
+    const heroWrap = document.getElementById('heroWrap');
+    const btn      = document.getElementById('heroToggle');
+    const hidden   = localStorage.getItem('heroHidden') === '1';
+
+    function setHidden(h) {
+      heroWrap.classList.toggle('hero-hidden', h);
+      btn.title = h ? 'Show terminal' : 'Hide terminal';
+      btn.querySelector('svg').style.transform = h ? 'rotate(180deg)' : '';
+      localStorage.setItem('heroHidden', h ? '1' : '0');
+    }
+
+    setHidden(hidden);
+    btn.addEventListener('click', () => setHidden(!heroWrap.classList.contains('hero-hidden')));
+  })();
+
+  // ── Terminal typewriter ───────────────────────────────────────────────────
+  (function() {
+    const messages = [
+      'ghostbit paste main.py --burn',
+      'cat secrets.env | gb --expires 3600',
+      'gb config set server https://paste.example.com',
+      'echo "end-to-end encrypted" | gb',
+      'gb deploy.sh --max-views 1 --password s3cr3t',
+      'curl api.example.com/data | gb --lang json',
+      'git diff HEAD~1 | gb --lang diff',
+    ];
+
+    const el     = document.getElementById('terminalText');
+    let msgIdx   = 0;
+    let charIdx  = 0;
+    let deleting = false;
+
+    const TYPE_SPEED   = 55;
+    const DELETE_SPEED = 25;
+    const PAUSE_END    = 2200;
+    const PAUSE_START  = 400;
+
+    function tick() {
+      const msg = messages[msgIdx];
+
+      if (!deleting) {
+        el.textContent = msg.slice(0, ++charIdx);
+        if (charIdx === msg.length) {
+          deleting = true;
+          setTimeout(tick, PAUSE_END);
+          return;
+        }
+      } else {
+        el.textContent = msg.slice(0, --charIdx);
+        if (charIdx === 0) {
+          deleting = false;
+          msgIdx   = (msgIdx + 1) % messages.length;
+          setTimeout(tick, PAUSE_START);
+          return;
+        }
+      }
+
+      setTimeout(tick, deleting ? DELETE_SPEED : TYPE_SPEED);
+    }
+
+    setTimeout(tick, 600);
+  })();
+</script>
+{% endblock %}

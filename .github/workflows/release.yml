@@ -1,0 +1,167 @@
+name: Release CLI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cli/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:   # déclenchement manuel possible
+
+permissions:
+  contents: write   # créer le tag + la GitHub Release
+  id-token: write   # PyPI Trusted Publishing (OIDC — aucun secret requis)
+
+jobs:
+  # ── 1. Tests ─────────────────────────────────────────────────────────────────
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt cryptography pytest pytest-asyncio httpx
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  # ── 2. Lire la version depuis pyproject.toml ─────────────────────────────────
+  version:
+    name: Read version
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      tag: ${{ steps.read.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from pyproject.toml
+        id: read
+        run: |
+          VERSION=$(python3 -c "
+          import re
+          with open('cli/pyproject.toml') as f:
+              content = f.read()
+          match = re.search(r'^version\s*=\s*\"([^\"]+)\"', content, re.MULTILINE)
+          print(match.group(1))
+          ")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION"    >> $GITHUB_OUTPUT
+
+      - name: Check tag does not already exist
+        run: |
+          TAG="v${{ steps.read.outputs.version }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
+            echo "Tag ${TAG} already exists — skipping release."
+            exit 1
+          fi
+
+  # ── 3. Build wheel + sdist ───────────────────────────────────────────────────
+  build:
+    name: Build
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build package
+        run: pip install build && python -m build cli/
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: cli/dist/
+
+  # ── 4. Créer le tag Git ───────────────────────────────────────────────────────
+  tag:
+    name: Create tag
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Push tag
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ needs.version.outputs.tag }}"
+          git push origin "${{ needs.version.outputs.tag }}"
+
+  # ── 5. Publish to PyPI ───────────────────────────────────────────────────────
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [version, build, tag]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ghostbit-cli/
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: cli/dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  # ── 6. GitHub Release avec changelog ─────────────────────────────────────────
+  github-release:
+    name: GitHub Release
+    needs: [version, build, tag]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: cli/dist/
+
+      - name: Build changelog
+        id: changelog
+        run: |
+          CURRENT_TAG="${{ needs.version.outputs.tag }}"
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${CURRENT_TAG}$" | head -1)
+          if [ -z "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s" | head -20)
+          else
+            CHANGELOG=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s")
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG"     >> $GITHUB_OUTPUT
+          echo "EOF"            >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: "${{ needs.version.outputs.tag }}"
+          body: |
+            ## What's changed
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Install
+
+            ```bash
+            pip install ghostbit==${{ needs.version.outputs.version }}
+            ```
+          files: dist/*
+          draft: false
+          prerelease: ${{ contains(needs.version.outputs.version, '-') }}

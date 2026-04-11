@@ -1,0 +1,33 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# MkDocs build output
+site/
+
+# Claude
+.claude/
+CLAUDE.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
