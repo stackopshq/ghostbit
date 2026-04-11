@@ -10,6 +10,14 @@ All content is encrypted **in the client** before being sent to the server. The 
 pip install ghostbit-cli
 ```
 
+With syntax highlighting and Markdown rendering:
+
+```bash
+pip install "ghostbit-cli[all]"       # pygments + rich
+pip install "ghostbit-cli[color]"     # pygments only (syntax highlighting)
+pip install "ghostbit-cli[markdown]"  # rich only (Markdown rendering)
+```
+
 ## Usage
 
 ```bash
@@ -24,6 +32,12 @@ gb file.py --lang python --burn --expires 3600
 
 # Password-protected paste
 echo "secret" | gb --password mysecret
+
+# View and decrypt a paste in the terminal
+gb view https://paste.example.com/abc123#KEY~TOKEN
+
+# View a password-protected paste (prompts for password)
+gb view https://paste.example.com/abc123#~TOKEN
 
 # Output JSON (includes full URL with decryption key)
 cat data.json | gb --json
