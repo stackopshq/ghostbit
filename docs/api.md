@@ -136,6 +136,26 @@ When `webhook_url` is set, Ghostbit sends a `POST` request on each view:
 
 The request has a 5-second timeout and is fire-and-forget (failures are not retried).
 
+### Webhook signature
+
+If `WEBHOOK_SECRET` is configured on the server, every delivery includes an HMAC-SHA256 signature:
+
+```
+X-Ghostbit-Signature: sha256=<hex>
+```
+
+The signature is computed over the raw JSON body. Verify it on the receiving end:
+
+```python
+import hmac, hashlib
+
+def verify(secret: str, body: bytes, header: str) -> bool:
+    expected = "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, header)
+```
+
+Always use constant-time comparison to prevent timing attacks. See the [Encryption](encryption.md#webhook-signatures) page for more details and Node.js examples.
+
 ---
 
 ## Example — create and read with curl

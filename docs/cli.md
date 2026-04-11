@@ -6,7 +6,15 @@
 pip install ghostbit-cli
 ```
 
-This installs the `gb` command.
+This installs the `gb` and `ghostbit` commands.
+
+With optional extras for terminal rendering:
+
+```bash
+pip install "ghostbit-cli[all]"       # pygments + rich (recommended)
+pip install "ghostbit-cli[color]"     # pygments — syntax highlighting
+pip install "ghostbit-cli[markdown]"  # rich — Markdown rendering
+```
 
 ---
 
@@ -60,6 +68,28 @@ Language is auto-detected from the file extension.
 | `--server URL` | `-s` | Override server URL for this invocation only |
 | `--quiet` | `-q` | Print URL only (useful in scripts) |
 | `--json` | | Print full JSON response including `full_url` |
+
+---
+
+## View a paste
+
+Download, decrypt, and display a paste directly in the terminal:
+
+```bash
+# Non-password paste (key is in the URL fragment)
+gb view https://paste.example.com/abc123#KEY~TOKEN
+
+# Password-protected paste (prompts for password interactively)
+gb view https://paste.example.com/abc123#~TOKEN
+
+# Pipe to another tool
+gb view https://paste.example.com/abc123#KEY~TOKEN | less
+```
+
+- Markdown pastes are rendered with titles, bold, lists, and code blocks (requires `rich`)
+- Other languages are syntax-highlighted (requires `pygments`)
+- Falls back to plain text if neither is installed
+- Burn-after-read pastes display a warning on stderr after decryption
 
 ---
 
