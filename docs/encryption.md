@@ -86,3 +86,47 @@ The CLI (`gb`) mirrors the browser encryption using Python's `cryptography` libr
 - `os.urandom` for key and nonce generation
 
 The ciphertext format is identical — pastes created by the CLI can be decrypted in the browser and vice versa.
+
+---
+
+## Webhook signatures
+
+When `WEBHOOK_SECRET` is configured, every webhook delivery is signed with **HMAC-SHA256**:
+
+```
+X-Ghostbit-Signature: sha256=<hex>
+```
+
+The signature is computed over the raw JSON request body. To verify on the receiving end:
+
+=== "Python"
+
+    ```python
+    import hmac, hashlib
+
+    def verify(secret: str, body: bytes, header: str) -> bool:
+        expected = "sha256=" + hmac.new(
+            secret.encode(), body, hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(expected, header)
+    ```
+
+=== "Node.js"
+
+    ```javascript
+    const crypto = require("crypto");
+
+    function verify(secret, body, header) {
+      const expected = "sha256=" + crypto
+        .createHmac("sha256", secret)
+        .update(body)
+        .digest("hex");
+      return crypto.timingSafeEqual(
+        Buffer.from(expected),
+        Buffer.from(header)
+      );
+    }
+    ```
+
+!!! warning
+    Always use a **constant-time comparison** (`hmac.compare_digest`, `timingSafeEqual`) to prevent timing attacks.

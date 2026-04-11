@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Ghostbit CLI — create pastes from the terminal.
+Ghostbit CLI — create and view pastes from the terminal.
 
 Usage:
   cat file.py | gb
   gb file.py
   gb file.py --lang python --burn
+  gb view https://paste.example.com/abc123#KEY~TOKEN
   gb config set server https://paste.example.com
   gb config show
 """
@@ -19,6 +20,9 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+
+__version__ = "1.0.0"
+_USER_AGENT  = f"Ghostbit-CLI/{__version__}"
 
 try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -46,6 +50,12 @@ def _encrypt(plaintext: str, key: bytes) -> tuple[str, str]:
     nonce = os.urandom(12)
     ct = AESGCM(key).encrypt(nonce, plaintext.encode(), None)
     return base64.b64encode(ct).decode(), base64.b64encode(nonce).decode()
+
+def _decrypt(ciphertext_b64: str, nonce_b64: str, key: bytes) -> str:
+    ct    = base64.b64decode(ciphertext_b64)
+    nonce = base64.b64decode(nonce_b64)
+    pt    = AESGCM(key).decrypt(nonce, ct, None)
+    return pt.decode()
 
 def _derive_key(password: str, salt_b64: str) -> bytes:
     salt = base64.b64decode(salt_b64)
@@ -235,6 +245,112 @@ def cmd_paste(args):
                 print("  Share the full URL — the decryption key is in the #fragment.", file=sys.stderr)
 
 
+def _print_highlighted(content: str, language: str | None) -> None:
+    """Print content with terminal syntax highlighting.
+
+    Markdown: rendered via rich (titles, bold, lists, code blocks…) if available.
+    Other languages: syntax-highlighted via Pygments if available.
+    Fallback: plain text.
+    """
+    if language == "markdown":
+        try:
+            from rich.console import Console
+            from rich.markdown import Markdown
+            Console().print(Markdown(content))
+            return
+        except ImportError:
+            pass
+
+    try:
+        from pygments import highlight
+        from pygments.formatters import TerminalTrueColorFormatter
+        from pygments.lexers import TextLexer, get_lexer_by_name
+        from pygments.util import ClassNotFound
+
+        try:
+            lexer = get_lexer_by_name(language) if language else TextLexer()
+        except ClassNotFound:
+            lexer = TextLexer()
+
+        print(highlight(content, lexer, TerminalTrueColorFormatter(style="monokai")), end="")
+        return
+    except ImportError:
+        pass
+
+    print(content)
+
+
+def cmd_view(args):
+    import getpass
+    from urllib.parse import urldefrag, urlparse
+
+    url_no_frag, fragment = urldefrag(args.url)
+    parsed   = urlparse(url_no_frag)
+    server   = f"{parsed.scheme}://{parsed.netloc}"
+    paste_id = parsed.path.strip("/")
+
+    if not paste_id or not parsed.scheme:
+        print("Error: invalid URL.", file=sys.stderr)
+        sys.exit(1)
+
+    # Fragment format: KEY_B64URL~DELETE_TOKEN  (no password)
+    #                  ~DELETE_TOKEN             (password-protected)
+    key_b64url = fragment.partition("~")[0]
+    is_password = not key_b64url
+
+    # Fetch paste metadata + ciphertext
+    api_url = f"{server}/api/v1/pastes/{paste_id}"
+    req = urllib.request.Request(api_url, headers={"User-Agent": _USER_AGENT})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        try:
+            detail = json.loads(body).get("detail", body)
+        except Exception:
+            detail = body
+        print(f"Error {e.code}: {detail}", file=sys.stderr)
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(f"Could not connect to {server}: {e.reason}", file=sys.stderr)
+        sys.exit(1)
+
+    _require_crypto()
+
+    # Derive or import decryption key
+    if is_password:
+        password = getpass.getpass("Password: ")
+        kdf_salt = data.get("kdf_salt")
+        if not kdf_salt:
+            print("Error: no KDF salt — paste is not password-protected.", file=sys.stderr)
+            sys.exit(1)
+        key = _derive_key(password, kdf_salt)
+    else:
+        # Restore base64 padding stripped for URL safety
+        padded = key_b64url + "=" * (-len(key_b64url) % 4)
+        key = base64.urlsafe_b64decode(padded)
+
+    try:
+        plaintext = _decrypt(data["content"], data["nonce"], key)
+    except Exception:
+        print("Error: decryption failed — wrong key or corrupted paste.", file=sys.stderr)
+        sys.exit(1)
+
+    # Warn if this view just burned the paste
+    burned = data.get("burn") or (
+        data.get("max_views") and data.get("view_count", 0) >= data["max_views"]
+    )
+    if burned and sys.stderr.isatty():
+        print("⚠️  This paste has been burned and is no longer available on the server.", file=sys.stderr)
+
+    language = data.get("language")
+    if sys.stdout.isatty():
+        _print_highlighted(plaintext, language)
+    else:
+        print(plaintext, end="")
+
+
 # ── API ───────────────────────────────────────────────────────────────────────
 
 def _api_create(server: str, payload: dict) -> dict:
@@ -243,7 +359,7 @@ def _api_create(server: str, payload: dict) -> dict:
     req = urllib.request.Request(
         url,
         data=data,
-        headers={"Content-Type": "application/json", "User-Agent": "Ghostbit-CLI/1.0"},
+        headers={"Content-Type": "application/json", "User-Agent": _USER_AGENT},
         method="POST",
     )
     try:
@@ -271,6 +387,16 @@ def main():
         _run_config(sys.argv[2:])
         return
 
+    # Route to view subcommand
+    if len(sys.argv) > 1 and sys.argv[1] == "view":
+        if len(sys.argv) < 3:
+            print("Usage: gb view <url>", file=sys.stderr)
+            sys.exit(1)
+        view_parser = argparse.ArgumentParser(prog="gb view")
+        view_parser.add_argument("url", help="Full paste URL (including #fragment).")
+        cmd_view(view_parser.parse_args(sys.argv[2:]))
+        return
+
     cfg = _load_config()
     current_server = cfg.get("server", DEFAULT_SERVER)
 
@@ -284,6 +410,7 @@ examples:
   gb main.py
   gb main.py --lang python --burn
   gb main.py --expires 3600 --password secret
+  gb view https://paste.example.com/abc123#KEY~TOKEN
   gb config set server https://paste.example.com
   gb config show
 

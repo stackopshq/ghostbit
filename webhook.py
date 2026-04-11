@@ -10,17 +10,27 @@ Payload (JSON):
     "timestamp":  1712345678
   }
 
+Signature (optional):
+  If WEBHOOK_SECRET is set in config, every request includes:
+    X-Ghostbit-Signature: sha256=<HMAC-SHA256(payload, secret)>
+  The recipient can verify authenticity by recomputing the HMAC over the raw
+  request body and comparing to the header value (constant-time comparison).
+
 - Non-blocking: runs in a background task, never delays the response.
 - Single attempt with a 5s timeout — no retries to avoid hammering.
 """
 
 import asyncio
+import hashlib
+import hmac
 import ipaddress
 import json
 import time
 import urllib.parse
 import urllib.request
 from typing import Optional
+
+from config import settings
 
 # RFC-1918 + loopback + link-local ranges forbidden as webhook targets
 _PRIVATE_NETWORKS = [
@@ -88,14 +98,19 @@ async def _deliver(
 
 
 def _post(url: str, payload: bytes) -> None:
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={
-            "Content-Type": "application/json",
-            "User-Agent":   "Ghostbit-Webhook/1.0",
-        },
-        method="POST",
-    )
+    headers: dict[str, str] = {
+        "Content-Type": "application/json",
+        "User-Agent":   "Ghostbit-Webhook/1.0",
+    }
+
+    if settings.webhook_secret:
+        sig = hmac.new(
+            settings.webhook_secret.encode(),
+            payload,
+            hashlib.sha256,
+        ).hexdigest()
+        headers["X-Ghostbit-Signature"] = f"sha256={sig}"
+
+    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
     with urllib.request.urlopen(req, timeout=5) as resp:
         resp.read()

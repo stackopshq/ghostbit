@@ -50,6 +50,19 @@ async def healthz(request: Request):
     return JSONResponse({"status": "ok", "storage": settings.storage_backend})
 
 
+_SECURITY_TXT = """\
+Contact: https://github.com/stackopshq/ghostbit/security/advisories/new
+Encryption: https://docs.ghostbit.dev/encryption/
+Policy: https://github.com/stackopshq/ghostbit/blob/main/SECURITY.md
+Preferred-Languages: en, fr
+"""
+
+@app.get("/.well-known/security.txt", include_in_schema=False)
+async def security_txt():
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(_SECURITY_TXT)
+
+
 app.include_router(api_router)
 
 # Silence uvicorn access logs for /healthz so probes don't pollute logs
