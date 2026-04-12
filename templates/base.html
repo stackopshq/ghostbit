@@ -41,6 +41,31 @@
 
   {% block page %}{% endblock %}
 
+  <footer class="site-footer">
+    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a> — Enjoying Ghostbit? We have <a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ <span id="footerStarCount">0</span> stars on GitHub</a> — yours would mean a lot!
+  </footer>
+
   {% block scripts %}{% endblock %}
+  <script>
+  (function() {
+    const el    = document.getElementById('footerStarCount');
+    const key   = 'gb_stars';
+    const tsKey = 'gb_stars_ts';
+    const TTL   = 3600 * 1000;
+    function show(n) { if (el && n != null) el.textContent = n >= 1000 ? (n/1000).toFixed(1)+'k' : n; }
+    const cached = localStorage.getItem(key);
+    const ts     = parseInt(localStorage.getItem(tsKey) || '0');
+    if (cached && Date.now() - ts < TTL) { show(parseInt(cached)); return; }
+    fetch('https://api.github.com/repos/stackopshq/ghostbit')
+      .then(r => r.json())
+      .then(d => {
+        if (d.stargazers_count == null) return;
+        localStorage.setItem(key, d.stargazers_count);
+        localStorage.setItem(tsKey, Date.now());
+        show(d.stargazers_count);
+      })
+      .catch(() => {});
+  })();
+  </script>
 </body>
 </html>
