@@ -1243,6 +1243,8 @@ kbd {
 
   /* ── Paste page ── */
   .paste-layout { padding-top: 60px; padding-left: 14px; padding-right: 14px; padding-bottom: 30px; }
+  .line-gutter { padding: 10px 8px 10px 10px; min-width: 34px; font-size: 0.8rem; }
+  .paste-body pre { padding: 10px 12px; font-size: 0.82rem; }
   .paste-inbar { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px; }
   .paste-inbar-meta { flex: 1; min-width: 0; }
 }
