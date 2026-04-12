@@ -1117,6 +1117,9 @@ kbd {
 
 /* ── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 760px) {
+  /* ── Allow page to scroll ── */
+  html, body { height: auto; }
+
   /* ── Header ── */
   header { height: 54px; padding: 0 12px; }
   .logo { font-size: 1rem; gap: 8px; }
@@ -1134,9 +1137,9 @@ kbd {
   /* ── Form ── */
   .index-form { flex-direction: column; padding: 0 12px 24px; flex: none; gap: 14px; }
   .index-sidebar { flex: none; width: 100%; }
-  /* Editor: explicit heights, no flex dependency */
+  /* Editor */
   .card-editor { flex: none; }
-  .editor-body { height: 220px; flex: none; overflow: auto; }
+  .editor-body { height: 220px; flex: none; }
   textarea { height: 220px; min-height: 220px; }
 
   /* Hero terminal: hidden by default on mobile to save space */
