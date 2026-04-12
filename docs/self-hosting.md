@@ -41,6 +41,32 @@ Redis data is persisted via AOF + RDB snapshots on a named Docker volume.
 
 ---
 
+## HTTPS and Web Crypto
+
+Ghostbit uses the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) for all client-side encryption. Browsers only expose this API in a **Secure Context**, which means:
+
+- `https://` — always secure ✓
+- `http://localhost` or `http://127.0.0.1` — granted by the browser for local development ✓
+- `http://` on any other host — **not** a Secure Context, encryption is blocked ✗
+
+### Reverse proxy with HTTPS termination
+
+The most common production setup — HTTPS on the proxy, plain HTTP internally — works perfectly:
+
+```
+Browser ──HTTPS──▶ Nginx / Caddy ──HTTP──▶ Ghostbit :8000
+```
+
+The browser sees `https://paste.example.com` → Secure Context → Web Crypto works.
+The internal HTTP leg between proxy and app is invisible to the browser.
+
+!!! warning "Never expose the app directly over HTTP in production"
+    If users can reach Ghostbit via `http://` (bypassing the proxy), the browser will
+    refuse to encrypt and the app will show an error. Always ensure HTTPS is enforced
+    at the proxy level.
+
+---
+
 ## Nginx reverse proxy
 
 ```nginx
