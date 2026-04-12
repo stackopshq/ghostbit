@@ -783,6 +783,34 @@ kbd {
   border-color: rgba(255, 85, 85, 0.25);
 }
 
+/* Paste action buttons (copy / delete) */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background var(--transition), opacity var(--transition);
+  white-space: nowrap;
+}
+.btn-action-copy {
+  background: rgba(80, 250, 123, 0.1);
+  border-color: rgba(80, 250, 123, 0.3);
+  color: var(--drac-green);
+}
+.btn-action-copy:hover { background: rgba(80, 250, 123, 0.2); }
+.btn-action-delete {
+  background: rgba(255, 85, 85, 0.1);
+  border-color: rgba(255, 85, 85, 0.3);
+  color: var(--danger);
+}
+.btn-action-delete:hover { background: rgba(255, 85, 85, 0.2); }
+
 /* Paste content */
 .paste-content {
   background: var(--card);
@@ -1217,6 +1245,4 @@ kbd {
   .paste-layout { padding-top: 60px; padding-left: 14px; padding-right: 14px; }
   .paste-inbar { flex-direction: column; align-items: flex-start; gap: 6px; }
   .paste-inbar-actions { align-self: flex-end; }
-  .icon-btn { width: 42px; height: 42px; }
-  .icon-btn svg { width: 18px; height: 18px; }
 }

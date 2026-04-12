@@ -73,14 +73,16 @@
             {% endif %}
           </div>
           <div class="paste-inbar-actions">
-            <button class="icon-btn" id="copyBtn" onclick="copyContent()" title="Copy">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <button class="btn-action btn-action-copy" id="copyBtn" onclick="copyContent()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy</span>
             </button>
             <form method="post" action="/{{ paste.id }}/delete" id="deleteForm" style="display:none"
                   onsubmit="return confirm('Delete this paste?')">
               <input type="hidden" name="key" id="deleteKey">
-              <button type="submit" class="icon-btn icon-btn-danger" title="Delete">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+              <button type="submit" class="btn-action btn-action-delete">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+                <span>Delete</span>
               </button>
             </form>
           </div>
@@ -264,12 +266,11 @@
   window.copyContent = function() {
     const text = document.getElementById('pasteContent').textContent;
     const btn  = document.getElementById('copyBtn');
-    const iconCopy  = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-    const iconCheck = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const stateCopy  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>`;
+    const stateDone  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
     const done = () => {
-      btn.innerHTML = iconCheck;
-      btn.style.color = 'var(--drac-green)';
-      setTimeout(() => { btn.innerHTML = iconCopy; btn.style.color = ''; }, 2000);
+      btn.innerHTML = stateDone;
+      setTimeout(() => { btn.innerHTML = stateCopy; }, 2000);
     };
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(() => _fallbackCopy(text, done));
     else _fallbackCopy(text, done);
