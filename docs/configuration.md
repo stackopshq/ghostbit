@@ -10,6 +10,7 @@ All configuration is done via environment variables (or a `.env` file at the pro
 | `STORAGE_BACKEND` | `sqlite` | No | `sqlite` or `redis` |
 | `SQLITE_PATH` | `/data/ghostbit.db` | No | Path to the SQLite database file |
 | `REDIS_URL` | `redis://localhost:6379` | No | Redis connection URL |
+| `REDIS_PASSWORD` | — | No | Redis password. Injected into `REDIS_URL` automatically. Ignored if the URL already contains credentials. |
 | `MAX_PASTE_SIZE` | `524288` | No | Maximum paste size in bytes (default: 512 KB) |
 | `PORT` | `8000` | No | HTTP port the server listens on |
 | `WEBHOOK_SECRET` | — | No | If set, signs webhook deliveries with HMAC-SHA256 (`X-Ghostbit-Signature`) |
@@ -47,6 +48,20 @@ The app refuses to start without `ENCRYPTION_KEY`.
     ```bash
     STORAGE_BACKEND=redis docker compose --profile redis up -d
     ```
+
+    **With a password** — two equivalent approaches:
+
+    ```bash
+    # Recommended: separate variable (password injected into URL automatically)
+    STORAGE_BACKEND=redis REDIS_PASSWORD=mysecret docker compose --profile redis up -d
+    ```
+
+    ```env
+    # Alternative: embed credentials directly in the URL
+    REDIS_URL=redis://:mysecret@localhost:6379
+    ```
+
+    When `REDIS_PASSWORD` is set, the managed Redis container is started with `--requirepass` automatically.
 
 ## .env example
 

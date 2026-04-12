@@ -29,6 +29,14 @@ docker compose up -d
 STORAGE_BACKEND=redis docker compose --profile redis up -d
 ```
 
+**With a password:**
+
+```bash
+STORAGE_BACKEND=redis REDIS_PASSWORD=mysecret docker compose --profile redis up -d
+```
+
+The `REDIS_PASSWORD` variable is forwarded to both the Redis container (`--requirepass`) and the app (injected into the connection URL). If you connect to an external Redis that already has credentials in `REDIS_URL`, leave `REDIS_PASSWORD` unset.
+
 Redis data is persisted via AOF + RDB snapshots on a named Docker volume.
 
 ---
@@ -97,7 +105,10 @@ docker compose cp ghostbit:/data/ghostbit.db.bak ./backup.db
 ### Backup Redis
 
 ```bash
+# Without password
 docker compose exec redis redis-cli BGSAVE
+# With password
+docker compose exec redis redis-cli -a "$REDIS_PASSWORD" BGSAVE
 docker compose cp redis:/data/dump.rdb ./dump.rdb
 ```
 

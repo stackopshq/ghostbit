@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     storage_backend: str = "sqlite"           # "sqlite" or "redis"
     sqlite_path: str     = "/data/ghostbit.db"
     redis_url: str       = "redis://localhost:6379"
+    redis_password: str  = ""                        # injected into redis_url if set
     max_paste_size: int  = 524288             # 512 KB
     port: int            = 8000
 

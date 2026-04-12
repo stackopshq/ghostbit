@@ -7,6 +7,7 @@ services:
       - STORAGE_BACKEND=${STORAGE_BACKEND:-sqlite}
       - SQLITE_PATH=${SQLITE_PATH:-/data/ghostbit.db}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - MAX_PASTE_SIZE=${MAX_PASTE_SIZE:-524288}
       - PORT=${PORT:-8000}
     volumes:
@@ -22,10 +23,13 @@ services:
       --appendfsync everysec
       --save 60 1
       --save 300 1
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: >
+        ["CMD", "sh", "-c",
+         "redis-cli ${REDIS_PASSWORD:+-a $REDIS_PASSWORD} ping"]
       interval: 5s
       timeout: 3s
       retries: 5

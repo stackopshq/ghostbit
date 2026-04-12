@@ -108,6 +108,9 @@ docker compose up -d
 
 ```bash
 STORAGE_BACKEND=redis docker compose --profile redis up -d
+
+# With a password
+STORAGE_BACKEND=redis REDIS_PASSWORD=mysecret docker compose --profile redis up -d
 ```
 
 ### Podman Quadlet
@@ -153,6 +156,7 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 | `STORAGE_BACKEND` | `sqlite` | `sqlite` or `redis` |
 | `SQLITE_PATH` | `/data/ghostbit.db` | SQLite file path |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
+| `REDIS_PASSWORD` | — | Redis password (injected into `REDIS_URL` automatically) |
 | `MAX_PASTE_SIZE` | `524288` | Max paste size in bytes (512 KB) |
 | `PORT` | `8000` | Server port |
 
