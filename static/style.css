@@ -1134,10 +1134,14 @@ kbd {
   /* ── Form ── */
   .index-form { flex-direction: column; padding: 0 12px 24px; flex: none; gap: 14px; }
   .index-sidebar { flex: none; width: 100%; }
-  /* Editor: give card a fixed height so editor-body flex:1 can fill it */
-  .card-editor { flex: none; height: 280px; }
-  .editor-body { flex: 1; min-height: 0; height: 0; }
-  textarea { min-height: 0; }
+  /* Editor: explicit heights, no flex dependency */
+  .card-editor { flex: none; }
+  .editor-body { height: 220px; flex: none; overflow: auto; }
+  textarea { height: 220px; min-height: 220px; }
+
+  /* Hero terminal: hidden by default on mobile to save space */
+  .index-hero { padding: 4px 12px; }
+  .terminal-hero { display: none; }
 
   /* ── Submit row ── */
   .shortcut-hint { display: none; }
