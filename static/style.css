@@ -1197,7 +1197,10 @@ kbd {
   .editor-body { flex: none; height: auto; overflow: visible; }
   .editor-code-wrap { overflow: visible; }
   textarea { min-height: 220px; height: auto; overflow: hidden; resize: none; white-space: pre-wrap; overflow-wrap: break-word; }
-  .editor-highlight { white-space: pre-wrap; overflow-wrap: break-word; }
+  .editor-highlight { white-space: pre-wrap; overflow-wrap: break-word; padding: 10px 12px; }
+  .editor-gutter { padding: 10px 8px 10px 10px; min-width: 34px; font-size: 0.8rem; }
+  textarea { padding: 10px 12px; font-size: 0.82rem; }
+  .editor-topbar { padding: 7px 10px; }
 
   /* Hero: hidden on mobile */
   .index-hero { display: none; }
