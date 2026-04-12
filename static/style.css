@@ -77,8 +77,9 @@ body {
 }
 
 .page-plain {
-  min-height: 100vh;
-  background: var(--bg-page);
+  flex: 1;
+  background: var(--bg-gradient);
+  background-attachment: scroll;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────────── */
