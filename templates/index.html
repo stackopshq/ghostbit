@@ -228,7 +228,8 @@
   function autoResize() {
     if (!mobileQuery.matches) return;
     textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
+    textarea.style.height = Math.max(220, textarea.scrollHeight) + 'px';
+    updateHighlight();
   }
 
   textarea.addEventListener('input', () => { updateGutter(); updateCounter(); autoResize(); updateHighlight(); });

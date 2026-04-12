@@ -1194,8 +1194,9 @@ kbd {
   .index-sidebar { flex: none; width: 100%; gap: 20px; }
   /* Editor */
   .card-editor { flex: none; }
-  .editor-body { min-height: 220px; flex: none; height: auto; overflow: visible; }
-  textarea { min-height: 220px; height: 220px; overflow: hidden; resize: none; }
+  .editor-body { flex: none; height: auto; overflow: visible; }
+  .editor-code-wrap { overflow: visible; }
+  textarea { min-height: 220px; height: auto; overflow: hidden; resize: none; }
 
   /* Hero: hidden on mobile */
   .index-hero { display: none; }
