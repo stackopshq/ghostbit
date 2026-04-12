@@ -39,15 +39,18 @@
       </div>
       <div class="editor-body">
         <div class="editor-gutter" id="editorGutter">1</div>
-        <textarea
-          name="content"
-          id="content"
-          placeholder="Paste your code or snippet here…"
-          spellcheck="false"
-          autocorrect="off"
-          autocapitalize="off"
-          autofocus
-        ></textarea>
+        <div class="editor-code-wrap">
+          <div class="editor-highlight" id="editorHighlight" aria-hidden="true"></div>
+          <textarea
+            name="content"
+            id="content"
+            placeholder="Paste your code or snippet here…"
+            spellcheck="false"
+            autocorrect="off"
+            autocapitalize="off"
+            autofocus
+          ></textarea>
+        </div>
       </div>
     </div>
 
@@ -162,12 +165,43 @@
     .catch(() => {});
 })();
 </script>
+<script src="/static/highlight.min.js"></script>
 <script src="/static/e2e.js"></script>
 <script>
-  const textarea = document.getElementById('content');
-  const gutter   = document.getElementById('editorGutter');
-  const counter  = document.getElementById('charCounter');
+  const textarea  = document.getElementById('content');
+  const gutter    = document.getElementById('editorGutter');
+  const counter   = document.getElementById('charCounter');
+  const highlight = document.getElementById('editorHighlight');
   const MAX = {{ max_paste_size }};
+
+  // ── Syntax highlight overlay ─────────────────────────────────────────────
+  let currentLang = null;
+
+  function updateHighlight() {
+    if (!currentLang || !highlight) return;
+    const raw = textarea.value;
+    // Trailing newline needs a ghost space so last line renders at correct height
+    const src = raw.endsWith('\n') ? raw + ' ' : raw;
+    try {
+      highlight.innerHTML = hljs.highlight(src, { language: currentLang, ignoreIllegals: true }).value;
+    } catch (_) {
+      highlight.textContent = src;
+    }
+    highlight.scrollTop  = textarea.scrollTop;
+    highlight.scrollLeft = textarea.scrollLeft;
+  }
+
+  function setHighlightLang(lang) {
+    if (!lang || !hljs.getLanguage(lang)) {
+      currentLang = null;
+      textarea.classList.remove('hl-active');
+      highlight.innerHTML = '';
+      return;
+    }
+    currentLang = lang;
+    textarea.classList.add('hl-active');
+    updateHighlight();
+  }
 
   function fmt(n) {
     return n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB';
@@ -197,8 +231,8 @@
     textarea.style.height = textarea.scrollHeight + 'px';
   }
 
-  textarea.addEventListener('input', () => { updateGutter(); updateCounter(); autoResize(); });
-  textarea.addEventListener('scroll', syncScroll);
+  textarea.addEventListener('input', () => { updateGutter(); updateCounter(); autoResize(); updateHighlight(); });
+  textarea.addEventListener('scroll', () => { syncScroll(); if (highlight) { highlight.scrollTop = textarea.scrollTop; highlight.scrollLeft = textarea.scrollLeft; } });
 
   // Tab key inserts 2 spaces
   textarea.addEventListener('keydown', e => {
@@ -240,6 +274,7 @@
           langLabel.textContent = 'Language';
           langLabel.style.color = '';
         }, 2500);
+        setHighlightLang(data.language);
       }
     })
     .catch(() => {});
@@ -255,10 +290,11 @@
     detectTimer = setTimeout(runDetect, 200);
   });
 
-  // Reset label if user manually changes language
+  // Reset label + apply/remove highlighting when user manually changes language
   langSelect.addEventListener('change', () => {
     langLabel.textContent = 'Language';
     langLabel.style.color = '';
+    setHighlightLang(langSelect.value || null);
   });
 
   // Password toggle

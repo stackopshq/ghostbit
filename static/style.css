@@ -369,8 +369,36 @@ header {
   pointer-events: none;
 }
 
+/* ── Editor code wrap (highlight overlay) ───────────────────────────────────── */
+.editor-code-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editor-highlight {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  padding: 16px 20px;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+  tab-size: 2;
+  word-break: normal;
+  /* base text transparent so only hljs tokens are colored */
+  color: transparent;
+  margin: 0;
+}
+.editor-highlight .hljs { background: transparent; }
+
 /* ── Textarea ───────────────────────────────────────────────────────────────── */
 textarea {
+  position: relative;
   flex: 1;
   width: 100%;
   background: transparent;
@@ -387,7 +415,10 @@ textarea {
   display: block;
   tab-size: 2;
   overflow-y: auto;
+  /* when highlighting active — text transparent, caret stays visible */
+  transition: color 0.1s;
 }
+textarea.hl-active { color: transparent; caret-color: var(--drac-fg); }
 textarea::placeholder { color: var(--text-sub); opacity: 0.5; }
 
 .char-counter {
