@@ -637,6 +637,12 @@
 <td>Redis connection URL</td>
 </tr>
 <tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td>—</td>
+<td>No</td>
+<td>Redis password. Injected into <code>REDIS_URL</code> automatically. Ignored if the URL already contains credentials.</td>
+</tr>
+<tr>
 <td><code>MAX_PASTE_SIZE</code></td>
 <td><code>524288</code></td>
 <td>No</td>
@@ -677,18 +683,26 @@
 <p>Start with the Redis profile:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">STORAGE_BACKEND</span><span class="o">=</span>redis<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>redis<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
+<p><strong>With a password</strong> — two equivalent approaches:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Recommended: separate variable (password injected into URL automatically)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">STORAGE_BACKEND</span><span class="o">=</span>redis<span class="w"> </span><span class="nv">REDIS_PASSWORD</span><span class="o">=</span>mysecret<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>redis<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a># Alternative: embed credentials directly in the URL
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>REDIS_URL=redis://:mysecret@localhost:6379
+</span></code></pre></div>
+<p>When <code>REDIS_PASSWORD</code> is set, the managed Redis container is started with <code>--requirepass</code> automatically.</p>
 </div>
 </div>
 </div>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ENCRYPTION_KEY=your_hex_encoded_32_byte_key_here
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>SQLITE_PATH=/data/ghostbit.db
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>MAX_PASTE_SIZE=524288
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>PORT=8000
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a># Optional: sign webhook deliveries
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ENCRYPTION_KEY=your_hex_encoded_32_byte_key_here
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>SQLITE_PATH=/data/ghostbit.db
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>PORT=8000
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a># Optional: sign webhook deliveries
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div>
 
 
