@@ -189,7 +189,15 @@
     gutter.scrollTop = textarea.scrollTop;
   }
 
-  textarea.addEventListener('input', () => { updateGutter(); updateCounter(); });
+  // Auto-resize textarea on mobile
+  const mobileQuery = window.matchMedia('(max-width: 760px)');
+  function autoResize() {
+    if (!mobileQuery.matches) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
+
+  textarea.addEventListener('input', () => { updateGutter(); updateCounter(); autoResize(); });
   textarea.addEventListener('scroll', syncScroll);
 
   // Tab key inserts 2 spaces
