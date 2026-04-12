@@ -1115,6 +1115,30 @@ kbd {
 }
 .toast-close:hover { opacity: 1; }
 
+/* ── Syntax highlighting (highlight.js — Dracula theme) ─────────────────────── */
+.hljs                          { color: var(--drac-fg); background: transparent; }
+.hljs-comment, .hljs-quote     { color: var(--drac-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag,
+.hljs-addition                 { color: var(--drac-pink); }
+.hljs-number, .hljs-literal,
+.hljs-selector-attr,
+.hljs-selector-pseudo          { color: var(--drac-purple); }
+.hljs-string, .hljs-doctag,
+.hljs-regexp, .hljs-attribute  { color: var(--drac-yellow); }
+.hljs-title, .hljs-section,
+.hljs-built_in,
+.hljs-title.class_             { color: var(--drac-cyan); }
+.hljs-type, .hljs-variable,
+.hljs-template-variable        { color: var(--drac-orange); }
+.hljs-tag, .hljs-name,
+.hljs-selector-id              { color: var(--drac-pink); }
+.hljs-attr                     { color: var(--drac-cyan); }
+.hljs-meta, .hljs-symbol,
+.hljs-bullet, .hljs-link       { color: var(--drac-purple); }
+.hljs-deletion                 { color: var(--drac-red); }
+.hljs-emphasis                 { font-style: italic; }
+.hljs-strong                   { font-weight: 700; }
+
 /* ── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 760px) {
   /* ── Allow page to scroll ── */

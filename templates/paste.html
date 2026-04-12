@@ -114,6 +114,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/highlight.min.js"></script>
 <script src="/static/e2e.js"></script>
 {% if paste.language == "markdown" %}
 <script src="/static/marked.min.js"></script>
@@ -156,7 +157,13 @@
   function renderPaste(plaintext, apiData) {
     const pre    = document.getElementById('pasteContent');
     const gutter = document.getElementById('lineGutter');
-    pre.textContent = plaintext;
+
+    const lang = {{ paste.language | tojson }};
+    if (lang && typeof hljs !== 'undefined' && hljs.getLanguage(lang)) {
+      pre.innerHTML = hljs.highlight(plaintext, { language: lang, ignoreIllegals: true }).value;
+    } else {
+      pre.textContent = plaintext;
+    }
     const lines = plaintext.replace(/\n$/, '').split('\n');
     gutter.textContent = lines.map((_, i) => i + 1).join('\n');
 
