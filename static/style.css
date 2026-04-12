@@ -1134,13 +1134,15 @@ kbd {
   /* ── Form ── */
   .index-form { flex-direction: column; padding: 0 12px 24px; flex: none; gap: 14px; }
   .index-sidebar { flex: none; width: 100%; }
-  .card-editor { flex: none; }
-  .editor-body { min-height: 220px; height: 220px; }
-  textarea { min-height: 220px; }
+  /* Editor: give card a fixed height so editor-body flex:1 can fill it */
+  .card-editor { flex: none; height: 280px; }
+  .editor-body { flex: 1; min-height: 0; height: 0; }
+  textarea { min-height: 0; }
 
   /* ── Submit row ── */
-  .form-actions { flex-direction: row; align-items: center; }
-  .form-actions .btn-primary { width: auto; flex: 1; justify-content: center; }
+  .shortcut-hint { display: none; }
+  .form-actions { flex-direction: row; }
+  .form-actions .btn-primary { flex: 1; width: 100%; justify-content: center; }
 
   /* ── Footer ── */
   .site-footer { flex-wrap: wrap; justify-content: center; text-align: center; padding: 10px 16px; gap: 3px; line-height: 1.7; }
