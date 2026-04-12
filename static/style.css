@@ -376,6 +376,8 @@ header {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-highlight {
@@ -400,6 +402,7 @@ header {
 textarea {
   position: relative;
   flex: 1;
+  min-height: 0;
   width: 100%;
   background: transparent;
   border: none;
@@ -410,8 +413,6 @@ textarea {
   outline: none;
   resize: none;
   line-height: 1.7;
-  min-height: 0;
-  height: 100%;
   display: block;
   tab-size: 2;
   overflow-y: auto;
