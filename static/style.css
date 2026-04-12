@@ -1124,7 +1124,9 @@ kbd {
   header { height: 54px; padding: 0 12px; }
   .logo { font-size: 1rem; gap: 8px; }
   .logo img { height: 32px; }
-  /* GitHub button: icon only — hide label text */
+  /* API button: hidden on mobile */
+  .btn-api { display: none; }
+  /* All labeled buttons: icon only */
   .btn-new [data-label] { display: none; }
   /* Tighter gap between header buttons */
   .header-actions { gap: 6px; }
