@@ -1242,7 +1242,7 @@ kbd {
   .site-footer { display: block; text-align: center; padding: 12px 16px; line-height: 2; }
 
   /* ── Paste page ── */
-  .paste-layout { padding-top: 60px; padding-left: 14px; padding-right: 14px; }
+  .paste-layout { padding-top: 60px; padding-left: 14px; padding-right: 14px; padding-bottom: 30px; }
   .paste-inbar { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px; }
   .paste-inbar-meta { flex: 1; min-width: 0; }
 }
