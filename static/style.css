@@ -56,20 +56,22 @@
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────────── */
-html, body { height: 100%; }
+html { height: 100%; }
 
 body {
   font-family: var(--font-ui);
   color: var(--text);
-  min-height: 100vh;
+  min-height: 100%;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Page backgrounds ───────────────────────────────────────────────────────── */
 .page-bg {
-  min-height: 100vh;
+  flex: 1;
   background: var(--bg-gradient);
   background-attachment: scroll;
 }
@@ -153,7 +155,7 @@ header {
 
 /* ── Index page layout ──────────────────────────────────────────────────────── */
 .index-layout {
-  height: 100vh;
+  flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -238,7 +240,7 @@ header {
 
 .index-form {
   width: 100%;
-  padding: 0 80px 32px;
+  padding: 0 80px 16px;
   display: flex;
   flex-direction: row;
   gap: 25px;
