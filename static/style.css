@@ -1131,9 +1131,6 @@ kbd {
 
   /* ── Index layout: scrollable instead of fixed 100vh ── */
   .index-layout { height: auto; min-height: 100vh; overflow: visible; padding-top: 54px; }
-  .index-hero { padding: 12px 16px 8px; }
-  .terminal-hero { font-size: 0.8rem; padding: 7px 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
   /* ── Form ── */
   .index-form { flex-direction: column; padding: 0 12px 24px; flex: none; gap: 14px; }
   .index-sidebar { flex: none; width: 100%; }
@@ -1142,9 +1139,8 @@ kbd {
   .editor-body { height: 220px; flex: none; }
   textarea { height: 220px; min-height: 220px; }
 
-  /* Hero terminal: hidden by default on mobile to save space */
-  .index-hero { padding: 4px 12px; }
-  .terminal-hero { display: none; }
+  /* Hero: hidden on mobile */
+  .index-hero { display: none; }
 
   /* ── Submit row ── */
   .shortcut-hint { display: none; }

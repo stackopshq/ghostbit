@@ -406,8 +406,9 @@
     btn.addEventListener('click', () => setHidden(!heroWrap.classList.contains('hero-hidden')));
   })();
 
-  // ── Terminal typewriter ───────────────────────────────────────────────────
+  // ── Terminal typewriter (desktop only) ───────────────────────────────────
   (function() {
+    if (window.matchMedia('(max-width: 760px)').matches) return;
     const messages = [
       'ghostbit paste main.py --burn',
       'cat secrets.env | gb --expires 3600',
