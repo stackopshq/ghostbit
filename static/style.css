@@ -1132,7 +1132,7 @@ kbd {
   /* ── Index layout: scrollable instead of fixed 100vh ── */
   .index-layout { height: auto; min-height: 100vh; overflow: visible; padding-top: 54px; }
   /* ── Form ── */
-  .index-form { flex-direction: column; padding: 16px 12px 24px; flex: none; gap: 14px; }
+  .index-form { flex-direction: column; padding: 20px 12px 24px; flex: none; gap: 14px; }
   .index-sidebar { flex: none; width: 100%; }
   /* Editor */
   .card-editor { flex: none; }
