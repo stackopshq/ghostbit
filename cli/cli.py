@@ -16,14 +16,22 @@ import base64
 import getpass
 import json
 import os
+import ssl
 import sys
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 _USER_AGENT  = f"Ghostbit-CLI/{__version__}"
+
+# Build an SSL context that works on macOS (certifi) and everywhere else.
+try:
+    import certifi
+    _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    _SSL_CTX = ssl.create_default_context()
 
 LANGUAGES = [
     "python", "javascript", "typescript", "go", "rust", "ruby", "php",
@@ -333,7 +341,7 @@ def cmd_view(args):
     api_url = f"{server}/api/v1/pastes/{paste_id}"
     req = urllib.request.Request(api_url, headers={"User-Agent": _USER_AGENT})
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=15, context=_SSL_CTX) as resp:
             data = json.loads(resp.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
@@ -394,7 +402,7 @@ def _api_create(server: str, payload: dict) -> dict:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=15, context=_SSL_CTX) as resp:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
@@ -461,7 +469,7 @@ def cmd_delete(url: str) -> None:
         method="DELETE",
     )
     try:
-        with urllib.request.urlopen(req, timeout=15):
+        with urllib.request.urlopen(req, timeout=15, context=_SSL_CTX):
             pass
         print(f"Deleted {paste_id}.")
     except urllib.error.HTTPError as e:

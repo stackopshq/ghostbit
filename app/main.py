@@ -52,7 +52,7 @@ app = FastAPI(
         "The server stores ciphertext only and can **never** read paste content.\n\n"
         "The decryption key lives exclusively in the URL `#fragment` — it is never transmitted to the server."
     ),
-    version="1.1.0",
+    version="1.1.1",
     contact={
         "name": "StackOps HQ",
         "url": "https://github.com/stackopshq/ghostbit",

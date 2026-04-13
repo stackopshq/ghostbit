@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ghostbit-cli"
-version = "1.1.0"
+version = "1.1.1"
 description = "Ghostbit CLI — create end-to-end encrypted pastes from the terminal"
 readme = "README.md"
 license = "MIT"
@@ -27,6 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "cryptography>=42.0.0",
+    "certifi",
 ]
 
 [project.optional-dependencies]
