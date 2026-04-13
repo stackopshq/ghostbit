@@ -1324,3 +1324,41 @@ kbd {
   .paste-inbar { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px; }
   .paste-inbar-meta { flex: 1; min-width: 0; }
 }
+
+/* ── Error page ───────────────────────────────────────────────────────────────── */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+}
+.error-code {
+  font-family: var(--font-mono);
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0.85;
+}
+.error-icon {
+  margin: 20px 0 16px;
+  color: var(--text-muted);
+}
+.error-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.error-message {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.6;
+}

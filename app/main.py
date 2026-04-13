@@ -121,6 +121,36 @@ def _asset_hash() -> str:
 
 templates.env.globals["v"] = _asset_hash()
 
+_ERROR_TITLES = {
+    404: "Not found",
+    403: "Forbidden",
+    429: "Too many requests",
+    500: "Server error",
+}
+
+_ERROR_MESSAGES = {
+    404: "This paste has expired, been deleted, or never existed.",
+    403: "You don't have permission to access this resource.",
+    429: "Slow down! Please wait a moment before trying again.",
+    500: "Something went wrong on our end. Please try again later.",
+}
+
+@app.exception_handler(HTTPException)
+async def _http_exception_handler(request: Request, exc: HTTPException):
+    # Keep JSON responses for API routes
+    if request.url.path.startswith("/api/"):
+        return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+    return templates.TemplateResponse(
+        request,
+        "error.html",
+        context={
+            "code": exc.status_code,
+            "title": _ERROR_TITLES.get(exc.status_code, "Error"),
+            "message": exc.detail or _ERROR_MESSAGES.get(exc.status_code, "An unexpected error occurred."),
+        },
+        status_code=exc.status_code,
+    )
+
 
 def _format_expiry(expires_at: Optional[int]) -> Optional[str]:
     if expires_at is None:

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ code }} — Ghostbit{% endblock %}
+
+{% block header_actions %}{% endblock %}
+
+{% block page %}
+<div class="page-plain">
+  <div class="error-page">
+    <div class="error-code">{{ code }}</div>
+    <div class="error-icon">
+      {% if code == 404 %}
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      {% else %}
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {% endif %}
+    </div>
+    <h1 class="error-title">{{ title }}</h1>
+    <p class="error-message">{{ message }}</p>
+    <a href="/" class="btn btn-primary" style="margin-top: 24px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New paste
+    </a>
+  </div>
+</div>
+{% endblock %}

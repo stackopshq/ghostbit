@@ -91,12 +91,10 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <span>Copy</span>
             </button>
-            {% if not paste.has_password %}
-            <a class="btn-action btn-action-raw" id="rawBtn" href="/{{ paste.id }}/raw" style="text-decoration:none; display:none;">
+            <button class="btn-action btn-action-raw" id="rawBtn" onclick="openRaw()" style="display:none;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               <span>Raw</span>
-            </a>
-            {% endif %}
+            </button>
             <button class="btn-action btn-action-download" id="downloadBtn" onclick="downloadContent()" style="display:none;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>Download</span>
@@ -226,12 +224,9 @@
         conditions.map(c => `<span class="badge badge-condition">${c}</span>`).join('');
     }
 
-    // Show Raw button with #fragment appended
+    // Show Raw button
     const rawBtn = document.getElementById('rawBtn');
-    if (rawBtn) {
-      rawBtn.href += window.location.hash;
-      rawBtn.style.display = '';
-    }
+    if (rawBtn) rawBtn.style.display = '';
 
     // Show Download button
     const dlBtn = document.getElementById('downloadBtn');
@@ -245,6 +240,13 @@
 
     showState('statePaste');
   }
+
+  // ── Open raw content in a new tab (no API re-fetch) ──────────────────────
+  window.openRaw = function() {
+    const text = document.getElementById('pasteContent').textContent;
+    const blob = new Blob([text], { type: 'text/plain; charset=utf-8' });
+    window.open(URL.createObjectURL(blob), '_blank');
+  };
 
   // ── Download content as file ──────────────────────────────────────────────
   window.downloadContent = function() {
