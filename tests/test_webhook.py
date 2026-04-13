@@ -29,11 +29,11 @@ def test_ssrf_blocked(url):
     assert _is_ssrf_safe(url) is False
 
 
+@patch("socket.getaddrinfo", side_effect=_fake_getaddrinfo)
 @pytest.mark.parametrize("url", [
     "https://hooks.example.com/notify",
     "https://discord.com/api/webhooks/123/abc",
     "http://1.2.3.4/hook",             # public IP
 ])
-@patch("socket.getaddrinfo", side_effect=_fake_getaddrinfo)
 def test_ssrf_allowed(url, _mock):
     assert _is_ssrf_safe(url) is True
