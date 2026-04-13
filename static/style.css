@@ -1130,7 +1130,7 @@ kbd {
 .api-table td code { color: var(--accent); font-family: var(--font-mono); font-size: 0.8rem; }
 
 /* ── Animations ─────────────────────────────────────────────────────────────── */
-/* NOTE: never apply transform to body — it breaks position:fixed on the header */
+
 .fade-in { animation: fadeIn 0.2s ease both; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
