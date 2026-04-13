@@ -84,6 +84,11 @@ URL=$(cat deploy.sh | gb --quiet)
 
 # Point to your instance
 gb config set server https://paste.example.com
+
+# Shell completion (bash / zsh / fish)
+eval "$(gb completion bash)"
+eval "$(gb completion zsh)"
+gb completion fish | source
 ```
 
 ---

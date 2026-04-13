@@ -118,6 +118,42 @@ cat data.json | gb --json
 
 ---
 
+## Shell completion
+
+Enable tab-completion for `gb` in your shell.
+
+### Bash
+
+```bash
+# Activate for the current session
+eval "$(gb completion bash)"
+
+# Make it permanent
+echo 'eval "$(gb completion bash)"' >> ~/.bashrc
+```
+
+### Zsh
+
+```zsh
+# Activate for the current session
+eval "$(gb completion zsh)"
+
+# Make it permanent
+echo 'eval "$(gb completion zsh)"' >> ~/.zshrc
+```
+
+### Fish
+
+```fish
+# Activate for the current session
+gb completion fish | source
+
+# Make it permanent
+gb completion fish > ~/.config/fish/completions/gb.fish
+```
+
+---
+
 ## Supported language extensions
 
 Auto-detected from file extension when using `gb <file>`:
