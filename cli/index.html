@@ -959,7 +959,7 @@
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ghostbit-cli
 </span></code></pre></div></td></tr></table></div>
-<p>This installs the <code>gb</code> and <code>ghostbit</code> commands.</p>
+<p>This installs the <code>gbit</code> and <code>ghostbit</code> commands.</p>
 <p>With optional extras for terminal rendering:</p>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
 <span class="normal"><a href="#__codelineno-1-2">2</a></span>
@@ -977,13 +977,13 @@
 <span class="normal"><a href="#__codelineno-2-6">6</a></span>
 <span class="normal"><a href="#__codelineno-2-7">7</a></span>
 <span class="normal"><a href="#__codelineno-2-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1"># Set your self-hosted server</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>server<span class="w"> </span>https://paste.example.com
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>gbit<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>server<span class="w"> </span>https://paste.example.com
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="c1"># Show current config</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>gb<span class="w"> </span>config<span class="w"> </span>show
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a>gbit<span class="w"> </span>config<span class="w"> </span>show
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="c1"># Remove a key</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>server
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8"></a>gbit<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>server
 </span></code></pre></div></td></tr></table></div>
 <p>Config is stored at <code>~/.config/ghostbit.toml</code>.</p>
 <hr />
@@ -991,14 +991,14 @@
 <h3 id="from-stdin">From stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
 <span class="normal"><a href="#__codelineno-3-2">2</a></span>
-<span class="normal"><a href="#__codelineno-3-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>cat<span class="w"> </span>main.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a>git<span class="w"> </span>diff<span class="w"> </span>HEAD~1<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
+<span class="normal"><a href="#__codelineno-3-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>cat<span class="w"> </span>main.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a>git<span class="w"> </span>diff<span class="w"> </span>HEAD~1<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
 </span></code></pre></div></td></tr></table></div>
 <h3 id="from-a-file">From a file<a class="headerlink" href="#from-a-file" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
-<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a>gb<span class="w"> </span>main.py
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>gb<span class="w"> </span>secrets.env
+<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a>gbit<span class="w"> </span>main.py
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>gbit<span class="w"> </span>secrets.env
 </span></code></pre></div></td></tr></table></div>
 <p>Language is auto-detected from the file extension.</p>
 <hr />
@@ -1033,9 +1033,9 @@
 <td>Delete after N views</td>
 </tr>
 <tr>
-<td><code>--password PASS</code></td>
+<td><code>--password [PASS]</code></td>
 <td><code>-p</code></td>
-<td>Encrypt with a password (PBKDF2, client-side)</td>
+<td>Encrypt with a password. Omit value to be prompted securely.</td>
 </tr>
 <tr>
 <td><code>--server URL</code></td>
@@ -1052,11 +1052,21 @@
 <td></td>
 <td>Print full JSON response including <code>full_url</code></td>
 </tr>
+<tr>
+<td><code>--no-history</code></td>
+<td></td>
+<td>Don't save this paste to local history</td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td><code>-V</code></td>
+<td>Print version and exit</td>
+</tr>
 </tbody>
 </table>
 <hr />
 <h2 id="delete-a-paste">Delete a paste<a class="headerlink" href="#delete-a-paste" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>gb<span class="w"> </span>delete<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>gbit<span class="w"> </span>delete<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
 </span></code></pre></div></td></tr></table></div>
 <p>The delete token is read from the URL fragment (after <code>~</code>). No server-side secret needed — the token was generated at creation time and embedded in the URL.</p>
 <hr />
@@ -1068,10 +1078,10 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-6-3">3</a></span>
 <span class="normal"><a href="#__codelineno-6-4">4</a></span>
 <span class="normal"><a href="#__codelineno-6-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1"># List recent pastes</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>gb<span class="w"> </span>list
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>gbit<span class="w"> </span>list
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="c1"># Wipe local history</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>gb<span class="w"> </span>list<span class="w"> </span>--clear
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>gbit<span class="w"> </span>list<span class="w"> </span>--clear
 </span></code></pre></div></td></tr></table></div>
 <p>Example output:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
@@ -1091,13 +1101,13 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-8-6">6</a></span>
 <span class="normal"><a href="#__codelineno-8-7">7</a></span>
 <span class="normal"><a href="#__codelineno-8-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="c1"># Non-password paste (key is in the URL fragment)</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>gbit<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="c1"># Password-protected paste (prompts for password interactively)</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#~TOKEN
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a>gbit<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#~TOKEN
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a>
 </span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="c1"># Pipe to another tool</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN<span class="w"> </span><span class="p">|</span><span class="w"> </span>less
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a>gbit<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN<span class="w"> </span><span class="p">|</span><span class="w"> </span>less
 </span></code></pre></div></td></tr></table></div>
 <ul>
 <li>Markdown pastes are rendered with titles, bold, lists, and code blocks (requires <code>rich</code>)</li>
@@ -1124,38 +1134,50 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-9-15">15</a></span>
 <span class="normal"><a href="#__codelineno-9-16">16</a></span>
 <span class="normal"><a href="#__codelineno-9-17">17</a></span>
-<span class="normal"><a href="#__codelineno-9-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1"># Burn after read</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>cat<span class="w"> </span>deploy.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--burn
+<span class="normal"><a href="#__codelineno-9-18">18</a></span>
+<span class="normal"><a href="#__codelineno-9-19">19</a></span>
+<span class="normal"><a href="#__codelineno-9-20">20</a></span>
+<span class="normal"><a href="#__codelineno-9-21">21</a></span>
+<span class="normal"><a href="#__codelineno-9-22">22</a></span>
+<span class="normal"><a href="#__codelineno-9-23">23</a></span>
+<span class="normal"><a href="#__codelineno-9-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="c1"># Burn after read</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>cat<span class="w"> </span>deploy.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--burn
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a>
 </span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="c1"># Expire in 1 hour, max 3 views</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>gb<span class="w"> </span>config.yml<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--max-views<span class="w"> </span><span class="m">3</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>gbit<span class="w"> </span>config.yml<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--max-views<span class="w"> </span><span class="m">3</span>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="c1"># Password protected</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;db_password=s3cr3t&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--password<span class="w"> </span>mysecret
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="c1"># Password protected (secure prompt)</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;db_password=s3cr3t&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>-p
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="c1"># Language override</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a>curl<span class="w"> </span>api.example.com/data<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--lang<span class="w"> </span>json
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="c1"># Password inline (visible in process list)</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a>gbit<span class="w"> </span>file.py<span class="w"> </span>--password<span class="w"> </span>mysecret
 </span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12"></a>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="c1"># Scripting: URL only</span>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="nv">URL</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--quiet<span class="k">)</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Paste created: </span><span class="nv">$URL</span><span class="s2">&quot;</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="c1"># Full JSON response</span>
-</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a>cat<span class="w"> </span>data.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--json
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="c1"># Language override</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14"></a>curl<span class="w"> </span>api.example.com/data<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--lang<span class="w"> </span>json
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="c1"># Scripting: URL only</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="nv">URL</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--quiet<span class="k">)</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Paste created: </span><span class="nv">$URL</span><span class="s2">&quot;</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19"></a>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20"></a><span class="c1"># Skip local history for sensitive pastes</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21"></a>cat<span class="w"> </span>secrets.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--burn<span class="w"> </span>--no-history
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22"></a>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23"></a><span class="c1"># Full JSON response</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24"></a>cat<span class="w"> </span>data.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--json
 </span></code></pre></div></td></tr></table></div>
 <hr />
 <h2 id="shell-completion">Shell completion<a class="headerlink" href="#shell-completion" title="Permanent link">&para;</a></h2>
-<p>Enable tab-completion for <code>gb</code> in your shell.</p>
+<p>Enable tab-completion for <code>gbit</code> in your shell.</p>
 <h3 id="bash">Bash<a class="headerlink" href="#bash" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
 <span class="normal"><a href="#__codelineno-10-2">2</a></span>
 <span class="normal"><a href="#__codelineno-10-3">3</a></span>
 <span class="normal"><a href="#__codelineno-10-4">4</a></span>
 <span class="normal"><a href="#__codelineno-10-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="c1"># Activate for the current session</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gb<span class="w"> </span>completion<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gbit<span class="w"> </span>completion<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="c1"># Make it permanent</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;eval &quot;$(gb completion bash)&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;eval &quot;$(gbit completion bash)&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
 </span></code></pre></div></td></tr></table></div>
 <h3 id="zsh">Zsh<a class="headerlink" href="#zsh" title="Permanent link">&para;</a></h3>
 <div class="language-zsh highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
@@ -1163,10 +1185,10 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-11-3">3</a></span>
 <span class="normal"><a href="#__codelineno-11-4">4</a></span>
 <span class="normal"><a href="#__codelineno-11-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="c1"># Activate for the current session</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gb<span class="w"> </span>completion<span class="w"> </span>zsh<span class="k">)</span><span class="s2">&quot;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gbit<span class="w"> </span>completion<span class="w"> </span>zsh<span class="k">)</span><span class="s2">&quot;</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="c1"># Make it permanent</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;eval &quot;$(gb completion zsh)&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;eval &quot;$(gbit completion zsh)&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc
 </span></code></pre></div></td></tr></table></div>
 <h3 id="fish">Fish<a class="headerlink" href="#fish" title="Permanent link">&para;</a></h3>
 <div class="language-fish highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
@@ -1174,18 +1196,18 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-12-3">3</a></span>
 <span class="normal"><a href="#__codelineno-12-4">4</a></span>
 <span class="normal"><a href="#__codelineno-12-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="c"># Activate for the current session</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>gb completion <span class="nb">fish</span> <span class="o">|</span> <span class="nb">source</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a>gbit completion <span class="nb">fish</span> <span class="o">|</span> <span class="nb">source</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="c"># Make it permanent</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a>gb completion <span class="nb">fish</span> <span class="o">&gt;</span> ~/.config/fish/completions/gb.fish
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a>gbit completion <span class="nb">fish</span> <span class="o">&gt;</span> ~/.config/fish/completions/gbit.fish
 </span></code></pre></div></td></tr></table></div>
 <hr />
 <h2 id="supported-language-extensions">Supported language extensions<a class="headerlink" href="#supported-language-extensions" title="Permanent link">&para;</a></h2>
-<p>Auto-detected from file extension when using <code>gb &lt;file&gt;</code>:</p>
+<p>Auto-detected from file extension or filename when using <code>gbit &lt;file&gt;</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Extension</th>
+<th>Extension / Name</th>
 <th>Language</th>
 </tr>
 </thead>
@@ -1263,8 +1285,36 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <td>cpp</td>
 </tr>
 <tr>
+<td><code>.cs</code></td>
+<td>csharp</td>
+</tr>
+<tr>
 <td><code>.php</code></td>
 <td>php</td>
+</tr>
+<tr>
+<td><code>.kt</code></td>
+<td>kotlin</td>
+</tr>
+<tr>
+<td><code>.swift</code></td>
+<td>swift</td>
+</tr>
+<tr>
+<td><code>.lua</code></td>
+<td>lua</td>
+</tr>
+<tr>
+<td><code>.r</code></td>
+<td>r</td>
+</tr>
+<tr>
+<td><code>Dockerfile</code></td>
+<td>dockerfile</td>
+</tr>
+<tr>
+<td><code>Makefile</code></td>
+<td>makefile</td>
 </tr>
 </tbody>
 </table>

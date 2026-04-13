@@ -912,7 +912,7 @@
 
 
 <h1 id="powershell-cli">PowerShell CLI<a class="headerlink" href="#powershell-cli" title="Permanent link">&para;</a></h1>
-<p>A native PowerShell module that mirrors the Python <code>gb</code> CLI.<br />
+<p>A native PowerShell module that mirrors the Python <code>gbit</code> CLI.<br />
 All encryption is done client-side using the built-in .NET cryptography APIs — no external dependencies.</p>
 <p><strong>Requirements:</strong> PowerShell 7.0+ (Windows, macOS, or Linux)</p>
 <hr />
@@ -969,12 +969,12 @@ All encryption is done client-side using the built-in .NET cryptography APIs —
 <h2 id="create-a-paste">Create a paste<a class="headerlink" href="#create-a-paste" title="Permanent link">&para;</a></h2>
 <h3 id="from-the-pipeline">From the pipeline<a class="headerlink" href="#from-the-pipeline" title="Permanent link">&para;</a></h3>
 <div class="language-powershell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
-<span class="normal"><a href="#__codelineno-3-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">Get-Content</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="n">gb</span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">Get-Content</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="n">gbit</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nb">Get-Content</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="nb">New-GhostbitPaste</span>
 </span></code></pre></div></td></tr></table></div>
 <h3 id="from-a-file">From a file<a class="headerlink" href="#from-a-file" title="Permanent link">&para;</a></h3>
 <div class="language-powershell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
-<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="n">gb</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="n">gbit</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="nb">New-GhostbitPaste</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Language is auto-detected from the file extension.</p>
@@ -1044,19 +1044,19 @@ All encryption is done client-side using the built-in .NET cryptography APIs —
 <span class="normal"><a href="#__codelineno-5-8">8</a></span>
 <span class="normal"><a href="#__codelineno-5-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c"># Non-password paste (key is in the URL fragment)</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="nb">Get-GhostbitPaste</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="n">gbv</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="n">gbitv</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="c"># Password-protected paste (prompts interactively)</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="n">gbv</span> <span class="s2">&quot;https://paste.example.com/abc123#~TOKEN&quot;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="n">gbitv</span> <span class="s2">&quot;https://paste.example.com/abc123#~TOKEN&quot;</span>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="c"># Pipe to a pager</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="n">gbv</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span> <span class="p">|</span> <span class="n">more</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="n">gbitv</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span> <span class="p">|</span> <span class="n">more</span>
 </span></code></pre></div></td></tr></table></div>
 <hr />
 <h2 id="delete-a-paste">Delete a paste<a class="headerlink" href="#delete-a-paste" title="Permanent link">&para;</a></h2>
 <div class="language-powershell highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
 <span class="normal"><a href="#__codelineno-6-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nb">Remove-GhostbitPaste</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">gbd</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">gbitd</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
 </span></code></pre></div></td></tr></table></div>
 <p>The delete token is read from the URL fragment (after <code>~</code>).</p>
 <hr />
@@ -1088,11 +1088,11 @@ All encryption is done client-side using the built-in .NET cryptography APIs —
 <span class="normal"><a href="#__codelineno-7-6">6</a></span>
 <span class="normal"><a href="#__codelineno-7-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="c"># List recent pastes</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="nb">Get-GhostbitHistory</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="n">gbh</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="n">gbith</span>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="c"># Wipe local history</span>
 </span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="nb">Get-GhostbitHistory</span> <span class="n">-Clear</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="n">gbh</span> <span class="n">-Clear</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="n">gbith</span> <span class="n">-Clear</span>
 </span></code></pre></div></td></tr></table></div>
 <hr />
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
@@ -1114,27 +1114,27 @@ All encryption is done client-side using the built-in .NET cryptography APIs —
 <span class="normal"><a href="#__codelineno-8-16">16</a></span>
 <span class="normal"><a href="#__codelineno-8-17">17</a></span>
 <span class="normal"><a href="#__codelineno-8-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="c"># Burn after read</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="nb">Get-Content</span> <span class="n">deploy</span><span class="p">.</span><span class="n">ps1</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Burn</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="nb">Get-Content</span> <span class="n">deploy</span><span class="p">.</span><span class="n">ps1</span> <span class="p">|</span> <span class="n">gbit</span> <span class="n">-Burn</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="c"># Expire in 1 hour, max 3 views</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="n">gb</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="n">-ExpiresIn</span> <span class="n">3600</span> <span class="n">-MaxViews</span> <span class="n">3</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="n">gbit</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="n">-ExpiresIn</span> <span class="n">3600</span> <span class="n">-MaxViews</span> <span class="n">3</span>
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a>
 </span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="c"># Password protected</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="s2">&quot;db_password=s3cr3t&quot;</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Password</span> <span class="n">mysecret</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="s2">&quot;db_password=s3cr3t&quot;</span> <span class="p">|</span> <span class="n">gbit</span> <span class="n">-Password</span> <span class="n">mysecret</span>
 </span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9"></a>
 </span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="c"># Language override</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="nb">Invoke-RestMethod</span> <span class="n">https</span><span class="p">://</span><span class="n">api</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">data</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Language</span> <span class="n">json</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="nb">Invoke-RestMethod</span> <span class="n">https</span><span class="p">://</span><span class="n">api</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">data</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="p">|</span> <span class="n">gbit</span> <span class="n">-Language</span> <span class="n">json</span>
 </span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12"></a>
 </span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13"></a><span class="c"># Scripting: URL only</span>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="nv">$url</span> <span class="p">=</span> <span class="nb">Get-Content</span> <span class="n">file</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Quiet</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="nv">$url</span> <span class="p">=</span> <span class="nb">Get-Content</span> <span class="n">file</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="n">gbit</span> <span class="n">-Quiet</span>
 </span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15"></a><span class="nb">Write-Host</span> <span class="s2">&quot;Paste created: $url&quot;</span>
 </span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16"></a>
 </span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17"></a><span class="c"># Full JSON response</span>
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18"></a><span class="nb">Get-Content</span> <span class="n">data</span><span class="p">.</span><span class="n">json</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-AsJson</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18"></a><span class="nb">Get-Content</span> <span class="n">data</span><span class="p">.</span><span class="n">json</span> <span class="p">|</span> <span class="n">gbit</span> <span class="n">-AsJson</span>
 </span></code></pre></div></td></tr></table></div>
 <hr />
 <h2 id="supported-language-extensions">Supported language extensions<a class="headerlink" href="#supported-language-extensions" title="Permanent link">&para;</a></h2>
-<p>Auto-detected from file extension when using <code>gb &lt;file&gt;</code>:</p>
+<p>Auto-detected from file extension when using <code>gbit &lt;file&gt;</code>:</p>
 <table>
 <thead>
 <tr>

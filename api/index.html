@@ -994,7 +994,7 @@
 <td><code>expires_in</code></td>
 <td>integer</td>
 <td>No</td>
-<td>TTL in seconds</td>
+<td>TTL in seconds (≥ 1)</td>
 </tr>
 <tr>
 <td><code>burn</code></td>
@@ -1109,6 +1109,10 @@
 <td>Invalid token</td>
 </tr>
 <tr>
+<td><code>404</code></td>
+<td>Paste not found</td>
+</tr>
+<tr>
 <td><code>422</code></td>
 <td>Missing <code>X-Delete-Token</code> header</td>
 </tr>
@@ -1175,8 +1179,8 @@
 <span class="normal"><a href="#__codelineno-10-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-10-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-10-10">10</a></span>
-<span class="normal"><a href="#__codelineno-10-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="c1"># Encrypt client-side first (or use the CLI: gb --json)</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a>gb<span class="w"> </span>file.py<span class="w"> </span>--json
+<span class="normal"><a href="#__codelineno-10-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="c1"># Encrypt client-side first (or use the CLI: gbit --json)</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a>gbit<span class="w"> </span>file.py<span class="w"> </span>--json
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="c1"># {</span>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="c1">#   &quot;id&quot;: &quot;aB3kZx9m&quot;,</span>
 </span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="c1">#   &quot;full_url&quot;: &quot;https://…/aB3kZx9m#KEY~DELETE_TOKEN&quot;,</span>

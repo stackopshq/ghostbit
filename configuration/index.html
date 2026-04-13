@@ -361,17 +361,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#generating-an-encryption-key" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Generating an encryption key
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#storage-backends" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -646,17 +635,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#generating-an-encryption-key" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Generating an encryption key
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#storage-backends" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -717,104 +695,88 @@
 <tr>
 <th>Variable</th>
 <th>Default</th>
-<th>Required</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>ENCRYPTION_KEY</code></td>
-<td>—</td>
-<td><strong>Yes</strong></td>
-<td>Hex-encoded 32-byte server key. Used to hash delete tokens.</td>
-</tr>
-<tr>
 <td><code>STORAGE_BACKEND</code></td>
 <td><code>sqlite</code></td>
-<td>No</td>
 <td><code>sqlite</code> or <code>redis</code></td>
 </tr>
 <tr>
 <td><code>SQLITE_PATH</code></td>
-<td><code>/data/ghostbit.db</code></td>
-<td>No</td>
-<td>Path to the SQLite database file</td>
+<td><code>./ghostbit.db</code></td>
+<td>Path to the SQLite database file (Docker overrides to <code>/data/ghostbit.db</code>)</td>
 </tr>
 <tr>
 <td><code>REDIS_URL</code></td>
 <td><code>redis://localhost:6379</code></td>
-<td>No</td>
 <td>Redis connection URL</td>
 </tr>
 <tr>
 <td><code>REDIS_PASSWORD</code></td>
 <td>—</td>
-<td>No</td>
 <td>Redis password. Injected into <code>REDIS_URL</code> automatically. Ignored if the URL already contains credentials.</td>
 </tr>
 <tr>
 <td><code>MAX_PASTE_SIZE</code></td>
 <td><code>524288</code></td>
-<td>No</td>
 <td>Maximum paste size in bytes (default: 512 KB)</td>
 </tr>
 <tr>
 <td><code>PORT</code></td>
 <td><code>8000</code></td>
-<td>No</td>
 <td>HTTP port the server listens on</td>
 </tr>
 <tr>
 <td><code>WEBHOOK_SECRET</code></td>
 <td>—</td>
-<td>No</td>
 <td>If set, signs webhook deliveries with HMAC-SHA256 (<code>X-Ghostbit-Signature</code>)</td>
 </tr>
 <tr>
 <td><code>RATE_LIMIT_CREATE</code></td>
 <td><code>30/minute</code></td>
-<td>No</td>
 <td>Rate limit for paste creation per IP (<code>POST /api/v1/pastes</code>)</td>
 </tr>
 <tr>
 <td><code>RATE_LIMIT_VIEW</code></td>
 <td><code>120/minute</code></td>
-<td>No</td>
 <td>Rate limit for paste reads per IP (<code>GET /api/v1/pastes/{id}</code>)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="generating-an-encryption-key">Generating an encryption key<a class="headerlink" href="#generating-an-encryption-key" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import secrets; print(secrets.token_hex(32))&quot;</span>
-</span></code></pre></div></td></tr></table></div>
-<p>The app refuses to start without <code>ENCRYPTION_KEY</code>.</p>
+<div class="admonition info">
+<p class="admonition-title">No server-side encryption key</p>
+<p>All encryption is performed client-side (AES-256-GCM in the browser or CLI). The server never sees plaintext — no <code>ENCRYPTION_KEY</code> is needed.</p>
+</div>
 <h2 id="storage-backends">Storage backends<a class="headerlink" href="#storage-backends" title="Permanent link">&para;</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">SQLite</label><label for="__tabbed_1_2">Redis</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Default backend, no extra dependencies. An hourly cleanup task removes expired pastes.</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
-<span class="normal"><a href="#__codelineno-1-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>SQLITE_PATH=/data/ghostbit.db
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a>SQLITE_PATH=/data/ghostbit.db
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
 <p>Better for high-traffic instances. TTL is handled natively by Redis <code>EXPIRE</code>.</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
-<span class="normal"><a href="#__codelineno-2-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>STORAGE_BACKEND=redis
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>REDIS_URL=redis://localhost:6379
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>STORAGE_BACKEND=redis
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>REDIS_URL=redis://localhost:6379
 </span></code></pre></div></td></tr></table></div>
 <p>Start with the Redis profile:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nv">STORAGE_BACKEND</span><span class="o">=</span>redis<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>redis<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nv">STORAGE_BACKEND</span><span class="o">=</span>redis<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>redis<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div></td></tr></table></div>
 <p><strong>With a password</strong> — two equivalent approaches:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
-<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="c1"># Recommended: separate variable (password injected into URL automatically)</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="nv">STORAGE_BACKEND</span><span class="o">=</span>redis<span class="w"> </span><span class="nv">REDIS_PASSWORD</span><span class="o">=</span>mysecret<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>redis<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1"># Recommended: separate variable (password injected into URL automatically)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nv">STORAGE_BACKEND</span><span class="o">=</span>redis<span class="w"> </span><span class="nv">REDIS_PASSWORD</span><span class="o">=</span>mysecret<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>redis<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div></td></tr></table></div>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
-<span class="normal"><a href="#__codelineno-5-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a># Alternative: embed credentials directly in the URL
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>REDIS_URL=redis://:mysecret@localhost:6379
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a># Alternative: embed credentials directly in the URL
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>REDIS_URL=redis://:mysecret@localhost:6379
 </span></code></pre></div></td></tr></table></div>
 <p>When <code>REDIS_PASSWORD</code> is set, the managed Redis container is started with <code>--requirepass</code> automatically.</p>
 </div>
@@ -823,45 +785,43 @@
 <h2 id="rate-limiting">Rate limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
 <p>Rate limits are applied per client IP using <a href="https://github.com/laurentS/slowapi">slowapi</a>.<br />
 The format is <code>"N/period"</code> where period is <code>second</code>, <code>minute</code>, or <code>hour</code>.</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
-<span class="normal"><a href="#__codelineno-6-2">2</a></span>
-<span class="normal"><a href="#__codelineno-6-3">3</a></span>
-<span class="normal"><a href="#__codelineno-6-4">4</a></span>
-<span class="normal"><a href="#__codelineno-6-5">5</a></span>
-<span class="normal"><a href="#__codelineno-6-6">6</a></span>
-<span class="normal"><a href="#__codelineno-6-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a># Tighten limits on a public instance
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>RATE_LIMIT_CREATE=10/minute
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>RATE_LIMIT_VIEW=60/minute
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a># Loosen for internal / self-use instances
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a>RATE_LIMIT_CREATE=200/minute
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a>RATE_LIMIT_VIEW=600/minute
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<span class="normal"><a href="#__codelineno-5-2">2</a></span>
+<span class="normal"><a href="#__codelineno-5-3">3</a></span>
+<span class="normal"><a href="#__codelineno-5-4">4</a></span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span>
+<span class="normal"><a href="#__codelineno-5-6">6</a></span>
+<span class="normal"><a href="#__codelineno-5-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a># Tighten limits on a public instance
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>RATE_LIMIT_CREATE=10/minute
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a>RATE_LIMIT_VIEW=60/minute
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a># Loosen for internal / self-use instances
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a>RATE_LIMIT_CREATE=200/minute
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a>RATE_LIMIT_VIEW=600/minute
 </span></code></pre></div></td></tr></table></div>
 <p>When a limit is exceeded the API returns <code>429 Too Many Requests</code>.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-7-10">10</a></span>
-<span class="normal"><a href="#__codelineno-7-11">11</a></span>
-<span class="normal"><a href="#__codelineno-7-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a>ENCRYPTION_KEY=your_hex_encoded_32_byte_key_here
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a>SQLITE_PATH=/data/ghostbit.db
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>MAX_PASTE_SIZE=524288
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a>PORT=8000
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a># Rate limiting (defaults shown)
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8"></a># RATE_LIMIT_CREATE=30/minute
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9"></a># RATE_LIMIT_VIEW=120/minute
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10"></a>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11"></a># Optional: sign webhook deliveries
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>SQLITE_PATH=/data/ghostbit.db
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>PORT=8000
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a># Rate limiting (defaults shown)
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a># RATE_LIMIT_CREATE=30/minute
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a># RATE_LIMIT_VIEW=120/minute
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a># Optional: sign webhook deliveries
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div></td></tr></table></div>
 
 
