@@ -138,6 +138,10 @@ class SQLiteStorage(StorageBackend):
                 )
                 await db.commit()
 
+    async def ping(self) -> None:
+        async with aiosqlite.connect(self.path) as db:
+            await db.execute("SELECT 1")
+
     async def close(self) -> None:
         if self._cleanup_task:
             self._cleanup_task.cancel()

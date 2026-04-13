@@ -14,6 +14,8 @@ All configuration is done via environment variables (or a `.env` file at the pro
 | `MAX_PASTE_SIZE` | `524288` | No | Maximum paste size in bytes (default: 512 KB) |
 | `PORT` | `8000` | No | HTTP port the server listens on |
 | `WEBHOOK_SECRET` | — | No | If set, signs webhook deliveries with HMAC-SHA256 (`X-Ghostbit-Signature`) |
+| `RATE_LIMIT_CREATE` | `30/minute` | No | Rate limit for paste creation per IP (`POST /api/v1/pastes`) |
+| `RATE_LIMIT_VIEW` | `120/minute` | No | Rate limit for paste reads per IP (`GET /api/v1/pastes/{id}`) |
 
 ## Generating an encryption key
 
@@ -63,6 +65,23 @@ The app refuses to start without `ENCRYPTION_KEY`.
 
     When `REDIS_PASSWORD` is set, the managed Redis container is started with `--requirepass` automatically.
 
+## Rate limiting
+
+Rate limits are applied per client IP using [slowapi](https://github.com/laurentS/slowapi).  
+The format is `"N/period"` where period is `second`, `minute`, or `hour`.
+
+```env
+# Tighten limits on a public instance
+RATE_LIMIT_CREATE=10/minute
+RATE_LIMIT_VIEW=60/minute
+
+# Loosen for internal / self-use instances
+RATE_LIMIT_CREATE=200/minute
+RATE_LIMIT_VIEW=600/minute
+```
+
+When a limit is exceeded the API returns `429 Too Many Requests`.
+
 ## .env example
 
 ```env
@@ -71,6 +90,10 @@ STORAGE_BACKEND=sqlite
 SQLITE_PATH=/data/ghostbit.db
 MAX_PASTE_SIZE=524288
 PORT=8000
+
+# Rate limiting (defaults shown)
+# RATE_LIMIT_CREATE=30/minute
+# RATE_LIMIT_VIEW=120/minute
 
 # Optional: sign webhook deliveries
 # WEBHOOK_SECRET=your_hex_encoded_secret_here

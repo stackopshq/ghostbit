@@ -74,7 +74,8 @@ def _key_to_fragment(key: bytes) -> str:
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-CONFIG_PATH = Path.home() / ".config" / "ghostbit.toml"
+CONFIG_PATH  = Path.home() / ".config" / "ghostbit.toml"
+HISTORY_PATH = Path.home() / ".local" / "share" / "ghostbit" / "history.jsonl"
 DEFAULT_SERVER = "http://localhost:8000"
 
 VALID_KEYS = {"server"}
@@ -222,6 +223,16 @@ def cmd_paste(args):
         fragment = f"{_key_to_fragment(key)}~{result['delete_token']}"
 
     full_url = f"{result['url']}#{fragment}"
+
+    # Append to local history (best-effort, privacy-first — stays on disk only)
+    _history_append({
+        "id":         result["id"],
+        "url":        result["url"],
+        "full_url":   full_url,
+        "created_at": int(time.time()),
+        "language":   args.lang,
+        "expires_at": result.get("expires_at"),
+    })
 
     if args.json:
         result["full_url"] = full_url
@@ -386,6 +397,117 @@ def _api_create(server: str, payload: dict) -> dict:
         sys.exit(1)
 
 
+# ── Local history ────────────────────────────────────────────────────────────
+
+def _history_append(entry: dict) -> None:
+    """Append one entry to the local history file (JSONL, one JSON object per line)."""
+    try:
+        HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with HISTORY_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception:
+        pass  # history is best-effort, never block a paste creation
+
+
+def _history_load() -> list[dict]:
+    if not HISTORY_PATH.exists():
+        return []
+    entries = []
+    for line in HISTORY_PATH.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line:
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+    return entries
+
+
+def cmd_delete(url: str) -> None:
+    from urllib.parse import urldefrag, urlparse
+
+    url_no_frag, fragment = urldefrag(url)
+    parsed   = urlparse(url_no_frag)
+    server   = f"{parsed.scheme}://{parsed.netloc}"
+    paste_id = parsed.path.strip("/")
+
+    if not paste_id or not parsed.scheme:
+        print("Error: invalid URL.", file=sys.stderr)
+        sys.exit(1)
+
+    # Fragment: KEY~DELETE_TOKEN  or  ~DELETE_TOKEN
+    delete_token = fragment.partition("~")[2]
+    if not delete_token:
+        print("Error: delete token missing from URL fragment (expected KEY~TOKEN or ~TOKEN).", file=sys.stderr)
+        sys.exit(1)
+
+    api_url = f"{server}/api/v1/pastes/{paste_id}"
+    req = urllib.request.Request(
+        api_url,
+        headers={"User-Agent": _USER_AGENT, "X-Delete-Token": delete_token},
+        method="DELETE",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15):
+            pass
+        print(f"Deleted {paste_id}.")
+    except urllib.error.HTTPError as e:
+        if e.code == 403:
+            print("Error: invalid delete token.", file=sys.stderr)
+        elif e.code == 404:
+            print("Error: paste not found (already deleted or expired).", file=sys.stderr)
+        else:
+            print(f"Error {e.code}.", file=sys.stderr)
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(f"Could not connect to {server}: {e.reason}", file=sys.stderr)
+        sys.exit(1)
+
+
+def cmd_list(clear: bool = False) -> None:
+    if clear:
+        if HISTORY_PATH.exists():
+            HISTORY_PATH.unlink()
+            print("History cleared.")
+        else:
+            print("No history file found.")
+        return
+
+    entries = _history_load()
+    if not entries:
+        print("No pastes in local history.", file=sys.stderr)
+        print(f"  History file: {HISTORY_PATH}", file=sys.stderr)
+        return
+
+    now = int(time.time())
+
+    def _age(ts: int) -> str:
+        delta = now - ts
+        if delta < 120:      return "just now"
+        if delta < 3600:     return f"{delta // 60}m ago"
+        if delta < 86400:    return f"{delta // 3600}h ago"
+        return f"{delta // 86400}d ago"
+
+    def _expiry(expires_at) -> str:
+        if not expires_at:
+            return "never"
+        delta = expires_at - now
+        if delta <= 0:       return "expired"
+        if delta < 3600:     return f"in {delta // 60}m"
+        if delta < 86400:    return f"in {delta // 3600}h"
+        return f"in {delta // 86400}d"
+
+    print(f"{'ID':<12} {'Lang':<14} {'Created':<12} {'Expires':<10}  URL")
+    print("-" * 80)
+    for e in reversed(entries):
+        row_id      = e.get("id", "?")[:10]
+        lang        = (e.get("language") or "plain")[:12]
+        created     = _age(e.get("created_at", 0))
+        expires     = _expiry(e.get("expires_at"))
+        full_url    = e.get("full_url", e.get("url", ""))
+        print(f"{row_id:<12} {lang:<14} {created:<12} {expires:<10}  {full_url}")
+
+
 # ── Shell completion ──────────────────────────────────────────────────────────
 
 _COMPLETION_BASH = r"""
@@ -429,7 +551,7 @@ _gb_completion() {
     esac
 
     if [[ $cword -eq 1 ]]; then
-        COMPREPLY=($(compgen -W "config view completion $main_opts" -- "$cur"))
+        COMPREPLY=($(compgen -W "config view delete list completion $main_opts" -- "$cur"))
         COMPREPLY+=($(compgen -f -- "$cur"))
     else
         COMPREPLY=($(compgen -W "$main_opts" -- "$cur"))
@@ -467,7 +589,7 @@ _gb() {
     case $state in
         first)
             _alternative \
-                'subcommands:subcommand:((config\:"manage config" view\:"view a paste" completion\:"shell completion"))' \
+                'subcommands:subcommand:((config\:"manage config" view\:"view a paste" delete\:"delete a paste" list\:"list local history" completion\:"shell completion"))' \
                 "options: :_arguments ${main_opts[*]}" \
                 'files:file:_files'
             ;;
@@ -497,12 +619,14 @@ set -l langs LANGS_PLACEHOLDER
 
 # Disable file completion when a subcommand is active and not needed
 function __gb_no_subcommand
-    not __fish_seen_subcommand_from config view completion
+    not __fish_seen_subcommand_from config view delete list completion
 end
 
 # Subcommands
 complete -c gb -f -n '__gb_no_subcommand' -a config     -d 'Manage configuration'
 complete -c gb -f -n '__gb_no_subcommand' -a view       -d 'View and decrypt a paste'
+complete -c gb -f -n '__gb_no_subcommand' -a delete     -d 'Delete a paste'
+complete -c gb -f -n '__gb_no_subcommand' -a list       -d 'List local paste history'
 complete -c gb -f -n '__gb_no_subcommand' -a completion -d 'Output shell completion script'
 
 # config actions
@@ -544,6 +668,20 @@ def main():
     # Route to config subcommand early so file paths aren't mistaken for subcommands
     if len(sys.argv) > 1 and sys.argv[1] == "config":
         _run_config(sys.argv[2:])
+        return
+
+    # Route to delete subcommand
+    if len(sys.argv) > 1 and sys.argv[1] == "delete":
+        if len(sys.argv) < 3:
+            print("Usage: gb delete <url>", file=sys.stderr)
+            sys.exit(1)
+        cmd_delete(sys.argv[2])
+        return
+
+    # Route to list subcommand
+    if len(sys.argv) > 1 and sys.argv[1] == "list":
+        clear = "--clear" in sys.argv
+        cmd_list(clear=clear)
         return
 
     # Route to completion subcommand

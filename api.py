@@ -80,7 +80,7 @@ def _base_url(request: Request) -> str:
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @router.post("/pastes", response_model=PasteCreateResponse, status_code=201)
-@limiter.limit("30/minute")
+@limiter.limit(lambda: settings.rate_limit_create)
 async def create_paste(body: PasteCreateRequest, request: Request):
     # Content is base64 ciphertext; max size check with base64 overhead (~4/3 expansion)
     max_b64 = int(settings.max_paste_size * 1.4)
@@ -125,6 +125,7 @@ async def create_paste(body: PasteCreateRequest, request: Request):
 
 
 @router.get("/pastes/{paste_id}", response_model=PasteResponse)
+@limiter.limit(lambda: settings.rate_limit_view)
 async def get_paste(paste_id: str, request: Request):
     """
     Returns the ciphertext and metadata. The caller is responsible for

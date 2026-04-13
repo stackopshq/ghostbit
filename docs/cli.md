@@ -71,6 +71,39 @@ Language is auto-detected from the file extension.
 
 ---
 
+## Delete a paste
+
+```bash
+gb delete https://paste.example.com/abc123#KEY~TOKEN
+```
+
+The delete token is read from the URL fragment (after `~`). No server-side secret needed — the token was generated at creation time and embedded in the URL.
+
+---
+
+## Paste history
+
+All created pastes are saved locally to `~/.local/share/ghostbit/history.jsonl`.  
+Nothing is sent to the server — this file stays on your machine only.
+
+```bash
+# List recent pastes
+gb list
+
+# Wipe local history
+gb list --clear
+```
+
+Example output:
+
+```
+ID           Lang            Created      Expires     URL
+abc123       python          2h ago       in 22h      https://paste.example.com/abc123#KEY~TOKEN
+def456       json            5d ago       never       https://paste.example.com/def456#KEY~TOKEN
+```
+
+---
+
 ## View a paste
 
 Download, decrypt, and display a paste directly in the terminal:

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ paste.id }} — raw</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #282a36;
+      color: #f8f8f2;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      padding: 20px;
+    }
+    #content { white-space: pre; display: none; }
+    #error { color: #ff5555; }
+  </style>
+</head>
+<body>
+  <pre id="content"></pre>
+  <div id="error"></div>
+</body>
+
+<script id="paste-meta" type="application/json">{"id": {{ paste.id | tojson }}}</script>
+<script src="/static/e2e.js"></script>
+<script>
+(async () => {
+  const meta    = JSON.parse(document.getElementById('paste-meta').textContent);
+  const fragment = window.location.hash.slice(1);
+  const keyPart  = fragment.split('~')[0];
+
+  if (!keyPart) {
+    document.getElementById('error').textContent =
+      'Decryption key missing from URL. Make sure you copied the full link including the #fragment.';
+    return;
+  }
+
+  try {
+    const [key, data] = await Promise.all([
+      E2E.importKey(keyPart),
+      fetch(`/api/v1/pastes/${meta.id}`).then(r => {
+        if (r.status === 404) throw new Error('Paste not found or expired.');
+        if (!r.ok) throw new Error(`Server error ${r.status}.`);
+        return r.json();
+      }),
+    ]);
+    const plaintext = await E2E.decrypt(data.content, data.nonce, key);
+    const pre = document.getElementById('content');
+    pre.textContent = plaintext;
+    pre.style.display = '';
+  } catch (err) {
+    document.getElementById('error').textContent =
+      err.message || 'Decryption failed. The URL may be incomplete or the paste may have been tampered with.';
+  }
+})();
+</script>
+</html>

@@ -47,7 +47,14 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.get("/healthz", include_in_schema=False)
 async def healthz(request: Request):
-    return JSONResponse({"status": "ok", "storage": settings.storage_backend})
+    try:
+        await request.app.state.storage.ping()
+        return JSONResponse({"status": "ok", "storage": settings.storage_backend})
+    except Exception as exc:
+        return JSONResponse(
+            {"status": "error", "storage": settings.storage_backend, "detail": str(exc)},
+            status_code=503,
+        )
 
 
 _SECURITY_TXT = """\
@@ -128,6 +135,30 @@ async def view_paste(
             "expiry_label": _format_expiry(paste.expires_at),
         },
     )
+
+
+@app.get("/{paste_id}/raw", response_class=HTMLResponse)
+async def raw_paste(
+    request: Request,
+    paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
+):
+    storage = request.app.state.storage
+    paste = await storage.get(paste_id)
+
+    if paste is None:
+        raise HTTPException(status_code=404, detail="Paste not found or expired.")
+
+    if paste.expires_at and int(time.time()) > paste.expires_at:
+        await storage.force_delete(paste_id)
+        raise HTTPException(status_code=404, detail="Paste has expired.")
+
+    # Raw view is not available for password-protected pastes — no way to
+    # decrypt without the password, and we don't want to silently expose
+    # the ciphertext in a plain-looking page.
+    if paste.has_password:
+        raise HTTPException(status_code=404, detail="Raw view not available for password-protected pastes.")
+
+    return templates.TemplateResponse(request, "raw.html", context={"paste": paste})
 
 
 @app.post("/{paste_id}/delete")

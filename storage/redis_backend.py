@@ -88,6 +88,9 @@ class RedisStorage(StorageBackend):
     async def force_delete(self, paste_id: str) -> None:
         await self._client.delete(self._key(paste_id))
 
+    async def ping(self) -> None:
+        await self._client.ping()
+
     async def close(self) -> None:
         if self._client:
             await self._client.aclose()
