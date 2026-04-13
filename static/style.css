@@ -1208,7 +1208,7 @@ kbd {
   html, body { height: auto; }
 
   /* ── Header ── */
-  header { height: 54px; padding: 0 12px; }
+  header { height: 54px; padding: 0 12px; position: static; }
   .logo { font-size: 1rem; gap: 8px; }
   .logo img { height: 32px; }
   /* API button: hidden on mobile */
