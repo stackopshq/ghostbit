@@ -2,30 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.ghostbit.dev/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
     </url>
     <url>
          <loc>https://docs.ghostbit.dev/api/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.ghostbit.dev/cli-powershell/</loc>
+         <lastmod>2026-04-13</lastmod>
     </url>
     <url>
          <loc>https://docs.ghostbit.dev/cli/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
     </url>
     <url>
          <loc>https://docs.ghostbit.dev/configuration/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
     </url>
     <url>
          <loc>https://docs.ghostbit.dev/encryption/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
     </url>
     <url>
          <loc>https://docs.ghostbit.dev/getting-started/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
     </url>
     <url>
          <loc>https://docs.ghostbit.dev/self-hosting/</loc>
-         <lastmod>2026-04-12</lastmod>
+         <lastmod>2026-04-13</lastmod>
     </url>
 </urlset>

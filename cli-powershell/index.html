@@ -12,13 +12,13 @@
         <meta name="author" content="StackOps HQ">
       
       
-        <link rel="canonical" href="https://docs.ghostbit.dev/cli/">
+        <link rel="canonical" href="https://docs.ghostbit.dev/cli-powershell/">
       
       
-        <link rel="prev" href="../configuration/">
+        <link rel="prev" href="../cli/">
       
       
-        <link rel="next" href="../cli-powershell/">
+        <link rel="next" href="../api/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Python / shell - Ghostbit</title>
+        <title>PowerShell - Ghostbit</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cli" class="md-skip">
+        <a href="#powershell-cli" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Python / shell
+              PowerShell
             
           </span>
         </div>
@@ -368,6 +368,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python / shell
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -387,7 +415,7 @@
   <span class="md-ellipsis">
     
   
-    Python / shell
+    PowerShell
   
 
     
@@ -405,7 +433,7 @@
   <span class="md-ellipsis">
     
   
-    Python / shell
+    PowerShell
   
 
     
@@ -439,6 +467,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Install">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-copy-to-your-module-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1 — copy to your module path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-import-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2 — import directly
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -465,10 +521,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#from-stdin" class="md-nav__link">
+  <a href="#from-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From stdin
+        From the pipeline
       
     </span>
   </a>
@@ -539,34 +595,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cli-powershell/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PowerShell
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -695,6 +723,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Install">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-1-copy-to-your-module-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1 — copy to your module path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-import-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2 — import directly
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -721,10 +777,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#from-stdin" class="md-nav__link">
+  <a href="#from-the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From stdin
+        From the pipeline
       
     </span>
   </a>
@@ -811,38 +867,60 @@
   
 
 
-<h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h1>
+<h1 id="powershell-cli">PowerShell CLI<a class="headerlink" href="#powershell-cli" title="Permanent link">&para;</a></h1>
+<p>A native PowerShell module that mirrors the Python <code>gb</code> CLI.<br />
+All encryption is done client-side using the built-in .NET cryptography APIs — no external dependencies.</p>
+<p><strong>Requirements:</strong> PowerShell 7.0+ (Windows, macOS, or Linux)</p>
+<hr />
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ghostbit-cli
+<h3 id="option-1-copy-to-your-module-path">Option 1 — copy to your module path<a class="headerlink" href="#option-1-copy-to-your-module-path" title="Permanent link">&para;</a></h3>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">$dest</span> <span class="p">=</span> <span class="s2">&quot;</span><span class="p">$(</span><span class="nv">$env:PSModulePath</span><span class="p">.</span><span class="n">Split</span><span class="p">(</span><span class="no">[IO.Path]</span><span class="p">::</span><span class="n">PathSeparator</span><span class="p">)[</span><span class="n">0</span><span class="p">])</span><span class="s2">\Ghostbit&quot;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">New-Item</span> <span class="n">-ItemType</span> <span class="n">Directory</span> <span class="n">-Path</span> <span class="nv">$dest</span> <span class="n">-Force</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">Copy-Item</span> <span class="n">cli</span><span class="p">/</span><span class="n">powershell</span><span class="p">/</span><span class="n">Ghostbit</span><span class="p">.*</span> <span class="nv">$dest</span>
 </span></code></pre></div>
-<p>This installs the <code>gb</code> and <code>ghostbit</code> commands.</p>
-<p>With optional extras for terminal rendering:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[all]&quot;</span><span class="w">       </span><span class="c1"># pygments + rich (recommended)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[color]&quot;</span><span class="w">     </span><span class="c1"># pygments — syntax highlighting</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[markdown]&quot;</span><span class="w">  </span><span class="c1"># rich — Markdown rendering</span>
+<h3 id="option-2-import-directly">Option 2 — import directly<a class="headerlink" href="#option-2-import-directly" title="Permanent link">&para;</a></h3>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">Import-Module</span> <span class="p">/</span><span class="n">path</span><span class="p">/</span><span class="n">to</span><span class="p">/</span><span class="n">ghostbit</span><span class="p">/</span><span class="n">cli</span><span class="p">/</span><span class="n">powershell</span><span class="p">/</span><span class="n">Ghostbit</span><span class="p">.</span><span class="n">psm1</span>
 </span></code></pre></div>
+<p>Add the import to your <code>$PROFILE</code> to make it permanent.</p>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Set your self-hosted server</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>server<span class="w"> </span>https://paste.example.com
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c"># Set your self-hosted server</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">Invoke-GhostbitConfig</span> <span class="nb">set </span><span class="n">server</span> <span class="n">https</span><span class="p">://</span><span class="n">paste</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">com</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Show current config</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>gb<span class="w"> </span>config<span class="w"> </span>show
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c"># Show current config</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nb">Invoke-GhostbitConfig</span> <span class="n">show</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Remove a key</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>gb<span class="w"> </span>config<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>server
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c"># Remove a key</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nb">Invoke-GhostbitConfig</span> <span class="n">unset</span> <span class="n">server</span>
 </span></code></pre></div>
-<p>Config is stored at <code>~/.config/ghostbit.toml</code>.</p>
+<p>Config is stored at:</p>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows</td>
+<td><code>%APPDATA%\ghostbit\config.toml</code></td>
+</tr>
+<tr>
+<td>macOS / Linux</td>
+<td><code>~/.config/ghostbit.toml</code></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="create-a-paste">Create a paste<a class="headerlink" href="#create-a-paste" title="Permanent link">&para;</a></h2>
-<h3 id="from-stdin">From stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cat<span class="w"> </span>main.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>git<span class="w"> </span>diff<span class="w"> </span>HEAD~1<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb
+<h3 id="from-the-pipeline">From the pipeline<a class="headerlink" href="#from-the-pipeline" title="Permanent link">&para;</a></h3>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">Get-Content</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="n">gb</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">Get-Content</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="nb">New-GhostbitPaste</span>
 </span></code></pre></div>
 <h3 id="from-a-file">From a file<a class="headerlink" href="#from-a-file" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gb<span class="w"> </span>main.py
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>gb<span class="w"> </span>secrets.env
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">gb</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">New-GhostbitPaste</span> <span class="n">main</span><span class="p">.</span><span class="n">py</span>
 </span></code></pre></div>
 <p>Language is auto-detected from the file extension.</p>
 <hr />
@@ -850,92 +928,87 @@
 <table>
 <thead>
 <tr>
-<th>Flag</th>
-<th>Short</th>
+<th>Parameter</th>
+<th>Short alias</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>--lang LANG</code></td>
-<td><code>-l</code></td>
+<td><code>-Language</code></td>
+<td><code>-l</code> (n/a in PS)</td>
 <td>Language hint (<code>python</code>, <code>go</code>, <code>rust</code>, <code>sql</code>, …)</td>
 </tr>
 <tr>
-<td><code>--expires SECONDS</code></td>
-<td><code>-e</code></td>
-<td>TTL in seconds. <code>3600</code> = 1h, <code>86400</code> = 1d</td>
+<td><code>-ExpiresIn</code></td>
+<td></td>
+<td>TTL in seconds. <code>3600</code> = 1 h, <code>86400</code> = 1 d</td>
 </tr>
 <tr>
-<td><code>--burn</code></td>
-<td><code>-b</code></td>
+<td><code>-Burn</code></td>
+<td></td>
 <td>Delete after the first view</td>
 </tr>
 <tr>
-<td><code>--max-views N</code></td>
-<td><code>-m</code></td>
+<td><code>-MaxViews N</code></td>
+<td></td>
 <td>Delete after N views</td>
 </tr>
 <tr>
-<td><code>--password PASS</code></td>
-<td><code>-p</code></td>
-<td>Encrypt with a password (PBKDF2, client-side)</td>
+<td><code>-Password</code></td>
+<td></td>
+<td>Encrypt with a password (PBKDF2-SHA256, client-side)</td>
 </tr>
 <tr>
-<td><code>--server URL</code></td>
-<td><code>-s</code></td>
+<td><code>-Server URL</code></td>
+<td></td>
 <td>Override server URL for this invocation only</td>
 </tr>
 <tr>
-<td><code>--quiet</code></td>
-<td><code>-q</code></td>
+<td><code>-Quiet</code></td>
+<td></td>
 <td>Print URL only (useful in scripts)</td>
 </tr>
 <tr>
-<td><code>--json</code></td>
+<td><code>-AsJson</code></td>
 <td></td>
-<td>Print full JSON response including <code>full_url</code></td>
+<td>Print full API response as JSON including <code>full_url</code></td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="view-a-paste">View a paste<a class="headerlink" href="#view-a-paste" title="Permanent link">&para;</a></h2>
-<p>Download, decrypt, and display a paste directly in the terminal:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Non-password paste (key is in the URL fragment)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Password-protected paste (prompts for password interactively)</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#~TOKEN
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Pipe to another tool</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>gb<span class="w"> </span>view<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN<span class="w"> </span><span class="p">|</span><span class="w"> </span>less
+<p>Download, decrypt, and print a paste directly in the terminal:</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c"># Non-password paste (key is in the URL fragment)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">Get-GhostbitPaste</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">gbv</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c"># Password-protected paste (prompts interactively)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">gbv</span> <span class="s2">&quot;https://paste.example.com/abc123#~TOKEN&quot;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c"># Pipe to a pager</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">gbv</span> <span class="s2">&quot;https://paste.example.com/abc123#KEY~TOKEN&quot;</span> <span class="p">|</span> <span class="n">more</span>
 </span></code></pre></div>
-<ul>
-<li>Markdown pastes are rendered with titles, bold, lists, and code blocks (requires <code>rich</code>)</li>
-<li>Other languages are syntax-highlighted (requires <code>pygments</code>)</li>
-<li>Falls back to plain text if neither is installed</li>
-<li>Burn-after-read pastes display a warning on stderr after decryption</li>
-</ul>
 <hr />
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Burn after read</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>cat<span class="w"> </span>deploy.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--burn
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c"># Burn after read</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">Get-Content</span> <span class="n">deploy</span><span class="p">.</span><span class="n">ps1</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Burn</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Expire in 1 hour, max 3 views</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>gb<span class="w"> </span>config.yml<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--max-views<span class="w"> </span><span class="m">3</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c"># Expire in 1 hour, max 3 views</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">gb</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="n">-ExpiresIn</span> <span class="n">3600</span> <span class="n">-MaxViews</span> <span class="n">3</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Password protected</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;db_password=s3cr3t&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--password<span class="w"> </span>mysecret
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c"># Password protected</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="s2">&quot;db_password=s3cr3t&quot;</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Password</span> <span class="n">mysecret</span>
 </span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Language override</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>curl<span class="w"> </span>api.example.com/data<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--lang<span class="w"> </span>json
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c"># Language override</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nb">Invoke-RestMethod</span> <span class="n">https</span><span class="p">://</span><span class="n">api</span><span class="p">.</span><span class="n">example</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">data</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Language</span> <span class="n">json</span>
 </span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># Scripting: URL only</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="nv">URL</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--quiet<span class="k">)</span>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Paste created: </span><span class="nv">$URL</span><span class="s2">&quot;</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c"># Scripting: URL only</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="nv">$url</span> <span class="p">=</span> <span class="nb">Get-Content</span> <span class="n">file</span><span class="p">.</span><span class="n">py</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-Quiet</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="nb">Write-Host</span> <span class="s2">&quot;Paste created: $url&quot;</span>
 </span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
-</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="c1"># Full JSON response</span>
-</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>cat<span class="w"> </span>data.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>gb<span class="w"> </span>--json
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="c"># Full JSON response</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="nb">Get-Content</span> <span class="n">data</span><span class="p">.</span><span class="n">json</span> <span class="p">|</span> <span class="n">gb</span> <span class="n">-AsJson</span>
 </span></code></pre></div>
 <hr />
 <h2 id="supported-language-extensions">Supported language extensions<a class="headerlink" href="#supported-language-extensions" title="Permanent link">&para;</a></h2>
@@ -969,8 +1042,8 @@
 <td>rust</td>
 </tr>
 <tr>
-<td><code>.rb</code></td>
-<td>ruby</td>
+<td><code>.ps1</code>, <code>.psm1</code>, <code>.psd1</code></td>
+<td>powershell</td>
 </tr>
 <tr>
 <td><code>.sh</code>, <code>.bash</code>, <code>.zsh</code></td>
@@ -1019,6 +1092,10 @@
 <tr>
 <td><code>.cpp</code></td>
 <td>cpp</td>
+</tr>
+<tr>
+<td><code>.cs</code></td>
+<td>csharp</td>
 </tr>
 <tr>
 <td><code>.php</code></td>
