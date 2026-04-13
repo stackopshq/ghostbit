@@ -204,26 +204,129 @@
   padding: 0.1em 0.4em;
 }
 
-/* ── Code blocks — Dracula style ──────────────────────────────────────────── */
+/* ── Code blocks — Dracula syntax token colors ────────────────────────────── */
+[data-md-color-scheme="slate"] {
+  --md-code-hl-keyword-color:          #ff79c6;  /* pink   — keywords */
+  --md-code-hl-string-color:           #f1fa8c;  /* yellow — strings */
+  --md-code-hl-comment-color:          #6272a4;  /* comment */
+  --md-code-hl-number-color:           #bd93f9;  /* purple — numbers */
+  --md-code-hl-function-color:         #50fa7b;  /* green  — functions */
+  --md-code-hl-operator-color:         #ff79c6;  /* pink   — operators */
+  --md-code-hl-punctuation-color:      #f8f8f2;  /* fg */
+  --md-code-hl-name-color:             #8be9fd;  /* cyan   — names / identifiers */
+  --md-code-hl-keyword-variable-color: #bd93f9;  /* purple — self, true, false… */
+  --md-code-hl-variable-color:         #f8f8f2;  /* fg */
+  --md-code-hl-generic-color:          #6272a4;
+  --md-code-hl-special-color:          #ffb86c;  /* orange — special */
+}
+
+/* ── Code blocks — base (no line numbers) ─────────────────────────────────── */
 [data-md-color-scheme="slate"] .md-typeset pre {
   border-radius: 10px;
   border: 1px solid rgba(188, 19, 254, 0.15);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  margin: 1.2em 0;
+  background: #282a36;
 }
 
 [data-md-color-scheme="slate"] .md-typeset pre > code {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85em;
-  background: #282a36;
+  font-size: 0.855em;
+  background: transparent;
   border: none;
   color: #f8f8f2;
-  padding: 0;
-  line-height: 1.6;
+  padding: 1.1em 1.4em;
+  line-height: 1.65;
 }
 
 [data-md-color-scheme="slate"] .highlight {
   background: #282a36;
   border-radius: 10px;
+}
+
+/* ── Code blocks with line numbers (highlighttable) ───────────────────────── */
+[data-md-color-scheme="slate"] .md-typeset .highlighttable {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(188, 19, 254, 0.15);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  width: 100%;
+  border-spacing: 0;
+  margin: 1.2em 0;
+}
+
+/* Reset the inner pre border when inside a table */
+[data-md-color-scheme="slate"] .md-typeset .highlighttable pre {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0;
+  background: transparent;
+}
+
+/* Gutter — matches app .line-gutter */
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos {
+  background: rgba(0, 0, 0, 0.15);
+  border-right: 1px solid #44475a;
+  padding: 0 !important;   /* override Material's padding on .linenos */
+  font-size: 1em !important; /* cancel Material's .85em so sizes match */
+  vertical-align: top;
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Remove Material's inset box-shadow (the grey bar) — body prefix for higher specificity */
+body[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv,
+body[data-md-color-scheme="slate"] .md-typeset .highlighttable .linenodiv {
+  box-shadow: none !important;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv pre {
+  background: transparent;
+  padding: 1.1em 14px 1.1em 16px;
+  text-align: right;
+  color: #6272a4;
+  opacity: 0.55;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.855em;
+  line-height: 1.65;
+  user-select: none;
+}
+
+/* Line number anchors — override all link styles */
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv,
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv pre,
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv .normal,
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv a,
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv a:visited {
+  color: #6272a4 !important;
+  border-bottom: none !important;
+  text-decoration: none !important;
+  -webkit-text-fill-color: #6272a4 !important;
+}
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv a:hover {
+  color: #8f98b8 !important;
+  -webkit-text-fill-color: #8f98b8 !important;
+}
+
+/* Code cell */
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.code {
+  padding: 0;
+  background: #282a36;
+  overflow-x: auto;
+  width: 100%;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.code pre {
+  overflow-x: auto;
+}
+
+body[data-md-color-scheme="slate"] .md-typeset .highlighttable td.code pre > code,
+[data-md-color-scheme="slate"] .md-typeset .highlighttable td.code pre > code {
+  padding: 1.1em 1.4em !important;
+  display: block;
+  width: max-content;
+  min-width: 100%;
 }
 
 /* Code block top bar (filename / language label) */
