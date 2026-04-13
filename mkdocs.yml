@@ -36,7 +36,9 @@ nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Configuration: configuration.md
-  - CLI:  cli.md
+  - CLI:
+    - Python / shell: cli.md
+    - PowerShell: cli-powershell.md
   - API: api.md
   - Encryption: encryption.md
   - Self-hosting: self-hosting.md
