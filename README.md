@@ -16,6 +16,8 @@
 <p align="center">
   <a href="https://docs.ghostbit.dev">Documentation</a>
   &nbsp;·&nbsp;
+  <a href="https://ghostbit.dev">Demo</a>
+  &nbsp;·&nbsp;
   <a href="https://pypi.org/project/ghostbit-cli">CLI on PyPI</a>
   &nbsp;·&nbsp;
   <a href="#self-hosting">Self-hosting</a>
