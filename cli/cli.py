@@ -22,7 +22,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 _USER_AGENT  = f"Ghostbit-CLI/{__version__}"
 
 LANGUAGES = [

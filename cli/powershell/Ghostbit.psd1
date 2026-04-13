@@ -1,5 +1,5 @@
 @{
-    ModuleVersion     = '1.0.0'
+    ModuleVersion     = '1.1.0'
     GUID              = 'a3f7e2d1-bc84-4f59-9e31-0d7c6a852f4e'
     Author            = 'StackOps HQ'
     CompanyName       = 'StackOps HQ'
