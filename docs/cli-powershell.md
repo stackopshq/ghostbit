@@ -102,6 +102,38 @@ gbv "https://paste.example.com/abc123#KEY~TOKEN" | more
 
 ---
 
+## Delete a paste
+
+```powershell
+Remove-GhostbitPaste "https://paste.example.com/abc123#KEY~TOKEN"
+gbd "https://paste.example.com/abc123#KEY~TOKEN"
+```
+
+The delete token is read from the URL fragment (after `~`).
+
+---
+
+## Paste history
+
+All created pastes are saved locally. Nothing is sent to the server.
+
+| Platform | Path |
+|----------|------|
+| Windows | `%LOCALAPPDATA%\ghostbit\history.jsonl` |
+| macOS / Linux | `~/.local/share/ghostbit/history.jsonl` |
+
+```powershell
+# List recent pastes
+Get-GhostbitHistory
+gbh
+
+# Wipe local history
+Get-GhostbitHistory -Clear
+gbh -Clear
+```
+
+---
+
 ## Examples
 
 ```powershell

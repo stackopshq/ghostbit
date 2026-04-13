@@ -10,9 +10,11 @@
     FunctionsToExport = @(
         'New-GhostbitPaste'
         'Get-GhostbitPaste'
+        'Remove-GhostbitPaste'
+        'Get-GhostbitHistory'
         'Invoke-GhostbitConfig'
     )
-    AliasesToExport   = @('gb', 'gbv')
+    AliasesToExport   = @('gb', 'gbv', 'gbd', 'gbh')
     CmdletsToExport   = @()
     VariablesToExport = @()
 
