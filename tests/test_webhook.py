@@ -1,7 +1,19 @@
 """Tests for SSRF protection in webhook.py."""
 
+import socket
+from unittest.mock import patch
+
 import pytest
 from app.webhook import _is_ssrf_safe
+
+# Fake getaddrinfo that returns a public IP for any hostname lookup,
+# so tests are deterministic regardless of CI DNS availability.
+_PUBLIC_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.215.14", 0))]
+
+
+def _fake_getaddrinfo(host, port, *args, **kwargs):
+    """Return a public IP for any hostname, simulating successful DNS."""
+    return _PUBLIC_ADDRINFO
 
 
 @pytest.mark.parametrize("url", [
@@ -22,5 +34,6 @@ def test_ssrf_blocked(url):
     "https://discord.com/api/webhooks/123/abc",
     "http://1.2.3.4/hook",             # public IP
 ])
-def test_ssrf_allowed(url):
+@patch("socket.getaddrinfo", side_effect=_fake_getaddrinfo)
+def test_ssrf_allowed(url, _mock):
     assert _is_ssrf_safe(url) is True
