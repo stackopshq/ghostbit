@@ -383,6 +383,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate limiting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#env-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -657,6 +668,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate limiting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#env-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -748,6 +770,18 @@
 <td>No</td>
 <td>If set, signs webhook deliveries with HMAC-SHA256 (<code>X-Ghostbit-Signature</code>)</td>
 </tr>
+<tr>
+<td><code>RATE_LIMIT_CREATE</code></td>
+<td><code>30/minute</code></td>
+<td>No</td>
+<td>Rate limit for paste creation per IP (<code>POST /api/v1/pastes</code>)</td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_VIEW</code></td>
+<td><code>120/minute</code></td>
+<td>No</td>
+<td>Rate limit for paste reads per IP (<code>GET /api/v1/pastes/{id}</code>)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="generating-an-encryption-key">Generating an encryption key<a class="headerlink" href="#generating-an-encryption-key" title="Permanent link">&para;</a></h2>
@@ -782,15 +816,31 @@
 </div>
 </div>
 </div>
+<h2 id="rate-limiting">Rate limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
+<p>Rate limits are applied per client IP using <a href="https://github.com/laurentS/slowapi">slowapi</a>.<br />
+The format is <code>"N/period"</code> where period is <code>second</code>, <code>minute</code>, or <code>hour</code>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a># Tighten limits on a public instance
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>RATE_LIMIT_CREATE=10/minute
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>RATE_LIMIT_VIEW=60/minute
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a># Loosen for internal / self-use instances
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>RATE_LIMIT_CREATE=200/minute
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>RATE_LIMIT_VIEW=600/minute
+</span></code></pre></div>
+<p>When a limit is exceeded the API returns <code>429 Too Many Requests</code>.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ENCRYPTION_KEY=your_hex_encoded_32_byte_key_here
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>SQLITE_PATH=/data/ghostbit.db
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>MAX_PASTE_SIZE=524288
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>PORT=8000
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a># Optional: sign webhook deliveries
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ENCRYPTION_KEY=your_hex_encoded_32_byte_key_here
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>SQLITE_PATH=/data/ghostbit.db
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>PORT=8000
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a># Rate limiting (defaults shown)
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a># RATE_LIMIT_CREATE=30/minute
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a># RATE_LIMIT_VIEW=120/minute
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a># Optional: sign webhook deliveries
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div>
 
 
