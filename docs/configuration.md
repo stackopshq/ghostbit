@@ -4,26 +4,20 @@ All configuration is done via environment variables (or a `.env` file at the pro
 
 ## Variables
 
-| Variable | Default | Required | Description |
-|----------|---------|----------|-------------|
-| `ENCRYPTION_KEY` | — | **Yes** | Hex-encoded 32-byte server key. Used to hash delete tokens. |
-| `STORAGE_BACKEND` | `sqlite` | No | `sqlite` or `redis` |
-| `SQLITE_PATH` | `/data/ghostbit.db` | No | Path to the SQLite database file |
-| `REDIS_URL` | `redis://localhost:6379` | No | Redis connection URL |
-| `REDIS_PASSWORD` | — | No | Redis password. Injected into `REDIS_URL` automatically. Ignored if the URL already contains credentials. |
-| `MAX_PASTE_SIZE` | `524288` | No | Maximum paste size in bytes (default: 512 KB) |
-| `PORT` | `8000` | No | HTTP port the server listens on |
-| `WEBHOOK_SECRET` | — | No | If set, signs webhook deliveries with HMAC-SHA256 (`X-Ghostbit-Signature`) |
-| `RATE_LIMIT_CREATE` | `30/minute` | No | Rate limit for paste creation per IP (`POST /api/v1/pastes`) |
-| `RATE_LIMIT_VIEW` | `120/minute` | No | Rate limit for paste reads per IP (`GET /api/v1/pastes/{id}`) |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `STORAGE_BACKEND` | `sqlite` | `sqlite` or `redis` |
+| `SQLITE_PATH` | `./ghostbit.db` | Path to the SQLite database file (Docker overrides to `/data/ghostbit.db`) |
+| `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
+| `REDIS_PASSWORD` | — | Redis password. Injected into `REDIS_URL` automatically. Ignored if the URL already contains credentials. |
+| `MAX_PASTE_SIZE` | `524288` | Maximum paste size in bytes (default: 512 KB) |
+| `PORT` | `8000` | HTTP port the server listens on |
+| `WEBHOOK_SECRET` | — | If set, signs webhook deliveries with HMAC-SHA256 (`X-Ghostbit-Signature`) |
+| `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation per IP (`POST /api/v1/pastes`) |
+| `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste reads per IP (`GET /api/v1/pastes/{id}`) |
 
-## Generating an encryption key
-
-```bash
-python3 -c "import secrets; print(secrets.token_hex(32))"
-```
-
-The app refuses to start without `ENCRYPTION_KEY`.
+!!! info "No server-side encryption key"
+    All encryption is performed client-side (AES-256-GCM in the browser or CLI). The server never sees plaintext — no `ENCRYPTION_KEY` is needed.
 
 ## Storage backends
 
@@ -85,7 +79,6 @@ When a limit is exceeded the API returns `429 Too Many Requests`.
 ## .env example
 
 ```env
-ENCRYPTION_KEY=your_hex_encoded_32_byte_key_here
 STORAGE_BACKEND=sqlite
 SQLITE_PATH=/data/ghostbit.db
 MAX_PASTE_SIZE=524288

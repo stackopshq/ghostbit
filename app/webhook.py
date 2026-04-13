@@ -25,12 +25,13 @@ import hashlib
 import hmac
 import ipaddress
 import json
+import socket
 import time
 import urllib.parse
 import urllib.request
 from typing import Optional
 
-from config import settings
+from .config import settings
 
 # RFC-1918 + loopback + link-local ranges forbidden as webhook targets
 _PRIVATE_NETWORKS = [
@@ -46,18 +47,35 @@ _PRIVATE_NETWORKS = [
 
 
 def _is_ssrf_safe(url: str) -> bool:
-    """Return True only if the URL hostname resolves to a public IP."""
+    """Return True only if the URL hostname is public (bare IP or resolved DNS)."""
     try:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme not in ("http", "https"):
             return False
         host = parsed.hostname or ""
-        addr = ipaddress.ip_address(host)
-        return not any(addr in net for net in _PRIVATE_NETWORKS)
-    except ValueError:
-        # hostname (not a bare IP) — allow; DNS resolution happens at delivery time
-        # and is outside our control, but bare private IPs are blocked above
-        return True
+        if not host:
+            return False
+        # Fast path: bare IP address
+        try:
+            addr = ipaddress.ip_address(host)
+            return not any(addr in net for net in _PRIVATE_NETWORKS)
+        except ValueError:
+            pass
+        # Hostname: resolve all returned addresses and reject if any is private
+        try:
+            infos = socket.getaddrinfo(host, None)
+        except socket.gaierror:
+            return False
+        for info in infos:
+            try:
+                addr = ipaddress.ip_address(info[4][0])
+                if any(addr in net for net in _PRIVATE_NETWORKS):
+                    return False
+            except ValueError:
+                return False
+        return bool(infos)
+    except Exception:
+        return False
 
 
 def fire(
@@ -88,7 +106,7 @@ async def _deliver(
 
     try:
         await asyncio.wait_for(
-            asyncio.get_event_loop().run_in_executor(
+            asyncio.get_running_loop().run_in_executor(
                 None, _post, url, payload
             ),
             timeout=5.0,

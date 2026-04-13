@@ -1,6 +1,6 @@
 # PowerShell CLI
 
-A native PowerShell module that mirrors the Python `gb` CLI.  
+A native PowerShell module that mirrors the Python `gbit` CLI.  
 All encryption is done client-side using the built-in .NET cryptography APIs — no external dependencies.
 
 **Requirements:** PowerShell 7.0+ (Windows, macOS, or Linux)
@@ -54,14 +54,14 @@ Config is stored at:
 ### From the pipeline
 
 ```powershell
-Get-Content main.py | gb
+Get-Content main.py | gbit
 Get-Content main.py | New-GhostbitPaste
 ```
 
 ### From a file
 
 ```powershell
-gb main.py
+gbit main.py
 New-GhostbitPaste main.py
 ```
 
@@ -91,13 +91,13 @@ Download, decrypt, and print a paste directly in the terminal:
 ```powershell
 # Non-password paste (key is in the URL fragment)
 Get-GhostbitPaste "https://paste.example.com/abc123#KEY~TOKEN"
-gbv "https://paste.example.com/abc123#KEY~TOKEN"
+gbitv "https://paste.example.com/abc123#KEY~TOKEN"
 
 # Password-protected paste (prompts interactively)
-gbv "https://paste.example.com/abc123#~TOKEN"
+gbitv "https://paste.example.com/abc123#~TOKEN"
 
 # Pipe to a pager
-gbv "https://paste.example.com/abc123#KEY~TOKEN" | more
+gbitv "https://paste.example.com/abc123#KEY~TOKEN" | more
 ```
 
 ---
@@ -106,7 +106,7 @@ gbv "https://paste.example.com/abc123#KEY~TOKEN" | more
 
 ```powershell
 Remove-GhostbitPaste "https://paste.example.com/abc123#KEY~TOKEN"
-gbd "https://paste.example.com/abc123#KEY~TOKEN"
+gbitd "https://paste.example.com/abc123#KEY~TOKEN"
 ```
 
 The delete token is read from the URL fragment (after `~`).
@@ -125,11 +125,11 @@ All created pastes are saved locally. Nothing is sent to the server.
 ```powershell
 # List recent pastes
 Get-GhostbitHistory
-gbh
+gbith
 
 # Wipe local history
 Get-GhostbitHistory -Clear
-gbh -Clear
+gbith -Clear
 ```
 
 ---
@@ -138,30 +138,30 @@ gbh -Clear
 
 ```powershell
 # Burn after read
-Get-Content deploy.ps1 | gb -Burn
+Get-Content deploy.ps1 | gbit -Burn
 
 # Expire in 1 hour, max 3 views
-gb config.yml -ExpiresIn 3600 -MaxViews 3
+gbit config.yml -ExpiresIn 3600 -MaxViews 3
 
 # Password protected
-"db_password=s3cr3t" | gb -Password mysecret
+"db_password=s3cr3t" | gbit -Password mysecret
 
 # Language override
-Invoke-RestMethod https://api.example.com/data | ConvertTo-Json | gb -Language json
+Invoke-RestMethod https://api.example.com/data | ConvertTo-Json | gbit -Language json
 
 # Scripting: URL only
-$url = Get-Content file.py | gb -Quiet
+$url = Get-Content file.py | gbit -Quiet
 Write-Host "Paste created: $url"
 
 # Full JSON response
-Get-Content data.json | gb -AsJson
+Get-Content data.json | gbit -AsJson
 ```
 
 ---
 
 ## Supported language extensions
 
-Auto-detected from file extension when using `gb <file>`:
+Auto-detected from file extension when using `gbit <file>`:
 
 | Extension | Language |
 |-----------|----------|

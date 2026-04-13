@@ -1,19 +1,23 @@
+import hashlib
 import logging
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, Form, HTTPException, Path, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import FastAPI, Form, HTTPException, Path as PathParam, Request
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from api import router as api_router
-from config import settings
-from storage import get_storage
+from .api import router as api_router
+from .config import settings
+from .storage import get_storage
+
+_ROOT = Path(__file__).resolve().parent.parent
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -40,7 +44,27 @@ async def lifespan(app: FastAPI):
     await app.state.storage.close()
 
 
-app = FastAPI(title="Ghostbit", lifespan=lifespan, docs_url=None, redoc_url=None)
+app = FastAPI(
+    title="Ghostbit",
+    description=(
+        "Self-hosted, end-to-end encrypted paste service.\n\n"
+        "All encryption is performed **client-side** (AES-256-GCM). "
+        "The server stores ciphertext only and can **never** read paste content.\n\n"
+        "The decryption key lives exclusively in the URL `#fragment` — it is never transmitted to the server."
+    ),
+    version="1.0.0",
+    contact={
+        "name": "StackOps HQ",
+        "url": "https://github.com/stackopshq/ghostbit",
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://github.com/stackopshq/ghostbit/blob/main/LICENSE",
+    },
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -66,8 +90,14 @@ Preferred-Languages: en, fr
 
 @app.get("/.well-known/security.txt", include_in_schema=False)
 async def security_txt():
-    from fastapi.responses import PlainTextResponse
     return PlainTextResponse(_SECURITY_TXT)
+
+
+_ROBOTS_TXT = """User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc\nAllow: /$\nSitemap:\n"""
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt():
+    return PlainTextResponse(_ROBOTS_TXT)
 
 
 app.include_router(api_router)
@@ -78,8 +108,18 @@ logging.getLogger("uvicorn.access").addFilter(
         "filter": lambda self, r: "/healthz" not in r.getMessage()
     })()
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory=str(_ROOT / "static")), name="static")
+templates = Jinja2Templates(directory=str(_ROOT / "templates"))
+
+# Cache-busting: short hash of static assets computed once at startup
+def _asset_hash() -> str:
+    h = hashlib.md5()
+    for f in sorted((_ROOT / "static").glob("*")):
+        if f.is_file():
+            h.update(f.read_bytes())
+    return h.hexdigest()[:8]
+
+templates.env.globals["v"] = _asset_hash()
 
 
 def _format_expiry(expires_at: Optional[int]) -> Optional[str]:
@@ -114,7 +154,7 @@ async def index(request: Request):
 @app.get("/{paste_id}", response_class=HTMLResponse)
 async def view_paste(
     request: Request,
-    paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
+    paste_id: str = PathParam(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
 ):
     storage = request.app.state.storage
     paste = await storage.get(paste_id)
@@ -140,7 +180,7 @@ async def view_paste(
 @app.get("/{paste_id}/raw", response_class=HTMLResponse)
 async def raw_paste(
     request: Request,
-    paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
+    paste_id: str = PathParam(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
 ):
     storage = request.app.state.storage
     paste = await storage.get(paste_id)
@@ -164,10 +204,14 @@ async def raw_paste(
 @app.post("/{paste_id}/delete")
 async def delete_paste(
     request: Request,
-    paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
+    paste_id: str = PathParam(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
     key: str = Form(...),
 ):
-    success = await request.app.state.storage.delete(paste_id, key)
+    storage = request.app.state.storage
+    paste = await storage.get(paste_id)
+    if paste is None:
+        raise HTTPException(status_code=404, detail="Paste not found.")
+    success = await storage.delete(paste_id, key)
     if not success:
-        raise HTTPException(status_code=403, detail="Invalid token.")
+        raise HTTPException(status_code=403, detail="Invalid delete token.")
     return RedirectResponse("/", status_code=303)

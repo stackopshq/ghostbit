@@ -22,6 +22,11 @@ class PasteData:
 
 class StorageBackend(ABC):
     @abstractmethod
+    async def init(self) -> None:
+        """Initialize the storage backend (create tables, connect, etc.)."""
+        ...
+
+    @abstractmethod
     async def save(self, paste: PasteData) -> None: ...
 
     @abstractmethod
@@ -34,9 +39,6 @@ class StorageBackend(ABC):
 
     @abstractmethod
     async def delete(self, paste_id: str, delete_token: str) -> bool: ...
-
-    @abstractmethod
-    async def force_delete(self, paste_id: str) -> None: ...
 
     @abstractmethod
     async def force_delete(self, paste_id: str) -> None: ...

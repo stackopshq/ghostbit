@@ -40,7 +40,7 @@ Repository = "https://github.com/stackopshq/ghostbit"
 "Bug Tracker" = "https://github.com/stackopshq/ghostbit/issues"
 
 [project.scripts]
-gb = "cli:main"
+gbit = "cli:main"
 ghostbit = "cli:main"
 
 [tool.setuptools]

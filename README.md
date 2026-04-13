@@ -57,7 +57,7 @@ https://paste.example.com/aB3kZx9m#KEY~DELETE_TOKEN
 - **Webhook** — POST notification on each read
 - **Language detection** — auto-detected from content or file extension
 - **Markdown preview** — rendered in-browser
-- **CLI** — `gb` command, pipe anything from your terminal
+- **CLI** — `gbit` command, pipe anything from your terminal
 - **REST API** — full API for automation and integrations
 - **SQLite / Redis** — swap storage backends with a single env var
 
@@ -71,24 +71,24 @@ pip install ghostbit-cli
 
 ```bash
 # Paste from stdin
-cat main.py | gb
+cat main.py | gbit
 
 # Paste a file (language auto-detected)
-gb secrets.env --burn --expires 3600
+gbit secrets.env --burn --expires 3600
 
-# Password-protected
-echo "db_pass=s3cr3t" | gb --password mysecret
+# Password-protected (secure prompt)
+echo "db_pass=s3cr3t" | gbit -p
 
 # Scripting
-URL=$(cat deploy.sh | gb --quiet)
+URL=$(cat deploy.sh | gbit --quiet)
 
 # Point to your instance
-gb config set server https://paste.example.com
+gbit config set server https://paste.example.com
 
 # Shell completion (bash / zsh / fish)
-eval "$(gb completion bash)"
-eval "$(gb completion zsh)"
-gb completion fish | source
+eval "$(gbit completion bash)"
+eval "$(gbit completion zsh)"
+gbit completion fish | source
 ```
 
 ---
@@ -159,28 +159,98 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `STORAGE_BACKEND` | `sqlite` | `sqlite` or `redis` |
-| `SQLITE_PATH` | `/data/ghostbit.db` | SQLite file path |
+| `SQLITE_PATH` | `./ghostbit.db` | SQLite file path (Docker overrides to `/data/ghostbit.db`) |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
 | `REDIS_PASSWORD` | — | Redis password (injected into `REDIS_URL` automatically) |
 | `MAX_PASTE_SIZE` | `524288` | Max paste size in bytes (512 KB) |
 | `PORT` | `8000` | Server port |
+| `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation |
+| `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste viewing |
+| `WEBHOOK_SECRET` | — | HMAC-SHA256 secret for signing webhook payloads |
 
 ---
 
 ## API
 
+All content is encrypted **client-side** — the API only handles ciphertext. Interactive Swagger docs are available at `/docs`.
+
 ```bash
 # Create (content must be pre-encrypted — use the CLI or e2e.js)
 curl -X POST https://paste.example.com/api/v1/pastes \
   -H "Content-Type: application/json" \
-  -d '{"content":"<base64 ciphertext>","nonce":"<base64 nonce>"}'
+  -d '{"content":"<base64 ciphertext>","nonce":"<base64 nonce>","language":"python"}'
+
+# Retrieve (returns ciphertext — client decrypts)
+curl https://paste.example.com/api/v1/pastes/{id}
 
 # Delete
 curl -X DELETE https://paste.example.com/api/v1/pastes/{id} \
   -H "X-Delete-Token: <token>"
+
+# Detect language (plaintext)
+curl -X POST https://paste.example.com/api/v1/detect \
+  -H "Content-Type: application/json" \
+  -d '{"content":"def hello():\n    print(42)"}'
 ```
 
-Full API reference at [docs.ghostbit.dev/api](https://docs.ghostbit.dev/api).
+See the in-app API docs page at `/api` or the interactive Swagger UI at `/docs`.
+
+---
+
+## Local development
+
+```bash
+git clone https://github.com/stackopshq/ghostbit
+cd ghostbit
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn app.main:app --reload --port 8000
+```
+
+Open [http://localhost:8000](http://localhost:8000). SQLite is used by default, no external service required.
+
+### Running tests
+
+```bash
+pip install pytest pytest-asyncio httpx
+pytest tests/ -v
+```
+
+---
+
+## Security
+
+Ghostbit follows a **zero-knowledge** architecture:
+
+| | Server sees | Server **cannot** see |
+|---|---|---|
+| Paste content | AES-256-GCM ciphertext | Plaintext |
+| Encryption key | Never (stays in URL `#fragment`) | — |
+| Password | Never (PBKDF2 runs in browser/CLI) | — |
+| Delete token | SHA-256 hash only | Plaintext token |
+| Metadata | Language, timestamps, view count | — |
+
+- The URL `#fragment` is **never sent** to the server by any browser.
+- A compromised server cannot decrypt any paste — past or future.
+- SSRF protection blocks webhooks to private/internal networks.
+- Rate limiting protects against abuse on all endpoints.
+
+If you discover a security vulnerability, please report it responsibly via [GitHub Security Advisories](https://github.com/stackopshq/ghostbit/security/advisories).
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Commit with clear messages (`git commit -m "feat: add X"`)
+4. Push and open a Pull Request
+
+Please ensure:
+- All existing tests pass (`pytest tests/ -v`)
+- New features include tests when applicable
+- Code follows the existing style (no linter enforced, just be consistent)
 
 ---
 

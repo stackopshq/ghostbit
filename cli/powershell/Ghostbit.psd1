@@ -14,7 +14,7 @@
         'Get-GhostbitHistory'
         'Invoke-GhostbitConfig'
     )
-    AliasesToExport   = @('gb', 'gbv', 'gbd', 'gbh')
+    AliasesToExport   = @('gbit', 'gbitv', 'gbitd', 'gbith')
     CmdletsToExport   = @()
     VariablesToExport = @()
 

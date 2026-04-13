@@ -8,15 +8,14 @@ All content is encrypted in your browser before being sent to the server. The se
 ## Quickstart
 
 ```bash
-# 1. Generate an encryption key
-python3 -c "import secrets; print(secrets.token_hex(32))"
-
-# 2. Configure and start
-cp .env.example .env   # fill in ENCRYPTION_KEY
+git clone https://github.com/stackopshq/ghostbit
+cd ghostbit
+cp .env.example .env
 docker compose up -d
-
-# 3. Open http://localhost:8000
+# Open http://localhost:8000
 ```
+
+No server-side key needed — all encryption happens in the browser.
 
 ## Install the CLI
 
@@ -25,9 +24,9 @@ pip install ghostbit-cli
 ```
 
 ```bash
-cat file.py | gb
-gb secrets.env --burn --expires 3600
-echo "hello" | gb --password mysecret
+cat file.py | gbit
+gbit secrets.env --burn --expires 3600
+echo "hello" | gbit -p
 ```
 
 ## Features
@@ -42,6 +41,6 @@ echo "hello" | gb --password mysecret
 | **Webhook** | POST notification each time a paste is viewed |
 | **Language detection** | Auto-detected from content or file extension |
 | **Markdown preview** | Rendered in-browser for markdown pastes |
-| **CLI** | `gb` command — pipe anything, works with scripts |
+| **CLI** | `gbit` command — pipe anything, works with scripts |
 | **REST API** | Full API for automation and integrations |
 | **SQLite / Redis** | Two storage backends, swap with an env var |

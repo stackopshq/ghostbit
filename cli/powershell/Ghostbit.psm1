@@ -4,7 +4,7 @@
   Ghostbit PowerShell module — create and view encrypted pastes from the terminal.
 
 .DESCRIPTION
-  Mirrors the Python CLI (gb). All encryption is done client-side with AES-256-GCM
+  Mirrors the Python CLI (gbit). All encryption is done client-side with AES-256-GCM
   using the .NET System.Security.Cryptography APIs (no external dependencies).
 
   Requires PowerShell 7.0+ (.NET 5+).
@@ -175,7 +175,7 @@ function New-GhostbitPaste {
       the URL fragment returned by this command.
 
     .PARAMETER InputObject
-      Content piped from the pipeline (e.g. Get-Content file.py | gb).
+      Content piped from the pipeline (e.g. Get-Content file.py | gbit).
 
     .PARAMETER Path
       Path to a file to paste. Language is auto-detected from the extension.
@@ -210,7 +210,7 @@ function New-GhostbitPaste {
       New-GhostbitPaste main.py -ExpiresIn 3600 -Password s3cr3t
     #>
     [CmdletBinding()]
-    [Alias('gb')]
+    [Alias('gbit')]
     param(
         [Parameter(ValueFromPipeline)]
         [string]$InputObject,
@@ -366,10 +366,10 @@ function Get-GhostbitPaste {
 
     .EXAMPLE
       Get-GhostbitPaste "https://paste.example.com/abc123#KEY~TOKEN"
-      gbv "https://paste.example.com/abc123#~TOKEN"   # prompts for password
+      gbitv "https://paste.example.com/abc123#~TOKEN"   # prompts for password
     #>
     [CmdletBinding()]
-    [Alias('gbv')]
+    [Alias('gbitv')]
     param(
         [Parameter(Mandatory, Position = 0)]
         [string]$Url,
@@ -508,10 +508,10 @@ function Remove-GhostbitPaste {
 
     .EXAMPLE
       Remove-GhostbitPaste "https://paste.example.com/abc123#KEY~TOKEN"
-      gbd "https://paste.example.com/abc123#KEY~TOKEN"
+      gbitd "https://paste.example.com/abc123#KEY~TOKEN"
     #>
     [CmdletBinding()]
-    [Alias('gbd')]
+    [Alias('gbitd')]
     param(
         [Parameter(Mandatory, Position = 0)]
         [string]$Url
@@ -563,10 +563,10 @@ function Get-GhostbitHistory {
     .EXAMPLE
       Get-GhostbitHistory
       Get-GhostbitHistory -Clear
-      gbh
+      gbith
     #>
     [CmdletBinding()]
-    [Alias('gbh')]
+    [Alias('gbith')]
     param(
         [switch]$Clear
     )
@@ -634,4 +634,4 @@ function Get-GhostbitHistory {
 
 Export-ModuleMember -Function New-GhostbitPaste, Get-GhostbitPaste, Remove-GhostbitPaste, `
                                Get-GhostbitHistory, Invoke-GhostbitConfig `
-                    -Alias gb, gbv, gbd, gbh
+                    -Alias gbit, gbitv, gbitd, gbith

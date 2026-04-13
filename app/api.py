@@ -16,20 +16,20 @@ import secrets
 import time
 from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Path, Request
 from pydantic import BaseModel, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from config import settings
-from detect import detect_language
-from storage.base import PasteData
-import webhook
-from webhook import _is_ssrf_safe
+from .config import settings
+from .detect import detect_language
+from .storage.base import PasteData
+from . import webhook
+from .webhook import _is_ssrf_safe
 
 limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/api/v1", tags=["API"])
+router = APIRouter(prefix="/api/v1", tags=["Pastes"])
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ class PasteCreateRequest(BaseModel):
     nonce: str                    = Field(..., description="Base64 12-byte GCM nonce.")
     kdf_salt: Optional[str]       = Field(None, description="Base64 PBKDF2 salt. Present only for password-protected pastes.")
     language: Optional[str]       = None
-    expires_in: Optional[int]     = Field(None, description="TTL in seconds. Null = never.")
+    expires_in: Optional[int]     = Field(None, ge=1, description="TTL in seconds (≥ 1). Null = never.")
     burn: bool                    = False
     max_views: Optional[int]      = Field(None, ge=1, description="Delete after N views.")
     webhook_url: Optional[str]    = Field(None, description="URL to POST when the paste is read.")
@@ -79,7 +79,22 @@ def _base_url(request: Request) -> str:
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
-@router.post("/pastes", response_model=PasteCreateResponse, status_code=201)
+@router.post(
+    "/pastes",
+    response_model=PasteCreateResponse,
+    status_code=201,
+    summary="Create a paste",
+    description=(
+        "Create a new end-to-end encrypted paste.\n\n"
+        "The `content` field must be a **Base64-encoded AES-256-GCM ciphertext** produced client-side "
+        "(use the CLI or `e2e.js`). The server never sees the plaintext.\n\n"
+        "Returns the paste ID, its public URL, and a one-time `delete_token`."
+    ),
+    responses={
+        400: {"description": "Content too large or invalid webhook URL."},
+        429: {"description": "Rate limit exceeded."},
+    },
+)
 @limiter.limit(lambda: settings.rate_limit_create)
 async def create_paste(body: PasteCreateRequest, request: Request):
     # Content is base64 ciphertext; max size check with base64 overhead (~4/3 expansion)
@@ -124,13 +139,23 @@ async def create_paste(body: PasteCreateRequest, request: Request):
     )
 
 
-@router.get("/pastes/{paste_id}", response_model=PasteResponse)
+@router.get(
+    "/pastes/{paste_id}",
+    response_model=PasteResponse,
+    summary="Retrieve a paste",
+    description=(
+        "Returns the ciphertext and metadata for a paste.\n\n"
+        "The caller is responsible for **decrypting the content** using the key stored in the URL `#fragment`.\n\n"
+        "This call counts as a view: burn-after-read and max-views pastes are deleted once the threshold is reached.\n\n"
+        "If a webhook URL was set at creation, a notification is fired after this call."
+    ),
+    responses={
+        404: {"description": "Paste not found, expired, or already burned."},
+        429: {"description": "Rate limit exceeded."},
+    },
+)
 @limiter.limit(lambda: settings.rate_limit_view)
-async def get_paste(paste_id: str, request: Request):
-    """
-    Returns the ciphertext and metadata. The caller is responsible for
-    decrypting the content using the key stored in the URL fragment.
-    """
+async def get_paste(paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"), request: Request = None):
     storage = _storage(request)
     paste = await storage.get(paste_id)
 
@@ -171,13 +196,41 @@ class DetectRequest(BaseModel):
 class DetectResponse(BaseModel):
     language: Optional[str]
 
-@router.post("/detect", response_model=DetectResponse)
-async def detect(body: DetectRequest):
+@router.post(
+    "/detect",
+    response_model=DetectResponse,
+    summary="Detect language",
+    description=(
+        "Attempt to detect the programming language of a **plaintext** snippet.\n\n"
+        "Uses a two-stage strategy: fast regex patterns first, then a Pygments heuristic fallback "
+        "for longer content. Returns `null` if confidence is too low."
+    ),
+    tags=["Utilities"],
+)
+@limiter.limit(lambda: settings.rate_limit_view)
+async def detect(body: DetectRequest, request: Request):
     return DetectResponse(language=detect_language(body.content))
 
 
-@router.delete("/pastes/{paste_id}", status_code=204)
-async def delete_paste(paste_id: str, request: Request, x_delete_token: str = Header(...)):
-    success = await _storage(request).delete(paste_id, x_delete_token)
+@router.delete(
+    "/pastes/{paste_id}",
+    status_code=204,
+    summary="Delete a paste",
+    description=(
+        "Permanently delete a paste.\n\n"
+        "Requires the `X-Delete-Token` header returned at creation time. "
+        "The token is verified against a SHA-256 hash — the plaintext token is never stored."
+    ),
+    responses={
+        403: {"description": "Invalid or missing delete token."},
+        404: {"description": "Paste not found."},
+    },
+)
+async def delete_paste(paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"), request: Request = None, x_delete_token: str = Header(..., description="Delete token returned at paste creation.")):
+    storage = _storage(request)
+    paste = await storage.get(paste_id)
+    if paste is None:
+        raise HTTPException(404, "Paste not found.")
+    success = await storage.delete(paste_id, x_delete_token)
     if not success:
         raise HTTPException(403, "Invalid delete token.")

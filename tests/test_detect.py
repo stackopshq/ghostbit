@@ -5,7 +5,7 @@ the interface contract, not specific detection accuracy.
 """
 
 import pytest
-from detect import detect_language
+from app.detect import detect_language
 
 _PYTHON = """
 import os

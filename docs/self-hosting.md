@@ -19,7 +19,6 @@ Available tags: `latest`, `edge`, semver (`1.0.0`, `1.0`, `1`).
 git clone https://github.com/stackopshq/ghostbit
 cd ghostbit
 cp .env.example .env
-# Edit .env: set ENCRYPTION_KEY
 docker compose up -d
 ```
 

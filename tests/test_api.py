@@ -15,8 +15,8 @@ _tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 os.environ["SQLITE_PATH"] = _tmp_db.name
 _tmp_db.close()
 
-from main import app
-from storage import get_storage
+from app.main import app
+from app.storage import get_storage
 
 
 @pytest_asyncio.fixture(scope="module")

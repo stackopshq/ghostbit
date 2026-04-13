@@ -7,6 +7,32 @@ import redis.asyncio as aioredis
 
 from .base import PasteData, StorageBackend
 
+# Atomically increments view_count inside the JSON blob and preserves TTL.
+_LUA_INCREMENT_VIEWS = """
+local data = redis.call('GET', KEYS[1])
+if not data then return 0 end
+local d = cjson.decode(data)
+d['view_count'] = (d['view_count'] or 0) + 1
+local new_data = cjson.encode(d)
+local ttl = redis.call('TTL', KEYS[1])
+if ttl > 0 then
+    redis.call('SETEX', KEYS[1], ttl, new_data)
+else
+    redis.call('SET', KEYS[1], new_data)
+end
+return d['view_count']
+"""
+
+# Atomically checks the delete token and deletes the key in one round-trip.
+_LUA_DELETE = """
+local data = redis.call('GET', KEYS[1])
+if not data then return 0 end
+local d = cjson.decode(data)
+if d['delete_token_hash'] ~= ARGV[1] then return 0 end
+redis.call('DEL', KEYS[1])
+return 1
+"""
+
 
 class RedisStorage(StorageBackend):
     def __init__(self, url: str) -> None:
@@ -15,6 +41,8 @@ class RedisStorage(StorageBackend):
 
     async def init(self) -> None:
         self._client = aioredis.from_url(self.url, decode_responses=True)
+        self._increment_views_script = self._client.register_script(_LUA_INCREMENT_VIEWS)
+        self._delete_script = self._client.register_script(_LUA_DELETE)
 
     def _key(self, paste_id: str) -> str:
         return f"paste:{paste_id}"
@@ -38,8 +66,9 @@ class RedisStorage(StorageBackend):
         key = self._key(paste.id)
         if paste.expires_at:
             ttl = paste.expires_at - int(time.time())
-            if ttl > 0:
-                await self._client.setex(key, ttl, data)
+            if ttl <= 0:
+                return  # Already expired, don't store
+            await self._client.setex(key, ttl, data)
         else:
             await self._client.set(key, data)
 
@@ -54,36 +83,13 @@ class RedisStorage(StorageBackend):
         return PasteData(**d)
 
     async def increment_views(self, paste_id: str) -> int:
-        key = self._key(paste_id)
-        data = await self._client.get(key)
-        if data is None:
-            return 0
-        d = json.loads(data)
-        d["view_count"] = d.get("view_count", 0) + 1
-        # Preserve TTL
-        ttl = await self._client.ttl(key)
-        new_data = json.dumps(d)
-        if ttl > 0:
-            await self._client.setex(key, ttl, new_data)
-        else:
-            await self._client.set(key, new_data)
-        return d["view_count"]
+        result = await self._increment_views_script(keys=[self._key(paste_id)])
+        return int(result)
 
     async def delete(self, paste_id: str, delete_token: str) -> bool:
         token_hash = hashlib.sha256(delete_token.encode()).hexdigest()
-        key = self._key(paste_id)
-        async with self._client.pipeline() as pipe:
-            await pipe.get(key)
-            await pipe.delete(key)
-            results = await pipe.execute()
-        raw = results[0]
-        if raw is None:
-            return False
-        d = json.loads(raw)
-        if d["delete_token_hash"] != token_hash:
-            await self._client.set(key, raw)
-            return False
-        return True
+        result = await self._delete_script(keys=[self._key(paste_id)], args=[token_hash])
+        return bool(result)
 
     async def force_delete(self, paste_id: str) -> None:
         await self._client.delete(self._key(paste_id))

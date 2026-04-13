@@ -25,7 +25,7 @@
 </body>
 
 <script id="paste-meta" type="application/json">{"id": {{ paste.id | tojson }}}</script>
-<script src="/static/e2e.js"></script>
+<script src="/static/e2e.js?v={{ v }}"></script>
 <script>
 (async () => {
   const meta    = JSON.parse(document.getElementById('paste-meta').textContent);

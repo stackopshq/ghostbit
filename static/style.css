@@ -11,8 +11,8 @@
   /* Dracula palette */
   --drac-bg:        #282a36;
   --drac-current:   #44475a;
-  --drac-fg:        #f8f8f2;
-  --drac-comment:   #6272a4;
+  --drac-fg:        #ffffff;
+  --drac-comment:   #8f9ec7;
   --drac-purple:    #bd93f9;
   --drac-pink:      #ff79c6;
   --drac-cyan:      #8be9fd;
@@ -35,11 +35,12 @@
   --bg-page:      #21222c;
   --card:         #282a36;
   --card-2:       #323445;
+  --code-bg:      #363a50;
   --border:       #44475a;
   --border-focus: #BC13FE;
   --text:         #f8f8f2;
-  --text-muted:   #6272a4;
-  --text-sub:     #8f98b8;
+  --text-muted:   #8b9cc8;
+  --text-sub:     #a8b2d4;
   --accent:       #BC13FE;
   --accent-hover: #D067FF;
   --accent-dim:   rgba(188, 19, 254, 0.15);
@@ -353,11 +354,12 @@ header {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  background: var(--code-bg);
 }
 
 .editor-gutter {
   padding: 16px 12px 16px 14px;
-  border-right: 1px solid rgba(255,255,255,0.06);
+  border-right: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 0.875rem;
@@ -366,7 +368,7 @@ header {
   user-select: none;
   white-space: pre;
   min-width: 44px;
-  opacity: 0.35;
+  opacity: 0.7;
   flex-shrink: 0;
   overflow: hidden;
   pointer-events: none;
@@ -395,8 +397,9 @@ header {
   pointer-events: none;
   tab-size: 2;
   word-break: normal;
-  /* base text transparent so only hljs tokens are colored */
-  color: transparent;
+  /* base text uses default fg so untagged nodes stay visible when hl-active */
+  color: var(--drac-fg);
+  background: transparent;
   margin: 0;
 }
 .editor-highlight .hljs { background: transparent; }
@@ -407,6 +410,8 @@ textarea {
   flex: 1;
   min-height: 0;
   width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
   background: transparent;
   border: none;
   color: var(--text);
@@ -465,8 +470,52 @@ textarea::placeholder { color: var(--text-sub); opacity: 0.5; }
   outline: none;
   width: 80px;
   transition: border-color var(--transition);
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
+.input-small::-webkit-outer-spin-button,
+.input-small::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
 .input-small:focus { border-color: var(--border-focus); }
+
+.number-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.number-wrap:focus-within { border-color: var(--border-focus); }
+.number-wrap .input-small {
+  border: none;
+  border-radius: 0;
+  width: 52px;
+  text-align: center;
+  padding: 5px 4px;
+}
+.number-wrap .input-small:focus { border-color: transparent; }
+.number-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 100%;
+  min-height: 30px;
+  background: var(--card-2);
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  transition: background var(--transition), color var(--transition);
+  user-select: none;
+  padding: 0;
+}
+.number-btn:hover { background: var(--border); color: var(--text); }
+.number-btn:active { background: var(--accent-dim); color: var(--accent); }
+.number-btn-minus { border-right: 1px solid rgba(255,255,255,0.07); }
+.number-btn-plus  { border-left: 1px solid rgba(255,255,255,0.07); }
 .option-row-webhook  { border-bottom: none; }
 
 .option-text { flex: 1; min-width: 0; }
@@ -676,18 +725,22 @@ kbd {
 
 /* ── Paste view page ────────────────────────────────────────────────────────── */
 .page-plain {
-  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-gradient);
   background-attachment: scroll;
 }
 
 .paste-layout {
+  flex: 1;
   padding-top: 28px;
   max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
   padding-left: 32px;
   padding-right: 32px;
-  padding-bottom: 80px;
+  padding-bottom: 40px;
 }
 
 .paste-info { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
@@ -801,12 +854,33 @@ kbd {
   transition: background var(--transition), opacity var(--transition);
   white-space: nowrap;
 }
+.btn-action-url {
+  background: rgba(139, 233, 253, 0.1);
+  border-color: rgba(139, 233, 253, 0.3);
+  color: var(--drac-cyan);
+}
+.btn-action-url:hover { background: rgba(139, 233, 253, 0.2); }
 .btn-action-copy {
   background: rgba(80, 250, 123, 0.1);
   border-color: rgba(80, 250, 123, 0.3);
   color: var(--drac-green);
 }
 .btn-action-copy:hover { background: rgba(80, 250, 123, 0.2); }
+.btn-action-raw {
+  background: rgba(255, 184, 108, 0.1);
+  border-color: rgba(255, 184, 108, 0.3);
+  color: var(--drac-orange);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-action-raw:hover { background: rgba(255, 184, 108, 0.2); }
+.btn-action-download {
+  background: rgba(241, 250, 140, 0.1);
+  border-color: rgba(241, 250, 140, 0.3);
+  color: var(--drac-yellow);
+}
+.btn-action-download:hover { background: rgba(241, 250, 140, 0.2); }
 .btn-action-delete {
   background: rgba(255, 85, 85, 0.1);
   border-color: rgba(255, 85, 85, 0.3);
@@ -822,10 +896,10 @@ kbd {
   overflow: hidden;
   box-shadow: var(--shadow-card), 0 0 30px rgba(188, 19, 254, 0.07);
 }
-.paste-body { display: flex; overflow: auto; }
+.paste-body { display: flex; overflow: auto; background: var(--code-bg); }
 
 .line-gutter {
-  padding: 20px 14px 20px 16px;
+  padding: 16px 12px 16px 14px;
   border-right: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-mono);
@@ -834,22 +908,21 @@ kbd {
   text-align: right;
   user-select: none;
   white-space: pre;
-  min-width: 52px;
-  opacity: 0.4;
+  min-width: 44px;
+  opacity: 0.7;
   flex-shrink: 0;
-  background: rgba(0,0,0,0.12);
 }
 
 .paste-body pre {
   margin: 0;
-  padding: 20px 28px;
+  padding: 16px 20px;
   flex: 1;
   font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.7;
   white-space: pre;
-  tab-size: 4;
-  color: var(--text);
+  tab-size: 2;
+  color: var(--drac-fg);
   min-width: 0;
   overflow-x: auto;
 }

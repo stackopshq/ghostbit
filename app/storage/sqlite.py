@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import time
+from pathlib import Path
 from typing import Optional
 
 import aiosqlite
@@ -42,6 +43,7 @@ class SQLiteStorage(StorageBackend):
         self._cleanup_task: Optional[asyncio.Task] = None
 
     async def init(self) -> None:
+        Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         async with aiosqlite.connect(self.path) as db:
             await db.execute(_CREATE_TABLE)
             # Migrate existing DBs that lack the new columns

@@ -1,6 +1,6 @@
 from urllib.parse import urlparse, urlunparse
 
-from config import settings
+from ..config import settings
 
 from .base import StorageBackend
 

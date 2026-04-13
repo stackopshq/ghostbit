@@ -23,7 +23,7 @@ Content-Type: application/json
 | `nonce` | string | **Yes** | Base64 12-byte GCM nonce |
 | `kdf_salt` | string | No | Base64 PBKDF2 salt — present only for password-protected pastes |
 | `language` | string | No | Language hint for syntax highlighting |
-| `expires_in` | integer | No | TTL in seconds |
+| `expires_in` | integer | No | TTL in seconds (≥ 1) |
 | `burn` | boolean | No | Delete after first view. Default: `false` |
 | `max_views` | integer | No | Delete after N views (≥ 1) |
 | `webhook_url` | string | No | URL to POST on each read |
@@ -95,6 +95,7 @@ X-Delete-Token: rA8mXvLqP2wKjN5sYtUcFg
 |------|---------|
 | `204` | Deleted |
 | `403` | Invalid token |
+| `404` | Paste not found |
 | `422` | Missing `X-Delete-Token` header |
 
 ---
@@ -161,8 +162,8 @@ Always use constant-time comparison to prevent timing attacks. See the [Encrypti
 ## Example — create and read with curl
 
 ```bash
-# Encrypt client-side first (or use the CLI: gb --json)
-gb file.py --json
+# Encrypt client-side first (or use the CLI: gbit --json)
+gbit file.py --json
 # {
 #   "id": "aB3kZx9m",
 #   "full_url": "https://…/aB3kZx9m#KEY~DELETE_TOKEN",

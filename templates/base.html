@@ -4,8 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Ghostbit — Encrypted paste, zero knowledge{% endblock %}</title>
-  <link rel="icon" type="image/png" href="/static/logo.png">
-  <link rel="stylesheet" href="/static/style.css">
+  {% block meta %}
+  <meta property="og:title" content="Ghostbit — Encrypted paste, zero knowledge">
+  <meta property="og:description" content="Self-hosted, end-to-end encrypted paste service. Your data never touches the server in plaintext.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/static/logo.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghostbit">
+  <meta name="twitter:description" content="Self-hosted, end-to-end encrypted paste service.">
+  {% endblock %}
+  <link rel="icon" type="image/png" href="/static/logo.png?v={{ v }}">
+  <link rel="stylesheet" href="/static/style.css?v={{ v }}">
   <script>
     // crypto.subtle requires a Secure Context. Browsers grant it to 'localhost'
     // but NOT '127.0.0.1'. Redirect immediately before anything else loads.
@@ -17,7 +26,7 @@
 <body class="fade-in">
   <header>
     <a href="/" class="logo">
-      <img src="/static/logo.png" alt="Ghostbit">
+      <img src="/static/logo.png?v={{ v }}" alt="Ghostbit">
       ghostbit
     </a>
     <div class="header-actions">

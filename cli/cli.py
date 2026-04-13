@@ -3,16 +3,17 @@
 Ghostbit CLI — create and view pastes from the terminal.
 
 Usage:
-  cat file.py | gb
-  gb file.py
-  gb file.py --lang python --burn
-  gb view https://paste.example.com/abc123#KEY~TOKEN
-  gb config set server https://paste.example.com
-  gb config show
+  cat file.py | gbit
+  gbit file.py
+  gbit file.py --lang python --burn
+  gbit view https://paste.example.com/abc123#KEY~TOKEN
+  gbit config set server https://paste.example.com
+  gbit config show
 """
 
 import argparse
 import base64
+import getpass
 import json
 import os
 import sys
@@ -104,7 +105,7 @@ def _write_config(cfg: dict) -> None:
 # ── Subcommands ───────────────────────────────────────────────────────────────
 
 def _run_config(argv):
-    parser = argparse.ArgumentParser(prog="gb config", description="Manage Ghostbit CLI configuration.")
+    parser = argparse.ArgumentParser(prog="gbit config", description="Manage Ghostbit CLI configuration.")
     sub = parser.add_subparsers(dest="action")
 
     sub.add_parser("show", help="Show current configuration.")
@@ -182,7 +183,11 @@ def cmd_paste(args):
                 ".dockerfile": "dockerfile", ".kt": "kotlin", ".swift": "swift",
                 ".lua": "lua", ".r": "r", ".diff": "diff", ".patch": "diff",
             }
-            args.lang = ext_map.get(path.suffix.lower())
+            # Handle extensionless files by name (e.g. Dockerfile, Makefile)
+            name_map = {
+                "dockerfile": "dockerfile", "makefile": "makefile",
+            }
+            args.lang = ext_map.get(path.suffix.lower()) or name_map.get(path.name.lower())
     else:
         if sys.stdin.isatty():
             print("Reading from stdin… (Ctrl+D to finish)", file=sys.stderr)
@@ -195,9 +200,17 @@ def cmd_paste(args):
     _require_crypto()
 
     # ── Encrypt client-side (mirrors browser e2e.js) ──
-    if args.password:
+    # If --password was given without a value, prompt interactively
+    password = args.password
+    if password is True or password == '':
+        password = getpass.getpass('Password: ')
+        if not password:
+            print('Error: password cannot be empty.', file=sys.stderr)
+            sys.exit(1)
+
+    if password:
         kdf_salt = _gen_salt()
-        key      = _derive_key(args.password, kdf_salt)
+        key      = _derive_key(password, kdf_salt)
     else:
         key      = _gen_key()
         kdf_salt = None
@@ -217,7 +230,7 @@ def cmd_paste(args):
     result = _api_create(server, payload)
 
     # Build full URL with fragment (key + delete token)
-    if args.password:
+    if password:
         fragment = f"~{result['delete_token']}"
     else:
         fragment = f"{_key_to_fragment(key)}~{result['delete_token']}"
@@ -225,14 +238,15 @@ def cmd_paste(args):
     full_url = f"{result['url']}#{fragment}"
 
     # Append to local history (best-effort, privacy-first — stays on disk only)
-    _history_append({
-        "id":         result["id"],
-        "url":        result["url"],
-        "full_url":   full_url,
-        "created_at": int(time.time()),
-        "language":   args.lang,
-        "expires_at": result.get("expires_at"),
-    })
+    if not args.no_history:
+        _history_append({
+            "id":         result["id"],
+            "url":        result["url"],
+            "full_url":   full_url,
+            "created_at": int(time.time()),
+            "language":   args.lang,
+            "expires_at": result.get("expires_at"),
+        })
 
     if args.json:
         result["full_url"] = full_url
@@ -255,11 +269,11 @@ def cmd_paste(args):
                 parts.append("burn after read")
             if result.get("max_views"):
                 parts.append(f"max {result['max_views']} views")
-            if args.password:
+            if password:
                 parts.append("password protected")
             if parts:
                 print("  " + "  ·  ".join(parts), file=sys.stderr)
-            if not args.password:
+            if not password:
                 print("  Share the full URL — the decryption key is in the #fragment.", file=sys.stderr)
 
 
@@ -299,7 +313,6 @@ def _print_highlighted(content: str, language: str | None) -> None:
 
 
 def cmd_view(args):
-    import getpass
     from urllib.parse import urldefrag, urlparse
 
     url_no_frag, fragment = urldefrag(args.url)
@@ -393,7 +406,7 @@ def _api_create(server: str, payload: dict) -> dict:
         sys.exit(1)
     except urllib.error.URLError as e:
         print(f"Could not connect to {server}: {e.reason}", file=sys.stderr)
-        print(f"  Tip: run `gb config set server <URL>` to set your server.", file=sys.stderr)
+        print(f"  Tip: run `gbit config set server <URL>` to set your server.", file=sys.stderr)
         sys.exit(1)
 
 
@@ -512,7 +525,7 @@ def cmd_list(clear: bool = False) -> None:
 
 _COMPLETION_BASH = r"""
 # Ghostbit bash completion
-# Usage: eval "$(gb completion bash)"  or add to ~/.bashrc
+# Usage: eval "$(gbit completion bash)"  or add to ~/.bashrc
 
 _gb_completion() {
     local cur prev words cword
@@ -559,14 +572,14 @@ _gb_completion() {
     fi
 }
 
-complete -o filenames -F _gb_completion gb
+complete -o filenames -F _gb_completion gbit
 complete -o filenames -F _gb_completion ghostbit
 """
 
 _COMPLETION_ZSH = r"""
-#compdef gb ghostbit
+#compdef gbit ghostbit
 # Ghostbit zsh completion
-# Usage: eval "$(gb completion zsh)"  or add to ~/.zshrc
+# Usage: eval "$(gbit completion zsh)"  or add to ~/.zshrc
 
 _gb() {
     local langs=(LANGS_PLACEHOLDER)
@@ -613,7 +626,7 @@ _gb
 
 _COMPLETION_FISH = """
 # Ghostbit fish completion
-# Usage: gb completion fish | source  or save to ~/.config/fish/completions/gb.fish
+# Usage: gbit completion fish | source  or save to ~/.config/fish/completions/gbit.fish
 
 set -l langs LANGS_PLACEHOLDER
 
@@ -623,31 +636,31 @@ function __gb_no_subcommand
 end
 
 # Subcommands
-complete -c gb -f -n '__gb_no_subcommand' -a config     -d 'Manage configuration'
-complete -c gb -f -n '__gb_no_subcommand' -a view       -d 'View and decrypt a paste'
-complete -c gb -f -n '__gb_no_subcommand' -a delete     -d 'Delete a paste'
-complete -c gb -f -n '__gb_no_subcommand' -a list       -d 'List local paste history'
-complete -c gb -f -n '__gb_no_subcommand' -a completion -d 'Output shell completion script'
+complete -c gbit -f -n '__gb_no_subcommand' -a config     -d 'Manage configuration'
+complete -c gbit -f -n '__gb_no_subcommand' -a view       -d 'View and decrypt a paste'
+complete -c gbit -f -n '__gb_no_subcommand' -a delete     -d 'Delete a paste'
+complete -c gbit -f -n '__gb_no_subcommand' -a list       -d 'List local paste history'
+complete -c gbit -f -n '__gb_no_subcommand' -a completion -d 'Output shell completion script'
 
 # config actions
-complete -c gb -f -n '__fish_seen_subcommand_from config' -a show  -d 'Show current config'
-complete -c gb -f -n '__fish_seen_subcommand_from config' -a set   -d 'Set a value'
-complete -c gb -f -n '__fish_seen_subcommand_from config' -a unset -d 'Remove a value'
+complete -c gbit -f -n '__fish_seen_subcommand_from config' -a show  -d 'Show current config'
+complete -c gbit -f -n '__fish_seen_subcommand_from config' -a set   -d 'Set a value'
+complete -c gbit -f -n '__fish_seen_subcommand_from config' -a unset -d 'Remove a value'
 
 # completion shells
-complete -c gb -f -n '__fish_seen_subcommand_from completion' -a bash -d 'Bash completion'
-complete -c gb -f -n '__fish_seen_subcommand_from completion' -a zsh  -d 'Zsh completion'
-complete -c gb -f -n '__fish_seen_subcommand_from completion' -a fish -d 'Fish completion'
+complete -c gbit -f -n '__fish_seen_subcommand_from completion' -a bash -d 'Bash completion'
+complete -c gbit -f -n '__fish_seen_subcommand_from completion' -a zsh  -d 'Zsh completion'
+complete -c gbit -f -n '__fish_seen_subcommand_from completion' -a fish -d 'Fish completion'
 
 # Main options
-complete -c gb -n '__gb_no_subcommand' -s l -l lang       -d 'Language hint'         -a "$langs"
-complete -c gb -n '__gb_no_subcommand' -s e -l expires    -d 'TTL in seconds'
-complete -c gb -n '__gb_no_subcommand' -s b -l burn       -d 'Delete after first view'
-complete -c gb -n '__gb_no_subcommand' -s m -l max-views  -d 'Delete after N views'
-complete -c gb -n '__gb_no_subcommand' -s p -l password   -d 'Encrypt with password'
-complete -c gb -n '__gb_no_subcommand' -s s -l server     -d 'Server URL'
-complete -c gb -n '__gb_no_subcommand' -s q -l quiet      -d 'Print URL only'
-complete -c gb -n '__gb_no_subcommand'      -l json       -d 'Print full JSON response'
+complete -c gbit -n '__gb_no_subcommand' -s l -l lang       -d 'Language hint'         -a "$langs"
+complete -c gbit -n '__gb_no_subcommand' -s e -l expires    -d 'TTL in seconds'
+complete -c gbit -n '__gb_no_subcommand' -s b -l burn       -d 'Delete after first view'
+complete -c gbit -n '__gb_no_subcommand' -s m -l max-views  -d 'Delete after N views'
+complete -c gbit -n '__gb_no_subcommand' -s p -l password   -d 'Encrypt with password'
+complete -c gbit -n '__gb_no_subcommand' -s s -l server     -d 'Server URL'
+complete -c gbit -n '__gb_no_subcommand' -s q -l quiet      -d 'Print URL only'
+complete -c gbit -n '__gb_no_subcommand'      -l json       -d 'Print full JSON response'
 """
 
 
@@ -673,7 +686,7 @@ def main():
     # Route to delete subcommand
     if len(sys.argv) > 1 and sys.argv[1] == "delete":
         if len(sys.argv) < 3:
-            print("Usage: gb delete <url>", file=sys.stderr)
+            print("Usage: gbit delete <url>", file=sys.stderr)
             sys.exit(1)
         cmd_delete(sys.argv[2])
         return
@@ -688,7 +701,7 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "completion":
         shells = ["bash", "zsh", "fish"]
         if len(sys.argv) < 3 or sys.argv[2] not in shells:
-            print(f"Usage: gb completion [{'|'.join(shells)}]", file=sys.stderr)
+            print(f"Usage: gbit completion [{'|'.join(shells)}]", file=sys.stderr)
             sys.exit(1)
         cmd_completion(sys.argv[2])
         return
@@ -696,9 +709,9 @@ def main():
     # Route to view subcommand
     if len(sys.argv) > 1 and sys.argv[1] == "view":
         if len(sys.argv) < 3:
-            print("Usage: gb view <url>", file=sys.stderr)
+            print("Usage: gbit view <url>", file=sys.stderr)
             sys.exit(1)
-        view_parser = argparse.ArgumentParser(prog="gb view")
+        view_parser = argparse.ArgumentParser(prog="gbit view")
         view_parser.add_argument("url", help="Full paste URL (including #fragment).")
         cmd_view(view_parser.parse_args(sys.argv[2:]))
         return
@@ -707,24 +720,24 @@ def main():
     current_server = cfg.get("server", DEFAULT_SERVER)
 
     parser = argparse.ArgumentParser(
-        prog="gb",
+        prog="gbit",
         description="Ghostbit CLI — create encrypted pastes from the terminal.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 examples:
-  cat main.py | gb
-  gb main.py
-  gb main.py --lang python --burn
-  gb main.py --expires 3600 --password secret
-  gb view https://paste.example.com/abc123#KEY~TOKEN
-  gb config set server https://paste.example.com
-  gb config show
+  cat main.py | gbit
+  gbit main.py
+  gbit main.py --lang python --burn
+  gbit main.py --expires 3600 --password secret
+  gbit view https://paste.example.com/abc123#KEY~TOKEN
+  gbit config set server https://paste.example.com
+  gbit config show
 
 current server: {current_server}
         """,
     )
 
-    # ── gb [file] ──
+    # ── gbit [file] ──
     parser.add_argument(
         "file",
         nargs="?",
@@ -762,9 +775,11 @@ current server: {current_server}
     )
     parser.add_argument(
         "--password", "-p",
+        nargs="?",
+        const=True,
         default=None,
         metavar="PASS",
-        help="Encrypt with a password.",
+        help="Encrypt with a password. Omit value to be prompted securely.",
     )
     parser.add_argument(
         "--quiet", "-q",
@@ -775,6 +790,16 @@ current server: {current_server}
         "--json",
         action="store_true",
         help="Print the full JSON response.",
+    )
+    parser.add_argument(
+        "--no-history",
+        action="store_true",
+        help="Don't save this paste to local history.",
+    )
+    parser.add_argument(
+        "--version", "-V",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
 
     args = parser.parse_args()

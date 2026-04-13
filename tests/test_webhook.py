@@ -1,7 +1,7 @@
 """Tests for SSRF protection in webhook.py."""
 
 import pytest
-from webhook import _is_ssrf_safe
+from app.webhook import _is_ssrf_safe
 
 
 @pytest.mark.parametrize("url", [

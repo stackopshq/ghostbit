@@ -10,7 +10,7 @@ on:
       - "requirements.txt"
       - "static/**"
       - "templates/**"
-      - "storage/**"
+      - "app/**"
       - ".github/workflows/docker.yml"
     tags:
       - "v*.*.*"

@@ -75,7 +75,11 @@
           <div class="option-label">Max views</div>
           <div class="option-desc">Delete after N reads. Leave empty for unlimited.</div>
         </div>
-        <input type="number" name="max_views" id="max_views" min="1" placeholder="∞" class="input-small">
+        <div class="number-wrap">
+          <button type="button" class="number-btn number-btn-minus" data-target="max_views" data-dir="-1" aria-label="Decrease">−</button>
+          <input type="number" name="max_views" id="max_views" min="1" placeholder="∞" class="input-small">
+          <button type="button" class="number-btn number-btn-plus" data-target="max_views" data-dir="1" aria-label="Increase">+</button>
+        </div>
       </div>
 
       <div class="option-row">
@@ -141,8 +145,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/highlight.min.js"></script>
-<script src="/static/e2e.js"></script>
+<script src="/static/highlight.min.js?v={{ v }}"></script>
+<script src="/static/e2e.js?v={{ v }}"></script>
 <script>
   const textarea  = document.getElementById('content');
   const gutter    = document.getElementById('editorGutter');
@@ -272,6 +276,19 @@
     langLabel.textContent = 'Language';
     langLabel.style.color = '';
     setHighlightLang(langSelect.value || null);
+  });
+
+  // Number input custom buttons (−/+)
+  document.querySelectorAll('.number-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      const dir   = parseInt(btn.dataset.dir);
+      const min   = parseInt(input.min) || 1;
+      const cur   = parseInt(input.value) || 0;
+      const next  = cur + dir;
+      input.value = next >= min ? next : '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
   });
 
   // Password toggle
@@ -432,12 +449,12 @@
     if (window.matchMedia('(max-width: 760px)').matches) return;
     const messages = [
       'ghostbit paste main.py --burn',
-      'cat secrets.env | gb --expires 3600',
-      'gb config set server https://paste.example.com',
-      'echo "end-to-end encrypted" | gb',
-      'gb deploy.sh --max-views 1 --password s3cr3t',
-      'curl api.example.com/data | gb --lang json',
-      'git diff HEAD~1 | gb --lang diff',
+      'cat secrets.env | gbit --expires 3600',
+      'gbit config set server https://paste.example.com',
+      'echo "end-to-end encrypted" | gbit',
+      'gbit deploy.sh --max-views 1 -p',
+      'curl api.example.com/data | gbit --lang json',
+      'git diff HEAD~1 | gbit --lang diff',
     ];
 
     const el     = document.getElementById('terminalText');

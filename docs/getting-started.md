@@ -22,12 +22,7 @@ cd ghostbit
 cp .env.example .env
 ```
 
-Edit `.env` and set `ENCRYPTION_KEY`:
-
-```bash
-# Generate a secure key
-python3 -c "import secrets; print(secrets.token_hex(32))"
-```
+No server-side encryption key needed — all encryption happens in the client.
 
 ```bash
 # Start with SQLite (default)
@@ -46,9 +41,10 @@ The server is available at `http://localhost:8000`.
 ```bash
 git clone https://github.com/stackopshq/ghostbit
 cd ghostbit
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # fill in ENCRYPTION_KEY
-uvicorn main:app --reload --host 0.0.0.0
+cp .env.example .env
+uvicorn app.main:app --reload --host 0.0.0.0
 ```
 
 !!! warning "Use `--host 0.0.0.0`"
@@ -67,12 +63,12 @@ pip install ghostbit-cli
 Configure it to point to your instance:
 
 ```bash
-gb config set server https://paste.example.com
-gb config show
+gbit config set server https://paste.example.com
+gbit config show
 ```
 
 Then paste anything:
 
 ```bash
-cat main.py | gb
+cat main.py | gbit
 ```

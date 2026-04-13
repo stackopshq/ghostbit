@@ -22,28 +22,31 @@ pip install "ghostbit-cli[markdown]"  # rich only (Markdown rendering)
 
 ```bash
 # Paste from stdin
-cat file.py | gb
+cat file.py | gbit
 
 # Paste a file (language auto-detected from extension)
-gb file.py
+gbit file.py
 
 # With options
-gb file.py --lang python --burn --expires 3600
+gbit file.py --lang python --burn --expires 3600
 
-# Password-protected paste
-echo "secret" | gb --password mysecret
+# Password-protected paste (prompted securely)
+echo "secret" | gbit -p
+
+# Or pass inline (visible in process list)
+gbit file.py --password mysecret
 
 # View and decrypt a paste in the terminal
-gb view https://paste.example.com/abc123#KEY~TOKEN
+gbit view https://paste.example.com/abc123#KEY~TOKEN
 
 # View a password-protected paste (prompts for password)
-gb view https://paste.example.com/abc123#~TOKEN
+gbit view https://paste.example.com/abc123#~TOKEN
 
 # Output JSON (includes full URL with decryption key)
-cat data.json | gb --json
+cat data.json | gbit --json
 
 # Point to your self-hosted instance
-gb config set server https://paste.example.com
+gbit config set server https://paste.example.com
 ```
 
 ## Options
@@ -54,20 +57,26 @@ gb config set server https://paste.example.com
 | `--expires` | `-e` | TTL in seconds (3600 = 1h, 86400 = 1d) |
 | `--burn` | `-b` | Delete after the first view |
 | `--max-views` | `-m` | Delete after N views |
-| `--password` | `-p` | Encrypt with a password |
+| `--password` | `-p` | Encrypt with a password (prompted if no value given) |
 | `--server` | `-s` | Override server URL for this call |
 | `--quiet` | `-q` | Print URL only |
 | `--json` | | Print full JSON response |
+| `--no-history` | | Don't save to local history |
+| `--version` | `-V` | Print version and exit |
 
 ## Configuration
 
 ```bash
-gb config set server https://paste.example.com
-gb config show
-gb config unset server
+gbit config set server https://paste.example.com
+gbit config show
+gbit config unset server
 ```
 
 Config is stored at `~/.config/ghostbit.toml`.
+
+## Security Note
+
+The local history (`~/.local/share/ghostbit/history.jsonl`) stores full URLs **including decryption keys**. Use `--no-history` for sensitive pastes, or clear history with `gbit list --clear`.
 
 ## Self-hosting
 

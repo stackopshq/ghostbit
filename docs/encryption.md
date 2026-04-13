@@ -79,7 +79,7 @@ The server stores a **SHA-256 hash** of the delete token, never the raw value.
 
 ## CLI encryption
 
-The CLI (`gb`) mirrors the browser encryption using Python's `cryptography` library:
+The CLI (`gbit`) mirrors the browser encryption using Python's `cryptography` library:
 
 - `AESGCM` for AES-256-GCM
 - `PBKDF2HMAC` with SHA-256 for password derivation

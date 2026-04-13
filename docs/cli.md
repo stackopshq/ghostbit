@@ -6,7 +6,7 @@
 pip install ghostbit-cli
 ```
 
-This installs the `gb` and `ghostbit` commands.
+This installs the `gbit` and `ghostbit` commands.
 
 With optional extras for terminal rendering:
 
@@ -22,13 +22,13 @@ pip install "ghostbit-cli[markdown]"  # rich — Markdown rendering
 
 ```bash
 # Set your self-hosted server
-gb config set server https://paste.example.com
+gbit config set server https://paste.example.com
 
 # Show current config
-gb config show
+gbit config show
 
 # Remove a key
-gb config unset server
+gbit config unset server
 ```
 
 Config is stored at `~/.config/ghostbit.toml`.
@@ -40,16 +40,16 @@ Config is stored at `~/.config/ghostbit.toml`.
 ### From stdin
 
 ```bash
-cat main.py | gb
-echo "hello world" | gb
-git diff HEAD~1 | gb
+cat main.py | gbit
+echo "hello world" | gbit
+git diff HEAD~1 | gbit
 ```
 
 ### From a file
 
 ```bash
-gb main.py
-gb secrets.env
+gbit main.py
+gbit secrets.env
 ```
 
 Language is auto-detected from the file extension.
@@ -64,17 +64,19 @@ Language is auto-detected from the file extension.
 | `--expires SECONDS` | `-e` | TTL in seconds. `3600` = 1h, `86400` = 1d |
 | `--burn` | `-b` | Delete after the first view |
 | `--max-views N` | `-m` | Delete after N views |
-| `--password PASS` | `-p` | Encrypt with a password (PBKDF2, client-side) |
+| `--password [PASS]` | `-p` | Encrypt with a password. Omit value to be prompted securely. |
 | `--server URL` | `-s` | Override server URL for this invocation only |
 | `--quiet` | `-q` | Print URL only (useful in scripts) |
 | `--json` | | Print full JSON response including `full_url` |
+| `--no-history` | | Don't save this paste to local history |
+| `--version` | `-V` | Print version and exit |
 
 ---
 
 ## Delete a paste
 
 ```bash
-gb delete https://paste.example.com/abc123#KEY~TOKEN
+gbit delete https://paste.example.com/abc123#KEY~TOKEN
 ```
 
 The delete token is read from the URL fragment (after `~`). No server-side secret needed — the token was generated at creation time and embedded in the URL.
@@ -88,10 +90,10 @@ Nothing is sent to the server — this file stays on your machine only.
 
 ```bash
 # List recent pastes
-gb list
+gbit list
 
 # Wipe local history
-gb list --clear
+gbit list --clear
 ```
 
 Example output:
@@ -110,13 +112,13 @@ Download, decrypt, and display a paste directly in the terminal:
 
 ```bash
 # Non-password paste (key is in the URL fragment)
-gb view https://paste.example.com/abc123#KEY~TOKEN
+gbit view https://paste.example.com/abc123#KEY~TOKEN
 
 # Password-protected paste (prompts for password interactively)
-gb view https://paste.example.com/abc123#~TOKEN
+gbit view https://paste.example.com/abc123#~TOKEN
 
 # Pipe to another tool
-gb view https://paste.example.com/abc123#KEY~TOKEN | less
+gbit view https://paste.example.com/abc123#KEY~TOKEN | less
 ```
 
 - Markdown pastes are rendered with titles, bold, lists, and code blocks (requires `rich`)
@@ -130,68 +132,74 @@ gb view https://paste.example.com/abc123#KEY~TOKEN | less
 
 ```bash
 # Burn after read
-cat deploy.sh | gb --burn
+cat deploy.sh | gbit --burn
 
 # Expire in 1 hour, max 3 views
-gb config.yml --expires 3600 --max-views 3
+gbit config.yml --expires 3600 --max-views 3
 
-# Password protected
-echo "db_password=s3cr3t" | gb --password mysecret
+# Password protected (secure prompt)
+echo "db_password=s3cr3t" | gbit -p
+
+# Password inline (visible in process list)
+gbit file.py --password mysecret
 
 # Language override
-curl api.example.com/data | gb --lang json
+curl api.example.com/data | gbit --lang json
 
 # Scripting: URL only
-URL=$(cat file.py | gb --quiet)
+URL=$(cat file.py | gbit --quiet)
 echo "Paste created: $URL"
 
+# Skip local history for sensitive pastes
+cat secrets.env | gbit --burn --no-history
+
 # Full JSON response
-cat data.json | gb --json
+cat data.json | gbit --json
 ```
 
 ---
 
 ## Shell completion
 
-Enable tab-completion for `gb` in your shell.
+Enable tab-completion for `gbit` in your shell.
 
 ### Bash
 
 ```bash
 # Activate for the current session
-eval "$(gb completion bash)"
+eval "$(gbit completion bash)"
 
 # Make it permanent
-echo 'eval "$(gb completion bash)"' >> ~/.bashrc
+echo 'eval "$(gbit completion bash)"' >> ~/.bashrc
 ```
 
 ### Zsh
 
 ```zsh
 # Activate for the current session
-eval "$(gb completion zsh)"
+eval "$(gbit completion zsh)"
 
 # Make it permanent
-echo 'eval "$(gb completion zsh)"' >> ~/.zshrc
+echo 'eval "$(gbit completion zsh)"' >> ~/.zshrc
 ```
 
 ### Fish
 
 ```fish
 # Activate for the current session
-gb completion fish | source
+gbit completion fish | source
 
 # Make it permanent
-gb completion fish > ~/.config/fish/completions/gb.fish
+gbit completion fish > ~/.config/fish/completions/gbit.fish
 ```
 
 ---
 
 ## Supported language extensions
 
-Auto-detected from file extension when using `gb <file>`:
+Auto-detected from file extension or filename when using `gbit <file>`:
 
-| Extension | Language |
+| Extension / Name | Language |
 |-----------|----------|
 | `.py` | python |
 | `.js` | javascript |
@@ -211,4 +219,11 @@ Auto-detected from file extension when using `gb <file>`:
 | `.java` | java |
 | `.c` | c |
 | `.cpp` | cpp |
+| `.cs` | csharp |
 | `.php` | php |
+| `.kt` | kotlin |
+| `.swift` | swift |
+| `.lua` | lua |
+| `.r` | r |
+| `Dockerfile` | dockerfile |
+| `Makefile` | makefile |
