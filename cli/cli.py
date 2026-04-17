@@ -23,7 +23,16 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-__version__ = "1.1.1"
+# Version is read from the installed package metadata (single source of truth:
+# cli/pyproject.toml). Falls back to "dev" when running from a source checkout.
+try:
+    from importlib.metadata import PackageNotFoundError, version as _pkg_version
+    try:
+        __version__ = _pkg_version("ghostbit-cli")
+    except PackageNotFoundError:
+        __version__ = "dev"
+except ImportError:
+    __version__ = "dev"
 _USER_AGENT  = f"Ghostbit-CLI/{__version__}"
 
 # Build an SSL context that works on macOS (certifi) and everywhere else.

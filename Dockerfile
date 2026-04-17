@@ -31,7 +31,12 @@ COPY --from=builder /install /usr/local
 WORKDIR /app
 COPY . .
 
-RUN mkdir -p /data
+# Non-root runtime user. /data must be writable by this user for SQLite.
+RUN addgroup -S ghostbit && adduser -S -G ghostbit -H -s /sbin/nologin ghostbit \
+    && mkdir -p /data \
+    && chown -R ghostbit:ghostbit /data /app
+
+USER ghostbit
 
 # ── Runtime configuration ─────────────────────────────────────────────────────
 ENV STORAGE_BACKEND=sqlite

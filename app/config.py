@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     # If set, every webhook delivery includes X-Ghostbit-Signature: sha256=<hex>.
     webhook_secret: str  = ""
 
+    # Trust X-Forwarded-For for rate limiting. Enable ONLY when behind a
+    # reverse proxy that strips/overwrites this header — otherwise clients
+    # can spoof it and bypass rate limits.
+    trust_proxy_headers: bool = False
+
     # ENCRYPTION_KEY is no longer used — all encryption is performed client-side (E2E).
     # Kept here so existing .env files don't cause startup errors.
     encryption_key: str  = ""

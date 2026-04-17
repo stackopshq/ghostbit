@@ -25,6 +25,7 @@ import hashlib
 import hmac
 import ipaddress
 import json
+import logging
 import socket
 import time
 import urllib.parse
@@ -32,6 +33,8 @@ import urllib.request
 from typing import Optional
 
 from .config import settings
+
+_log = logging.getLogger("ghostbit.webhook")
 
 # RFC-1918 + loopback + link-local ranges forbidden as webhook targets
 _PRIVATE_NETWORKS = [
@@ -111,8 +114,12 @@ async def _deliver(
             ),
             timeout=5.0,
         )
-    except Exception:
-        pass  # Silent fail — never impact the user response
+    except asyncio.TimeoutError:
+        _log.warning("webhook delivery timed out for paste %s", paste_id)
+    except Exception as exc:
+        _log.warning(
+            "webhook delivery failed for paste %s: %s", paste_id, exc,
+        )
 
 
 def _post(url: str, payload: bytes) -> None:

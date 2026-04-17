@@ -38,19 +38,9 @@
         </div>
       </div>
       <div class="editor-body">
-        <div class="editor-gutter" id="editorGutter">1</div>
-        <div class="editor-code-wrap">
-          <div class="editor-highlight" id="editorHighlight" aria-hidden="true"></div>
-          <textarea
-            name="content"
-            id="content"
-            placeholder="Paste your code or snippet here…"
-            spellcheck="false"
-            autocorrect="off"
-            autocapitalize="off"
-            autofocus
-          ></textarea>
-        </div>
+        <div id="cmHost" class="cm-host"></div>
+        <!-- Hidden mirror so native form semantics + server-side fallback still work. -->
+        <textarea name="content" id="content" hidden></textarea>
       </div>
     </div>
 
@@ -106,6 +96,12 @@
 
       <div class="password-input-wrap" id="passwordWrap">
         <input type="password" name="password" id="password" placeholder="Enter a password…" autocomplete="new-password">
+        <div class="pw-strength" id="pwStrength" aria-hidden="true">
+          <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+          <span class="pw-strength-label" id="pwStrengthLabel">—</span>
+        </div>
+        <input type="password" id="passwordConfirm" placeholder="Confirm password…" autocomplete="new-password" class="pw-confirm">
+        <div class="pw-match" id="pwMatch" aria-live="polite"></div>
       </div>
 
       <div class="option-row option-row-webhook">
@@ -145,99 +141,94 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/highlight.min.js?v={{ v }}"></script>
+<link rel="stylesheet" href="/static/cm/codemirror.min.css?v={{ v }}">
+<script src="/static/cm/codemirror-core.min.js?v={{ v }}"></script>
+<script src="/static/cm/codemirror-modes.min.js?v={{ v }}"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
 <script>
-  const textarea  = document.getElementById('content');
-  const gutter    = document.getElementById('editorGutter');
-  const counter   = document.getElementById('charCounter');
-  const highlight = document.getElementById('editorHighlight');
+  const textarea = document.getElementById('content'); // hidden mirror for form submit
+  const counter  = document.getElementById('charCounter');
   const MAX = {{ max_paste_size }};
 
-  // ── Syntax highlight overlay ─────────────────────────────────────────────
-  let currentLang = null;
+  // Ghostbit's language values → CodeMirror 5 mode identifiers.
+  // Languages without a CM5 mode (kotlin, typescript, json, csharp, cpp, c,
+  // java) are routed through their best-fit base mode.
+  const CM_MODE = {
+    "":           null,
+    bash:         "shell",
+    c:            "text/x-csrc",
+    cpp:          "text/x-c++src",
+    csharp:       "text/x-csharp",
+    css:          "css",
+    diff:         "diff",
+    dockerfile:   "dockerfile",
+    go:           "go",
+    html:         "htmlmixed",
+    java:         "text/x-java",
+    javascript:   "javascript",
+    json:         "application/json",
+    kotlin:       "text/x-kotlin",
+    lua:          "lua",
+    makefile:     null,
+    markdown:     "markdown",
+    php:          "application/x-httpd-php",
+    python:       "python",
+    ruby:         "ruby",
+    rust:         "rust",
+    sql:          "sql",
+    swift:        "swift",
+    toml:         "toml",
+    typescript:   "application/typescript",
+    xml:          "xml",
+    yaml:         "yaml",
+  };
 
-  function updateHighlight() {
-    if (!currentLang || !highlight) return;
-    const raw = textarea.value;
-    // Trailing newline needs a ghost space so last line renders at correct height
-    const src = raw.endsWith('\n') ? raw + ' ' : raw;
-    try {
-      highlight.innerHTML = hljs.highlight(src, { language: currentLang, ignoreIllegals: true }).value;
-    } catch (_) {
-      highlight.textContent = src;
-    }
-    highlight.scrollTop  = textarea.scrollTop;
-    highlight.scrollLeft = textarea.scrollLeft;
-  }
+  function fmt(n) { return n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB'; }
 
-  function setHighlightLang(lang) {
-    if (!lang || !hljs.getLanguage(lang)) {
-      currentLang = null;
-      textarea.classList.remove('hl-active');
-      highlight.innerHTML = '';
-      return;
-    }
-    currentLang = lang;
-    textarea.classList.add('hl-active');
-    updateHighlight();
-  }
-
-  function fmt(n) {
-    return n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB';
-  }
-
-  function updateGutter() {
-    const lines = textarea.value.split('\n').length;
-    gutter.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
-  }
+  const cm = CodeMirror(document.getElementById('cmHost'), {
+    value: '',
+    mode: null,
+    theme: 'dracula',
+    lineNumbers: true,
+    lineWrapping: false,
+    matchBrackets: true,
+    autoCloseBrackets: true,
+    styleActiveLine: true,
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    inputStyle: 'contenteditable',
+    extraKeys: {
+      'Tab': (cm) => cm.replaceSelection('  ', 'end'),
+      'Ctrl-Enter': () => submitPaste(),
+      'Cmd-Enter':  () => submitPaste(),
+    },
+    placeholder: 'Paste your code or snippet here…',
+  });
 
   function updateCounter() {
-    const bytes = new TextEncoder().encode(textarea.value).length;
+    const bytes = new TextEncoder().encode(cm.getValue()).length;
     counter.textContent = bytes > 0 ? fmt(bytes) + ' / ' + fmt(MAX) : '';
     counter.classList.toggle('warn',  bytes > MAX * 0.8 && bytes <= MAX);
     counter.classList.toggle('error', bytes > MAX);
   }
 
-  function syncScroll() {
-    gutter.scrollTop = textarea.scrollTop;
-  }
-
-  // Auto-resize textarea on mobile
-  const mobileQuery = window.matchMedia('(max-width: 760px)');
-  function autoResize() {
-    if (!mobileQuery.matches) return;
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.max(220, textarea.scrollHeight) + 'px';
-    updateHighlight();
-  }
-
-  textarea.addEventListener('input', () => { updateGutter(); updateCounter(); autoResize(); updateHighlight(); });
-  textarea.addEventListener('scroll', () => { syncScroll(); if (highlight) { highlight.scrollTop = textarea.scrollTop; highlight.scrollLeft = textarea.scrollLeft; } });
-
-  // Tab key inserts 2 spaces
-  textarea.addEventListener('keydown', e => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const s = textarea.selectionStart;
-      const v = textarea.value;
-      textarea.value = v.slice(0, s) + '  ' + v.slice(textarea.selectionEnd);
-      textarea.selectionStart = textarea.selectionEnd = s + 2;
-      updateGutter();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
-      submitPaste();
-    }
-  });
+  cm.on('change', updateCounter);
+  cm.focus();
 
   // Language auto-detection
   const langSelect = document.getElementById('language');
   const langLabel  = document.querySelector('.lang-picker-label');
   let detectTimer  = null;
+  let justPasted   = false;
+
+  function setCmMode(lang) {
+    const mode = CM_MODE[lang] ?? null;
+    cm.setOption('mode', mode);
+  }
 
   function runDetect() {
-    const content = textarea.value;
+    const content = cm.getValue();
     if (content.length < 20 || langSelect.value !== '') return;
 
     fetch('/api/v1/detect', {
@@ -255,27 +246,30 @@
           langLabel.textContent = 'Language';
           langLabel.style.color = '';
         }, 2500);
-        setHighlightLang(data.language);
+        setCmMode(data.language);
       }
     })
     .catch(() => {});
   }
 
-  textarea.addEventListener('input', () => {
+  // CM's 'inputRead' fires for every user input; the 'paste' Codemirror event
+  // lets us use a shorter debounce after a paste vs live typing (same heuristic
+  // as the previous textarea implementation).
+  cm.on('paste', () => { justPasted = true; });
+  cm.on('change', (_, change) => {
+    // Only react to user-typed changes, not programmatic setValue calls.
+    if (change.origin === 'setValue') return;
     clearTimeout(detectTimer);
-    detectTimer = setTimeout(runDetect, 1000);
+    const delay = justPasted ? 200 : 1000;
+    justPasted = false;
+    detectTimer = setTimeout(runDetect, delay);
   });
 
-  textarea.addEventListener('paste', () => {
-    clearTimeout(detectTimer);
-    detectTimer = setTimeout(runDetect, 200);
-  });
-
-  // Reset label + apply/remove highlighting when user manually changes language
+  // Reset label + switch CM mode when user manually changes language
   langSelect.addEventListener('change', () => {
     langLabel.textContent = 'Language';
     langLabel.style.color = '';
-    setHighlightLang(langSelect.value || null);
+    setCmMode(langSelect.value);
   });
 
   // Number input custom buttons (−/+)
@@ -292,12 +286,62 @@
   });
 
   // Password toggle
-  const pwToggle = document.getElementById('passwordToggle');
-  const pwWrap   = document.getElementById('passwordWrap');
+  const pwToggle  = document.getElementById('passwordToggle');
+  const pwWrap    = document.getElementById('passwordWrap');
+  const pwInput   = document.getElementById('password');
+  const pwConfirm = document.getElementById('passwordConfirm');
+  const pwStrength = document.getElementById('pwStrength');
+  const pwStrengthLabel = document.getElementById('pwStrengthLabel');
+  const pwMatch   = document.getElementById('pwMatch');
+
   pwToggle.addEventListener('change', () => {
     pwWrap.classList.toggle('visible', pwToggle.checked);
-    if (!pwToggle.checked) document.getElementById('password').value = '';
+    if (!pwToggle.checked) {
+      pwInput.value = '';
+      pwConfirm.value = '';
+      updatePwStrength();
+      updatePwMatch();
+    }
   });
+
+  // Strength heuristic: coarse, client-only, never shipped to server.
+  // Scoring = length tiers + variety (lower/upper/digit/symbol). Good enough
+  // to nudge users off "password123" — not a substitute for a KDF cost.
+  function scorePassword(pw) {
+    if (!pw) return 0;
+    let score = 0;
+    if (pw.length >= 8)  score++;
+    if (pw.length >= 12) score++;
+    if (pw.length >= 16) score++;
+    const classes = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter(r => r.test(pw)).length;
+    if (classes >= 2) score++;
+    if (classes >= 3) score++;
+    return Math.min(4, score);
+  }
+  const STRENGTH_LABELS = ['—', 'Weak', 'Fair', 'Good', 'Strong'];
+
+  function updatePwStrength() {
+    const level = scorePassword(pwInput.value);
+    pwStrength.dataset.level = String(level);
+    pwStrengthLabel.textContent = STRENGTH_LABELS[level];
+  }
+
+  function updatePwMatch() {
+    const a = pwInput.value, b = pwConfirm.value;
+    if (!b) { pwMatch.textContent = ''; pwMatch.classList.remove('ok'); pwConfirm.classList.remove('mismatch'); return; }
+    if (a === b) {
+      pwMatch.textContent = 'Passwords match.';
+      pwMatch.classList.add('ok');
+      pwConfirm.classList.remove('mismatch');
+    } else {
+      pwMatch.textContent = "Passwords don't match.";
+      pwMatch.classList.remove('ok');
+      pwConfirm.classList.add('mismatch');
+    }
+  }
+
+  pwInput.addEventListener('input', () => { updatePwStrength(); updatePwMatch(); });
+  pwConfirm.addEventListener('input', updatePwMatch);
 
   // Webhook toggle
   const whToggle = document.getElementById('webhookToggle');
@@ -335,7 +379,8 @@
   if (window.__serverError) showToast(window.__serverError, 'error');
 
   async function submitPaste() {
-    const content = textarea.value;
+    const content = cm.getValue();
+    textarea.value = content; // keep hidden mirror in sync for any fallback consumers
     if (!content.trim()) { showFormError('Content cannot be empty.'); return; }
 
     const bytes = new TextEncoder().encode(content).length;
@@ -356,7 +401,17 @@
 
     try {
       const hasPassword = document.getElementById('passwordToggle').checked;
-      const password    = hasPassword ? document.getElementById('password').value : '';
+      const password    = hasPassword ? pwInput.value : '';
+
+      if (hasPassword) {
+        if (!password) { showFormError('Please enter a password or disable password protection.'); btn.disabled = false; return; }
+        if (password !== pwConfirm.value) {
+          showFormError("Passwords don't match. Please retype the confirmation.");
+          pwConfirm.focus();
+          btn.disabled = false;
+          return;
+        }
+      }
 
       let key, kdfSalt = null;
       if (hasPassword && password) {
@@ -403,6 +458,10 @@
         ? `~${result.delete_token}`
         : `${await E2E.exportKey(key)}~${result.delete_token}`;
 
+      // Flag the paste view to greet the creator with a prominent Copy URL.
+      // sessionStorage survives the redirect and is scoped to the tab.
+      try { sessionStorage.setItem('ghostbit:justCreated:' + result.id, '1'); } catch (_) {}
+
       window.location.href = `/${result.id}#${fragment}`;
 
     } catch (err) {
@@ -422,9 +481,11 @@
     if (e.key !== '/') return;
     const tag = document.activeElement?.tagName;
     if (tag === 'TEXTAREA' || tag === 'INPUT' || tag === 'SELECT') return;
+    // CodeMirror's active input is a contenteditable inside the editor host.
+    if (document.getElementById('cmHost').contains(document.activeElement)) return;
     e.preventDefault();
-    textarea.focus();
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    cm.focus();
+    cm.setCursor(cm.lineCount(), 0);
   });
 
   // ── Hero toggle ──────────────────────────────────────────────────────────

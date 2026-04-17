@@ -1,12 +1,15 @@
 import asyncio
 import hashlib
+import logging
 import time
 from pathlib import Path
-from typing import Optional
+from typing import AsyncIterator, Optional, Tuple
 
 import aiosqlite
 
 from .base import PasteData, StorageBackend
+
+_log = logging.getLogger("ghostbit.storage.sqlite")
 
 _CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS pastes (
@@ -26,39 +29,50 @@ CREATE TABLE IF NOT EXISTS pastes (
 )
 """
 
-_MIGRATE = """
-ALTER TABLE pastes ADD COLUMN max_views INTEGER;
-"""
-_MIGRATE2 = """
-ALTER TABLE pastes ADD COLUMN view_count INTEGER NOT NULL DEFAULT 0;
-"""
-_MIGRATE3 = """
-ALTER TABLE pastes ADD COLUMN webhook_url TEXT;
-"""
+# column_name -> DDL snippet for ALTER TABLE
+_EXPECTED_COLUMNS = {
+    "max_views":   "INTEGER",
+    "view_count":  "INTEGER NOT NULL DEFAULT 0",
+    "webhook_url": "TEXT",
+}
 
 
 class SQLiteStorage(StorageBackend):
     def __init__(self, path: str) -> None:
         self.path = path
+        self._db: Optional[aiosqlite.Connection] = None
+        # Serializes multi-statement transactions on the shared connection so
+        # concurrent requests can't interleave statements inside a BEGIN…COMMIT.
+        self._lock = asyncio.Lock()
         self._cleanup_task: Optional[asyncio.Task] = None
 
     async def init(self) -> None:
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        async with aiosqlite.connect(self.path) as db:
-            await db.execute(_CREATE_TABLE)
-            # Migrate existing DBs that lack the new columns
-            for stmt in (_MIGRATE, _MIGRATE2, _MIGRATE3):
-                try:
-                    await db.execute(stmt)
-                except Exception:
-                    pass
-            await db.commit()
+        self._db = await aiosqlite.connect(self.path)
+        self._db.row_factory = aiosqlite.Row
+        # WAL gives concurrent reads with a single writer and survives this
+        # pragma because it persists at the DB file level. synchronous=NORMAL
+        # is the standard durability/perf tradeoff for WAL.
+        await self._db.execute("PRAGMA journal_mode=WAL")
+        await self._db.execute("PRAGMA synchronous=NORMAL")
+        await self._db.execute("PRAGMA foreign_keys=ON")
+        await self._db.execute(_CREATE_TABLE)
+        existing = await self._column_names("pastes")
+        for col, ddl in _EXPECTED_COLUMNS.items():
+            if col not in existing:
+                await self._db.execute(f"ALTER TABLE pastes ADD COLUMN {col} {ddl}")
+        await self._db.commit()
         self._cleanup_task = asyncio.create_task(self._cleanup_loop())
 
-    async def save(self, paste: PasteData) -> None:
-        async with aiosqlite.connect(self.path) as db:
-            await db.execute(
-                "INSERT INTO pastes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    async def _column_names(self, table: str) -> set[str]:
+        async with self._db.execute(f"PRAGMA table_info({table})") as cursor:
+            rows = await cursor.fetchall()
+        return {row[1] for row in rows}
+
+    async def save(self, paste: PasteData) -> bool:
+        async with self._lock:
+            cursor = await self._db.execute(
+                "INSERT OR IGNORE INTO pastes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     paste.id,
                     paste.content,
@@ -75,15 +89,14 @@ class SQLiteStorage(StorageBackend):
                     paste.webhook_url,
                 ),
             )
-            await db.commit()
+            await self._db.commit()
+            return cursor.rowcount > 0
 
     async def get(self, paste_id: str) -> Optional[PasteData]:
-        async with aiosqlite.connect(self.path) as db:
-            db.row_factory = aiosqlite.Row
-            async with db.execute(
-                "SELECT * FROM pastes WHERE id = ?", (paste_id,)
-            ) as cursor:
-                row = await cursor.fetchone()
+        async with self._db.execute(
+            "SELECT * FROM pastes WHERE id = ?", (paste_id,)
+        ) as cursor:
+            row = await cursor.fetchone()
         if row is None:
             return None
         return PasteData(
@@ -102,48 +115,80 @@ class SQLiteStorage(StorageBackend):
             webhook_url=row["webhook_url"],
         )
 
-    async def increment_views(self, paste_id: str) -> int:
-        async with aiosqlite.connect(self.path) as db:
-            await db.execute(
-                "UPDATE pastes SET view_count = view_count + 1 WHERE id = ?",
+    async def increment_and_check_burn(
+        self, paste_id: str
+    ) -> Tuple[Optional[int], bool]:
+        async with self._lock:
+            await self._db.execute("BEGIN IMMEDIATE")
+            async with self._db.execute(
+                "UPDATE pastes SET view_count = view_count + 1 "
+                "WHERE id = ? "
+                "RETURNING view_count, burn, max_views",
                 (paste_id,),
-            )
-            await db.commit()
-            async with db.execute(
-                "SELECT view_count FROM pastes WHERE id = ?", (paste_id,)
             ) as cursor:
                 row = await cursor.fetchone()
-        return row[0] if row else 0
+            if row is None:
+                await self._db.commit()
+                return None, False
+            view_count, burn, max_views = row["view_count"], row["burn"], row["max_views"]
+            should_burn = bool(burn) or (
+                max_views is not None and view_count >= max_views
+            )
+            if should_burn:
+                await self._db.execute("DELETE FROM pastes WHERE id = ?", (paste_id,))
+            await self._db.commit()
+            return view_count, should_burn
 
     async def delete(self, paste_id: str, delete_token: str) -> bool:
         token_hash = hashlib.sha256(delete_token.encode()).hexdigest()
-        async with aiosqlite.connect(self.path) as db:
-            cursor = await db.execute(
+        async with self._lock:
+            cursor = await self._db.execute(
                 "DELETE FROM pastes WHERE id = ? AND delete_token_hash = ?",
                 (paste_id, token_hash),
             )
-            await db.commit()
+            await self._db.commit()
             return cursor.rowcount > 0
 
     async def force_delete(self, paste_id: str) -> None:
-        async with aiosqlite.connect(self.path) as db:
-            await db.execute("DELETE FROM pastes WHERE id = ?", (paste_id,))
-            await db.commit()
+        async with self._lock:
+            await self._db.execute("DELETE FROM pastes WHERE id = ?", (paste_id,))
+            await self._db.commit()
+
+    async def iter_all(self) -> AsyncIterator[PasteData]:
+        # Fetch IDs up-front so the admin cursor can't starve concurrent
+        # writes on the shared connection (aiosqlite serializes operations).
+        async with self._db.execute("SELECT id FROM pastes") as cursor:
+            rows = await cursor.fetchall()
+        for row in rows:
+            paste = await self.get(row["id"])
+            if paste is not None:
+                yield paste
 
     async def _cleanup_loop(self) -> None:
         while True:
-            await asyncio.sleep(3600)
-            async with aiosqlite.connect(self.path) as db:
-                await db.execute(
-                    "DELETE FROM pastes WHERE expires_at IS NOT NULL AND expires_at < ?",
-                    (int(time.time()),),
-                )
-                await db.commit()
+            try:
+                await asyncio.sleep(3600)
+                async with self._lock:
+                    await self._db.execute(
+                        "DELETE FROM pastes WHERE expires_at IS NOT NULL AND expires_at < ?",
+                        (int(time.time()),),
+                    )
+                    await self._db.commit()
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                _log.exception("SQLite cleanup pass failed; will retry next tick")
 
     async def ping(self) -> None:
-        async with aiosqlite.connect(self.path) as db:
-            await db.execute("SELECT 1")
+        await self._db.execute("SELECT 1")
 
     async def close(self) -> None:
         if self._cleanup_task:
             self._cleanup_task.cancel()
+            try:
+                await self._cleanup_task
+            except (asyncio.CancelledError, Exception):
+                pass
+        if self._db is not None:
+            await self._db.close()
+            self._db = None

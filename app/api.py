@@ -11,23 +11,38 @@ Endpoints:
   POST   /api/v1/detect          Detect language of a plaintext snippet
 """
 
+import base64
+import binascii
 import hashlib
 import secrets
 import time
 from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException, Path, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from .config import settings
 from .detect import detect_language
+from .rate_limit import client_ip
 from .storage.base import PasteData
 from . import webhook
 from .webhook import _is_ssrf_safe
 
-limiter = Limiter(key_func=get_remote_address)
+
+def _decode_b64(value: str, *, expected_len: Optional[int] = None) -> bytes:
+    """Strict base64 decode with optional length assertion."""
+    try:
+        raw = base64.b64decode(value, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise ValueError(f"invalid base64: {exc}") from exc
+    if expected_len is not None and len(raw) != expected_len:
+        raise ValueError(
+            f"expected {expected_len} bytes after decode, got {len(raw)}"
+        )
+    return raw
+
+limiter = Limiter(key_func=client_ip)
 
 router = APIRouter(prefix="/api/v1", tags=["Pastes"])
 
@@ -43,6 +58,29 @@ class PasteCreateRequest(BaseModel):
     burn: bool                    = False
     max_views: Optional[int]      = Field(None, ge=1, description="Delete after N views.")
     webhook_url: Optional[str]    = Field(None, description="URL to POST when the paste is read.")
+
+    @field_validator("content")
+    @classmethod
+    def _validate_content(cls, v: str) -> str:
+        # AES-GCM ciphertext includes a 16-byte auth tag, so decoded length >= 16.
+        raw = _decode_b64(v)
+        if len(raw) < 16:
+            raise ValueError("ciphertext too short to be AES-GCM output")
+        return v
+
+    @field_validator("nonce")
+    @classmethod
+    def _validate_nonce(cls, v: str) -> str:
+        _decode_b64(v, expected_len=12)
+        return v
+
+    @field_validator("kdf_salt")
+    @classmethod
+    def _validate_kdf_salt(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        _decode_b64(v, expected_len=16)
+        return v
 
 
 class PasteCreateResponse(BaseModel):
@@ -112,7 +150,7 @@ async def create_paste(body: PasteCreateRequest, request: Request):
     expires_at = now + body.expires_in if body.expires_in else None
 
     paste = PasteData(
-        id=secrets.token_urlsafe(6),
+        id="",  # populated in the retry loop below
         content=body.content,
         nonce=body.nonce,
         kdf_salt=body.kdf_salt,
@@ -127,7 +165,16 @@ async def create_paste(body: PasteCreateRequest, request: Request):
         webhook_url=body.webhook_url,
     )
 
-    await _storage(request).save(paste)
+    # Retry on paste-ID collision. token_urlsafe(6) = ~48 bits of entropy,
+    # collisions are rare but not impossible at scale — handle them instead
+    # of silently overwriting a stranger's paste.
+    storage = _storage(request)
+    for _ in range(8):
+        paste.id = secrets.token_urlsafe(6)
+        if await storage.save(paste):
+            break
+    else:
+        raise HTTPException(500, "Could not allocate a unique paste ID.")
 
     return PasteCreateResponse(
         id=paste.id,
@@ -162,18 +209,19 @@ async def get_paste(paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
     if paste is None:
         raise HTTPException(404, "Paste not found or expired.")
 
-    if paste.expires_at and int(time.time()) > paste.expires_at:
+    if paste.is_expired():
         await storage.force_delete(paste_id)
         raise HTTPException(404, "Paste has expired.")
 
-    view_count = await storage.increment_views(paste_id)
-
-    burned = paste.burn or (paste.max_views and view_count >= paste.max_views)
-    if burned:
-        await storage.force_delete(paste_id)
+    # Atomic: increment view_count, then burn if burn=True or max_views hit.
+    # Returns (None, False) if the paste was deleted by a concurrent request.
+    new_count, burned = await storage.increment_and_check_burn(paste_id)
+    if new_count is None:
+        raise HTTPException(404, "Paste not found or expired.")
+    view_count = new_count
 
     if paste.webhook_url:
-        webhook.fire(paste.webhook_url, paste_id, view_count, bool(burned))
+        webhook.fire(paste.webhook_url, paste_id, view_count, burned)
 
     return PasteResponse(
         id=paste.id,

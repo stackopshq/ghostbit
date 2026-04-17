@@ -11,15 +11,82 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
+from starlette.middleware.base import BaseHTTPMiddleware
 
+from . import __version__
 from .api import router as api_router
 from .config import settings
+from .rate_limit import client_ip
 from .storage import get_storage
+
+
+# Content Security Policy — 'unsafe-inline' for scripts/styles is required by
+# existing inline scripts in templates (Secure-Context redirect, star counter,
+# per-page bootstrap). Replace with nonces in a future pass if those are moved
+# to external files. api.github.com is whitelisted for the footer star count.
+_CSP = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline'; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "font-src 'self'; "
+    "connect-src 'self' https://api.github.com; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; "
+    "form-action 'self'; "
+    "object-src 'none'"
+)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("Content-Security-Policy", _CSP)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        response.headers.setdefault(
+            "Permissions-Policy",
+            "geolocation=(), microphone=(), camera=(), interest-cohort=()",
+        )
+        if request.url.scheme == "https":
+            response.headers.setdefault(
+                "Strict-Transport-Security",
+                "max-age=31536000; includeSubDomains",
+            )
+        return response
+
+
+class BodySizeLimitMiddleware(BaseHTTPMiddleware):
+    """Reject oversized request bodies before FastAPI parses them.
+
+    Guards against clients that send Content-Length larger than the hard
+    ceiling (base64-expanded paste size + headroom for nonce, salt, language,
+    webhook URL, JSON overhead). Requests without Content-Length (chunked
+    transfer) fall through to the per-field limits enforced by Pydantic.
+    """
+
+    def __init__(self, app, *, max_bytes: int) -> None:
+        super().__init__(app)
+        self.max_bytes = max_bytes
+
+    async def dispatch(self, request: Request, call_next):
+        cl = request.headers.get("content-length")
+        if cl and cl.isdigit() and int(cl) > self.max_bytes:
+            return JSONResponse(
+                {"detail": f"Request body too large (max {self.max_bytes} bytes)."},
+                status_code=413,
+            )
+        return await call_next(request)
+
+
+# Hard HTTP body ceiling: base64-expanded ciphertext (~1.4x) + 8 KB headroom
+# for other JSON fields (nonce, salt, language, webhook_url, structure).
+_MAX_BODY_BYTES = int(settings.max_paste_size * 1.4) + 8192
 
 _ROOT = Path(__file__).resolve().parent.parent
 
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=client_ip)
 
 TTL_OPTIONS = {
     0: "Never",
@@ -52,7 +119,7 @@ app = FastAPI(
         "The server stores ciphertext only and can **never** read paste content.\n\n"
         "The decryption key lives exclusively in the URL `#fragment` — it is never transmitted to the server."
     ),
-    version="1.1.1",
+    version=__version__,
     contact={
         "name": "StackOps HQ",
         "url": "https://github.com/stackopshq/ghostbit",
@@ -65,35 +132,54 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(BodySizeLimitMiddleware, max_bytes=_MAX_BODY_BYTES)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+
+_health_log = logging.getLogger("ghostbit.health")
 
 @app.get("/healthz", include_in_schema=False)
 async def healthz(request: Request):
     try:
         await request.app.state.storage.ping()
         return JSONResponse({"status": "ok", "storage": settings.storage_backend})
-    except Exception as exc:
+    except Exception:
+        _health_log.exception("storage healthcheck failed")
         return JSONResponse(
-            {"status": "error", "storage": settings.storage_backend, "detail": str(exc)},
+            {"status": "error", "storage": settings.storage_backend},
             status_code=503,
         )
 
 
-_SECURITY_TXT = """\
-Contact: https://github.com/stackopshq/ghostbit/security/advisories/new
-Encryption: https://docs.ghostbit.dev/encryption/
-Policy: https://github.com/stackopshq/ghostbit/blob/main/SECURITY.md
-Preferred-Languages: en, fr
-"""
+def _security_txt() -> str:
+    # Expires must be an ISO 8601 UTC datetime < 1 year away (RFC 9116 §2.5.5).
+    # We regenerate it on every request so self-hosters never ship a stale file.
+    from datetime import datetime, timedelta, timezone
+    expires = (datetime.now(timezone.utc) + timedelta(days=180)).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    )
+    return (
+        f"Contact: https://github.com/stackopshq/ghostbit/security/advisories/new\n"
+        f"Expires: {expires}\n"
+        f"Encryption: https://docs.ghostbit.dev/encryption/\n"
+        f"Policy: https://github.com/stackopshq/ghostbit/blob/main/SECURITY.md\n"
+        f"Preferred-Languages: en, fr\n"
+    )
+
 
 @app.get("/.well-known/security.txt", include_in_schema=False)
 async def security_txt():
-    return PlainTextResponse(_SECURITY_TXT)
+    return PlainTextResponse(_security_txt())
 
 
-_ROBOTS_TXT = """User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc\nAllow: /$\nSitemap:\n"""
+_ROBOTS_TXT = (
+    "User-agent: *\n"
+    "Disallow: /api/\n"
+    "Disallow: /docs\n"
+    "Disallow: /redoc\n"
+)
 
 @app.get("/robots.txt", include_in_schema=False)
 async def robots_txt():
@@ -113,8 +199,9 @@ templates = Jinja2Templates(directory=str(_ROOT / "templates"))
 
 # Cache-busting: short hash of static assets computed once at startup
 def _asset_hash() -> str:
+    # Recurse so files in static/cm/, static/fonts/, etc. also bust the cache.
     h = hashlib.md5()
-    for f in sorted((_ROOT / "static").glob("*")):
+    for f in sorted((_ROOT / "static").rglob("*")):
         if f.is_file():
             h.update(f.read_bytes())
     return h.hexdigest()[:8]
@@ -167,11 +254,6 @@ def _format_expiry(expires_at: Optional[int]) -> Optional[str]:
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
-@app.get("/api", response_class=HTMLResponse)
-async def api_docs(request: Request):
-    base_url = str(request.base_url).rstrip("/")
-    return templates.TemplateResponse(request, "api_docs.html", context={"base_url": base_url})
-
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -192,7 +274,7 @@ async def view_paste(
     if paste is None:
         raise HTTPException(status_code=404, detail="Paste not found or expired.")
 
-    if paste.expires_at and int(time.time()) > paste.expires_at:
+    if paste.is_expired():
         await storage.force_delete(paste_id)
         raise HTTPException(status_code=404, detail="Paste has expired.")
 
@@ -218,7 +300,7 @@ async def raw_paste(
     if paste is None:
         raise HTTPException(status_code=404, detail="Paste not found or expired.")
 
-    if paste.expires_at and int(time.time()) > paste.expires_at:
+    if paste.is_expired():
         await storage.force_delete(paste_id)
         raise HTTPException(status_code=404, detail="Paste has expired.")
 

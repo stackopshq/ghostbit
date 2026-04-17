@@ -27,7 +27,7 @@ jobs:
           python-version: "3.14"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt cryptography pytest pytest-asyncio httpx
+        run: pip install -r requirements-dev.txt cryptography
 
       - name: Run tests
         run: pytest tests/ -v

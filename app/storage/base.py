@@ -1,6 +1,7 @@
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
+from typing import AsyncIterator, Optional, Tuple
 
 
 @dataclass
@@ -19,6 +20,11 @@ class PasteData:
     view_count: int = 0
     webhook_url: Optional[str] = None
 
+    def is_expired(self, now: Optional[int] = None) -> bool:
+        if self.expires_at is None:
+            return False
+        return (now if now is not None else int(time.time())) > self.expires_at
+
 
 class StorageBackend(ABC):
     @abstractmethod
@@ -27,14 +33,23 @@ class StorageBackend(ABC):
         ...
 
     @abstractmethod
-    async def save(self, paste: PasteData) -> None: ...
+    async def save(self, paste: PasteData) -> bool:
+        """Persist paste atomically. Returns False if the ID is already taken."""
+        ...
 
     @abstractmethod
     async def get(self, paste_id: str) -> Optional[PasteData]: ...
 
     @abstractmethod
-    async def increment_views(self, paste_id: str) -> int:
-        """Increment view_count and return the new value."""
+    async def increment_and_check_burn(
+        self, paste_id: str
+    ) -> Tuple[Optional[int], bool]:
+        """Atomically increment view_count, then burn if burn=True or
+        max_views reached.
+
+        Returns (new_view_count, burned). Returns (None, False) if the paste
+        no longer exists (deleted between caller's get() and this call).
+        """
         ...
 
     @abstractmethod
@@ -42,6 +57,13 @@ class StorageBackend(ABC):
 
     @abstractmethod
     async def force_delete(self, paste_id: str) -> None: ...
+
+    @abstractmethod
+    def iter_all(self) -> AsyncIterator[PasteData]:
+        """Yield every stored paste (order unspecified). Used by the admin
+        export command. Implementations are expected to stream rather than
+        materialize the whole table in memory."""
+        ...
 
     @abstractmethod
     async def ping(self) -> None:

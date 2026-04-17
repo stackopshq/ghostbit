@@ -58,9 +58,16 @@
         This paste was deleted after this read.
       </div>
 
-      <div class="notice notice-info" id="ownerNotice" style="display:none">
+      <div class="notice notice-info owner-notice" id="ownerNotice" style="display:none">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        Save this link — it's the only way to delete your paste.
+        <div class="owner-notice-text">
+          <strong id="ownerNoticeTitle">You own this paste.</strong>
+          <div class="owner-notice-sub">Save this link — it's the only way to delete it.</div>
+        </div>
+        <button type="button" class="btn btn-primary btn-owner-copy" id="ownerCopyBtn" onclick="copyUrl()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span id="ownerCopyLabel">Copy URL</span>
+        </button>
       </div>
 
       <!-- Code view -->
@@ -83,13 +90,9 @@
             {% endif %}
           </div>
           <div class="paste-inbar-actions">
-            <button class="btn-action btn-action-url" id="copyUrlBtn" onclick="copyUrl()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-              <span>Copy URL</span>
-            </button>
             <button class="btn-action btn-action-copy" id="copyBtn" onclick="copyContent()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span>Copy</span>
+              <span>Copy content</span>
             </button>
             <button class="btn-action btn-action-raw" id="rawBtn" onclick="openRaw()" style="display:none;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -111,8 +114,7 @@
         </div>
 
         <div class="paste-body">
-          <div class="line-gutter" id="lineGutter"></div>
-          <pre id="pasteContent"></pre>
+          <div id="cmHost" class="cm-host cm-host-readonly"></div>
         </div>
       </div>
 
@@ -141,16 +143,33 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/highlight.min.js?v={{ v }}"></script>
+<link rel="stylesheet" href="/static/cm/codemirror.min.css?v={{ v }}">
+<script src="/static/cm/codemirror-core.min.js?v={{ v }}"></script>
+<script src="/static/cm/codemirror-modes.min.js?v={{ v }}"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
 {% if paste.language == "markdown" %}
 <script src="/static/marked.min.js?v={{ v }}"></script>
+<script src="/static/purify.min.js?v={{ v }}"></script>
 {% endif %}
 <script>
 (async () => {
   'use strict';
 
   const meta = JSON.parse(document.getElementById('paste-meta').textContent);
+
+  // Ghostbit language → CodeMirror 5 mode/MIME (mirrors index.html).
+  const CM_MODE = {
+    "": null, bash: "shell", c: "text/x-csrc", cpp: "text/x-c++src",
+    csharp: "text/x-csharp", css: "css", diff: "diff", dockerfile: "dockerfile",
+    go: "go", html: "htmlmixed", java: "text/x-java", javascript: "javascript",
+    json: "application/json", kotlin: "text/x-kotlin", lua: "lua",
+    makefile: null, markdown: "markdown", php: "application/x-httpd-php",
+    python: "python", ruby: "ruby", rust: "rust", sql: "sql",
+    swift: "swift", toml: "toml", typescript: "application/typescript",
+    xml: "xml", yaml: "yaml",
+  };
+
+  let cm = null; // lazy — only instantiate after decryption
 
   // ── Fragment parsing ─────────────────────────────────────────────────────
   // Format: KEY_B64URL~DELETE_TOKEN  (non-password)
@@ -182,17 +201,8 @@
 
   // ── Render decrypted paste ───────────────────────────────────────────────
   function renderPaste(plaintext, apiData) {
-    const pre    = document.getElementById('pasteContent');
-    const gutter = document.getElementById('lineGutter');
-
     const lang = {{ paste.language | tojson }};
-    if (lang && typeof hljs !== 'undefined' && hljs.getLanguage(lang)) {
-      pre.innerHTML = hljs.highlight(plaintext, { language: lang, ignoreIllegals: true }).value;
-    } else {
-      pre.textContent = plaintext;
-    }
-    const lines = plaintext.replace(/\n$/, '').split('\n');
-    gutter.textContent = lines.map((_, i) => i + 1).join('\n');
+    const mode = (lang && CM_MODE[lang] !== undefined) ? CM_MODE[lang] : null;
 
     // Burn notice: shown if paste was burned (burn flag or max_views reached)
     const burned = apiData.burn || (apiData.max_views && apiData.view_count >= apiData.max_views);
@@ -233,24 +243,54 @@
     if (dlBtn) dlBtn.style.display = '';
 
     if (deleteToken) {
-      document.getElementById('ownerNotice').style.display = '';
+      const notice = document.getElementById('ownerNotice');
+      notice.style.display = '';
       document.getElementById('deleteForm').style.display  = '';
       document.getElementById('deleteKey').value = deleteToken;
+
+      // Fresh from the editor → green "created" treatment so the Copy URL
+      // button is impossible to miss. Consume the flag so revisits revert
+      // to the standard owner notice.
+      const flagKey = 'ghostbit:justCreated:' + meta.id;
+      try {
+        if (sessionStorage.getItem(flagKey)) {
+          notice.classList.add('just-created');
+          document.getElementById('ownerNoticeTitle').textContent = 'Paste created.';
+          sessionStorage.removeItem(flagKey);
+        }
+      } catch (_) {}
     }
 
+    // Show the paste container FIRST so CodeMirror measures a real viewport.
+    // Instantiating CM on a display:none host produces a 0-height editor that
+    // renders blank even after the container becomes visible.
     showState('statePaste');
+
+    cm = CodeMirror(document.getElementById('cmHost'), {
+      value:            plaintext,
+      mode,
+      theme:            'dracula',
+      lineNumbers:      true,
+      lineWrapping:     false,
+      readOnly:         'nocursor',
+      matchBrackets:    true,
+      styleActiveLine:  false,
+      indentUnit:       2,
+      tabSize:          2,
+    });
+    cm.refresh();
   }
 
   // ── Open raw content in a new tab (no API re-fetch) ──────────────────────
   window.openRaw = function() {
-    const text = document.getElementById('pasteContent').textContent;
+    const text = cm ? cm.getValue() : '';
     const blob = new Blob([text], { type: 'text/plain; charset=utf-8' });
     window.open(URL.createObjectURL(blob), '_blank');
   };
 
   // ── Download content as file ──────────────────────────────────────────────
   window.downloadContent = function() {
-    const text = document.getElementById('pasteContent').textContent;
+    const text = cm ? cm.getValue() : '';
     const lang = {{ paste.language | tojson }};
     const extMap = { python: '.py', javascript: '.js', typescript: '.ts', html: '.html', css: '.css', json: '.json', yaml: '.yml', markdown: '.md', bash: '.sh', ruby: '.rb', go: '.go', rust: '.rs', java: '.java', cpp: '.cpp', c: '.c', sql: '.sql', php: '.php', swift: '.swift', kotlin: '.kt', lua: '.lua', toml: '.toml', xml: '.xml', dockerfile: '', makefile: '', diff: '.diff' };
     const ext = (lang && extMap[lang] !== undefined) ? extMap[lang] : '.txt';
@@ -319,34 +359,25 @@
 
   // ── Copy URL ────────────────────────────────────────────────────────────
   window.copyUrl = function() {
-    const btn = document.getElementById('copyUrlBtn');
-    const stateDefault = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>Copy URL</span>`;
-    const stateDone  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      btn.innerHTML = stateDone;
-      setTimeout(() => { btn.innerHTML = stateDefault; }, 2000);
-    }).catch(() => {
-      btn.innerHTML = stateDone;
-      setTimeout(() => { btn.innerHTML = stateDefault; }, 2000);
-    });
+    const label = document.getElementById('ownerCopyLabel');
+    const flash = () => {
+      if (!label) return;
+      label.textContent = 'Copied!';
+      setTimeout(() => { label.textContent = 'Copy URL'; }, 2000);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).then(flash).catch(flash);
+    } else {
+      flash();
+    }
   };
 
-  // ── Intercept native copy on the code block ──────────────────────────────
-  // Without this, browsers include computed background-color (#282a36 card)
-  // in the clipboard HTML, which renders as a dark violet background when
-  // pasting into rich-text editors (Word, Google Docs, Notion…).
-  document.getElementById('pasteContent').addEventListener('copy', function (e) {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) return;
-    e.clipboardData.setData('text/plain', sel.toString());
-    e.preventDefault();
-  });
-
   // ── Copy ─────────────────────────────────────────────────────────────────
+  // CodeMirror handles its own copy event cleanly (plain text, no styled HTML).
   window.copyContent = function() {
-    const text = document.getElementById('pasteContent').textContent;
+    const text = cm ? cm.getValue() : '';
     const btn  = document.getElementById('copyBtn');
-    const stateCopy  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>`;
+    const stateCopy  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy content</span>`;
     const stateDone  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
     const done = () => {
       btn.innerHTML = stateDone;
@@ -374,9 +405,8 @@
     const tabPreview  = document.getElementById('tabPreview');
 
     if (tab === 'preview') {
-      document.getElementById('mdBody').innerHTML = marked.parse(
-        document.getElementById('pasteContent').textContent
-      );
+      const dirty = marked.parse(cm ? cm.getValue() : '');
+      document.getElementById('mdBody').innerHTML = DOMPurify.sanitize(dirty);
       viewCode.style.display    = 'none';
       viewPreview.style.display = '';
       tabCode.classList.remove('active');

@@ -2,7 +2,7 @@
 
 Base URL: `https://your-instance.com/api/v1`
 
-Interactive docs are available at `/api` on any running instance.
+Interactive docs are available on any running instance: **Swagger UI** at `/docs`, **ReDoc** at `/redoc`.
 
 ---
 

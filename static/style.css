@@ -357,78 +357,40 @@ header {
   background: var(--code-bg);
 }
 
-.editor-gutter {
-  padding: 16px 12px 16px 14px;
-  border-right: 1px solid var(--border);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
-  text-align: right;
-  user-select: none;
-  white-space: pre;
-  min-width: 44px;
-  opacity: 0.7;
-  flex-shrink: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-/* ── Editor code wrap (highlight overlay) ───────────────────────────────────── */
-.editor-code-wrap {
-  position: relative;
+/* ── CodeMirror host ────────────────────────────────────────────────────────── */
+/* The editor owns the full card body; CM supplies its own gutter and styled
+   syntax highlighting so the old DIY gutter + overlay are gone. */
+.cm-host {
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
   display: flex;
-  flex-direction: column;
-}
-
-.editor-highlight {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
-  padding: 16px 20px;
-  white-space: pre;
   overflow: hidden;
-  pointer-events: none;
-  tab-size: 2;
-  word-break: normal;
-  /* base text uses default fg so untagged nodes stay visible when hl-active */
-  color: var(--drac-fg);
-  background: transparent;
-  margin: 0;
 }
-.editor-highlight .hljs { background: transparent; }
-
-/* ── Textarea ───────────────────────────────────────────────────────────────── */
-textarea {
-  position: relative;
+.cm-host .CodeMirror {
   flex: 1;
-  min-height: 0;
-  width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  border: none;
-  color: var(--text);
+  height: auto;
+  min-height: 100%;
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  padding: 16px 20px;
-  outline: none;
-  resize: none;
   line-height: 1.7;
-  display: block;
-  tab-size: 2;
-  overflow-y: auto;
-  /* when highlighting active — text transparent, caret stays visible */
-  transition: color 0.1s;
+  padding: 4px 0;
 }
-textarea.hl-active { color: transparent; caret-color: var(--drac-fg); }
-textarea::placeholder { color: var(--text-sub); opacity: 0.5; }
+.cm-host .CodeMirror-scroll { min-height: 100%; }
+.cm-host .CodeMirror-lines  { padding: 12px 0; }
+.cm-host .CodeMirror-gutters {
+  background: var(--code-bg);
+  border-right: 1px solid var(--border);
+}
+.cm-host .CodeMirror-linenumber {
+  color: var(--text-muted);
+  opacity: 0.6;
+  padding: 0 8px 0 12px;
+  min-width: 24px;
+}
+.cm-host .CodeMirror-activeline-background { background: rgba(255,255,255,0.025); }
+.cm-host .CodeMirror-cursor { border-left-color: var(--drac-fg); }
+.cm-host .CodeMirror pre.CodeMirror-placeholder { color: var(--text-sub); opacity: 0.5; }
 
 .char-counter {
   font-family: var(--font-mono);
@@ -573,6 +535,46 @@ select:focus { border-color: var(--border-focus); }
   transition: border-color var(--transition);
 }
 .password-input-wrap input:focus { border-color: var(--border-focus); }
+.password-input-wrap .pw-confirm { margin-top: 8px; }
+.password-input-wrap .pw-confirm.mismatch { border-color: rgba(255,85,85,0.55); }
+
+.pw-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  font-family: var(--font-ui);
+  color: var(--muted);
+}
+.pw-strength-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pw-strength-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--drac-red);
+  border-radius: inherit;
+  transition: width var(--transition), background var(--transition);
+}
+.pw-strength[data-level="1"] .pw-strength-fill { width: 25%;  background: var(--drac-red); }
+.pw-strength[data-level="2"] .pw-strength-fill { width: 50%;  background: var(--drac-orange); }
+.pw-strength[data-level="3"] .pw-strength-fill { width: 75%;  background: var(--drac-yellow); }
+.pw-strength[data-level="4"] .pw-strength-fill { width: 100%; background: var(--drac-green); }
+.pw-strength-label { min-width: 54px; text-align: right; }
+
+.pw-match {
+  margin-top: 6px;
+  min-height: 0.9rem;
+  font-size: 0.72rem;
+  font-family: var(--font-ui);
+  color: var(--drac-red);
+}
+.pw-match.ok { color: var(--drac-green); }
 
 /* Webhook input (revealed on toggle) */
 .webhook-input-wrap {
@@ -723,6 +725,22 @@ kbd {
 .notice-info    { background: rgba(139,233,253,0.07); border-color: rgba(139,233,253,0.25); color: var(--drac-cyan); }
 .notice-error   { background: rgba(255,85,85,0.08);   border-color: rgba(255,85,85,0.3);   color: #ff6e6e; }
 
+.owner-notice { align-items: center; gap: 14px; }
+.owner-notice .owner-notice-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.owner-notice .owner-notice-text strong { color: var(--text); font-weight: 600; }
+.owner-notice .owner-notice-sub { color: var(--muted); font-size: 0.8rem; }
+.owner-notice.just-created {
+  background: rgba(80,250,123,0.08);
+  border-color: rgba(80,250,123,0.35);
+  color: var(--drac-green);
+}
+.owner-notice.just-created .owner-notice-text strong { color: var(--drac-green); }
+.btn-owner-copy { flex-shrink: 0; padding: 8px 14px; font-size: 0.8rem; }
+@media (max-width: 560px) {
+  .owner-notice { flex-wrap: wrap; }
+  .btn-owner-copy { width: 100%; justify-content: center; }
+}
+
 /* ── Paste view page ────────────────────────────────────────────────────────── */
 .page-plain {
   flex: 1;
@@ -854,12 +872,6 @@ kbd {
   transition: background var(--transition), opacity var(--transition);
   white-space: nowrap;
 }
-.btn-action-url {
-  background: rgba(139, 233, 253, 0.1);
-  border-color: rgba(139, 233, 253, 0.3);
-  color: var(--drac-cyan);
-}
-.btn-action-url:hover { background: rgba(139, 233, 253, 0.2); }
 .btn-action-copy {
   background: rgba(80, 250, 123, 0.1);
   border-color: rgba(80, 250, 123, 0.3);
@@ -896,36 +908,15 @@ kbd {
   overflow: hidden;
   box-shadow: var(--shadow-card), 0 0 30px rgba(188, 19, 254, 0.07);
 }
-.paste-body { display: flex; overflow: auto; background: var(--code-bg); }
+.paste-body { background: var(--code-bg); }
 
-.line-gutter {
-  padding: 16px 12px 16px 14px;
-  border-right: 1px solid var(--border);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
-  text-align: right;
-  user-select: none;
-  white-space: pre;
-  min-width: 44px;
-  opacity: 0.7;
-  flex-shrink: 0;
-}
-
-.paste-body pre {
-  margin: 0;
-  padding: 16px 20px;
-  flex: 1;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.7;
-  white-space: pre;
-  tab-size: 2;
-  color: var(--drac-fg);
-  min-width: 0;
-  overflow-x: auto;
-}
+/* Read-only CodeMirror viewer (paste render page).
+   Unlike the editor host (which stretches to fill a flex card), the viewer
+   sizes to content so the page scrolls naturally. */
+.cm-host-readonly { display: block; overflow: visible; }
+.cm-host-readonly .CodeMirror { height: auto; cursor: text; }
+.cm-host-readonly .CodeMirror-scroll { min-height: 0; }
+.cm-host-readonly .CodeMirror-cursor { display: none !important; }
 
 /* ── Password page ──────────────────────────────────────────────────────────── */
 .password-page {
@@ -1062,7 +1053,6 @@ kbd {
 }
 
 /* ── Markdown preview ───────────────────────────────────────────────────────── */
-.md-preview { }
 
 .md-body {
   padding: 28px 36px;
@@ -1284,8 +1274,6 @@ kbd {
   header { height: 54px; padding: 0 12px; position: static; }
   .logo { font-size: 1rem; gap: 8px; }
   .logo img { height: 32px; }
-  /* API button: hidden on mobile */
-  .btn-api { display: none; }
   /* All labeled buttons: icon only */
   .btn-new [data-label] { display: none; }
   /* Tighter gap between header buttons */
@@ -1298,12 +1286,8 @@ kbd {
   .index-sidebar { flex: none; width: 100%; gap: 20px; }
   /* Editor */
   .card-editor { flex: none; }
-  .editor-body { flex: none; height: auto; overflow: visible; }
-  .editor-code-wrap { overflow: visible; }
-  textarea { min-height: 220px; height: auto; overflow: hidden; resize: none; }
-  .editor-highlight { padding: 10px 12px; }
-  .editor-gutter { padding: 10px 8px 10px 10px; min-width: 44px; font-size: 0.8rem; }
-  textarea { padding: 10px 12px; font-size: 0.82rem; }
+  .editor-body { flex: none; min-height: 240px; overflow: visible; }
+  .cm-host, .cm-host .CodeMirror { min-height: 240px; font-size: 0.82rem; }
   .editor-topbar { padding: 7px 10px; }
 
   /* Hero: hidden on mobile */
@@ -1319,8 +1303,6 @@ kbd {
 
   /* ── Paste page ── */
   .paste-layout { padding-top: 16px; padding-left: 14px; padding-right: 14px; padding-bottom: 30px; }
-  .line-gutter { padding: 10px 8px 10px 10px; min-width: 44px; font-size: 0.8rem; }
-  .paste-body pre { padding: 10px 12px; font-size: 0.82rem; }
   .paste-inbar { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px; }
   .paste-inbar-meta { flex: 1; min-width: 0; }
 }

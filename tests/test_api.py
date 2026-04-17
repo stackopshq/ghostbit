@@ -115,7 +115,9 @@ async def test_content_too_large(client):
         "nonce":   base64.b64encode(os.urandom(12)).decode(),
     }
     r = await client.post("/api/v1/pastes", json=payload)
-    assert r.status_code == 400
+    # 413 from the body-size middleware (hard HTTP ceiling) or 400 from the
+    # application-level max_paste_size check — both are acceptable rejections.
+    assert r.status_code in (400, 413)
 
 
 @pytest.mark.anyio
@@ -123,3 +125,42 @@ async def test_security_txt(client):
     r = await client.get("/.well-known/security.txt")
     assert r.status_code == 200
     assert "Contact:" in r.text
+
+
+@pytest.mark.anyio
+async def test_id_collision_retry(client, monkeypatch):
+    """When the random ID generator collides, create_paste should retry
+    up to 8 times before giving up — it must never overwrite an existing paste."""
+    # Force the generator to return a colliding ID twice, then a fresh one.
+    import secrets as _secrets
+    from app import api as api_mod
+
+    first = await client.post("/api/v1/pastes", json=_fake_paste())
+    assert first.status_code == 201
+    taken_id = first.json()["id"]
+
+    calls = {"n": 0}
+    real_token_urlsafe = _secrets.token_urlsafe
+
+    def fake_token_urlsafe(nbytes):
+        # 6-byte tokens are only used for paste IDs; 16-byte ones are delete tokens.
+        if nbytes == 6 and calls["n"] < 2:
+            calls["n"] += 1
+            return taken_id
+        return real_token_urlsafe(nbytes)
+
+    monkeypatch.setattr(api_mod.secrets, "token_urlsafe", fake_token_urlsafe)
+
+    r = await client.post("/api/v1/pastes", json=_fake_paste())
+    assert r.status_code == 201
+    assert r.json()["id"] != taken_id
+    assert calls["n"] == 2  # proves we actually retried past the collisions
+
+
+@pytest.mark.anyio
+async def test_security_headers_present(client):
+    r = await client.get("/")
+    assert r.headers.get("x-content-type-options") == "nosniff"
+    assert r.headers.get("x-frame-options") == "DENY"
+    assert r.headers.get("referrer-policy") == "no-referrer"
+    assert "default-src 'self'" in r.headers.get("content-security-policy", "")

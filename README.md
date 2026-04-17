@@ -174,7 +174,7 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 
 ## API
 
-All content is encrypted **client-side** — the API only handles ciphertext. Interactive Swagger docs are available at `/docs`.
+All content is encrypted **client-side** — the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc).
 
 ```bash
 # Create (content must be pre-encrypted — use the CLI or e2e.js)
@@ -195,7 +195,7 @@ curl -X POST https://paste.example.com/api/v1/detect \
   -d '{"content":"def hello():\n    print(42)"}'
 ```
 
-See the in-app API docs page at `/api` or the interactive Swagger UI at `/docs`.
+Interactive Swagger UI: `/docs` — ReDoc: `/redoc`.
 
 ---
 
@@ -215,7 +215,7 @@ Open [http://localhost:8000](http://localhost:8000). SQLite is used by default, 
 ### Running tests
 
 ```bash
-pip install pytest pytest-asyncio httpx
+pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
