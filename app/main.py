@@ -201,13 +201,22 @@ _health_log = logging.getLogger("ghostbit.health")
 
 @app.get("/healthz", include_in_schema=False)
 async def healthz(request: Request):
+    # Version is surfaced here so monitoring/ops can read it without parsing
+    # the full OpenAPI spec — useful when `podman inspect` labels aren't
+    # enough (e.g. confirming the running image matches what was deployed).
     try:
         await request.app.state.storage.ping()
-        return JSONResponse({"status": "ok", "storage": settings.storage_backend})
+        return JSONResponse(
+            {
+                "status": "ok",
+                "storage": settings.storage_backend,
+                "version": __version__,
+            }
+        )
     except Exception:
         _health_log.exception("storage healthcheck failed")
         return JSONResponse(
-            {"status": "error", "storage": settings.storage_backend},
+            {"status": "error", "storage": settings.storage_backend, "version": __version__},
             status_code=503,
         )
 

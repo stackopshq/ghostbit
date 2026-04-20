@@ -6,8 +6,19 @@ RUN apk add --no-cache gcc musl-dev libffi-dev openssl-dev cargo
 
 WORKDIR /build
 
+# Install third-party dependencies first so this layer caches independently
+# of the app source (anything under app/ changes far more often than the
+# requirements lock).
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# Then install the server package itself — this is what makes
+# `importlib.metadata.version("ghostbit")` work inside the final image
+# (otherwise /openapi.json reports "0.0.0+source" even on tagged releases).
+# `--no-deps` skips re-resolving the requirements we just installed.
+COPY pyproject.toml README.md ./
+COPY app/ ./app/
+RUN pip install --no-cache-dir --prefix=/install --no-deps .
 
 
 # ── Stage 2: runtime image ────────────────────────────────────────────────────

@@ -42,9 +42,15 @@ def _fake_paste(**kwargs):
 
 @pytest.mark.anyio
 async def test_healthz(client):
+    from app import __version__
+
     r = await client.get("/healthz")
     assert r.status_code == 200
-    assert r.json()["status"] == "ok"
+    body = r.json()
+    assert body["status"] == "ok"
+    # Surface the running version for monitoring tools that don't want to
+    # fetch /openapi.json just to know which build they're hitting.
+    assert body["version"] == __version__
 
 
 @pytest.mark.anyio
