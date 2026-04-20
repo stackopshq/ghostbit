@@ -54,10 +54,10 @@ jobs:
 
       # ── Lint ────────────────────────────────────────────────────────────────
       - name: Ruff check
-        run: ruff check app/ tests/ cli/cli
+        run: ruff check app/ tests/ cli/
 
       - name: Ruff format check
-        run: ruff format --check app/ tests/ cli/cli
+        run: ruff format --check app/ tests/ cli/
 
       # ── Tests ───────────────────────────────────────────────────────────────
       - name: Pytest
