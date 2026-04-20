@@ -94,9 +94,7 @@ def main() -> None:
         n = asyncio.run(export_all(sys.stdout))
         print(f"Exported {n} paste(s).", file=sys.stderr)
     else:
-        imported, skipped = asyncio.run(
-            import_all(sys.stdin, overwrite=args.overwrite)
-        )
+        imported, skipped = asyncio.run(import_all(sys.stdin, overwrite=args.overwrite))
         print(
             f"Imported {imported} paste(s), skipped {skipped} (already present).",
             file=sys.stderr,

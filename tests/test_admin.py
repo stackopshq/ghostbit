@@ -18,19 +18,19 @@ from app.storage.base import PasteData  # noqa: E402
 
 def _make_paste(pid: str, **overrides) -> PasteData:
     base = {
-        "id":                pid,
-        "content":           "Y2lwaGVydGV4dA==",
-        "nonce":             "bm9uY2UxMjM0NTY=",
-        "kdf_salt":          None,
-        "language":          "python",
-        "created_at":        1_700_000_000,
-        "expires_at":        None,
-        "burn":              False,
-        "has_password":      False,
+        "id": pid,
+        "content": "Y2lwaGVydGV4dA==",
+        "nonce": "bm9uY2UxMjM0NTY=",
+        "kdf_salt": None,
+        "language": "python",
+        "created_at": 1_700_000_000,
+        "expires_at": None,
+        "burn": False,
+        "has_password": False,
         "delete_token_hash": "0" * 64,
-        "max_views":         None,
-        "view_count":        0,
-        "webhook_url":       None,
+        "max_views": None,
+        "view_count": 0,
+        "webhook_url": None,
     }
     base.update(overrides)
     return PasteData(**base)
@@ -105,6 +105,7 @@ async def test_import_skips_existing_without_overwrite():
     mutated["language"] = "rust"
     mutated["view_count"] = 999
     import json as _json
+
     line = _json.dumps(mutated) + "\n"
 
     imported, skipped = await admin.import_all(io.StringIO(line))
@@ -131,6 +132,7 @@ async def test_import_overwrite_replaces_existing():
     mutated["language"] = "rust"
     mutated["view_count"] = 42
     import json as _json
+
     line = _json.dumps(mutated) + "\n"
 
     imported, skipped = await admin.import_all(io.StringIO(line), overwrite=True)
@@ -151,6 +153,7 @@ async def test_import_ignores_blank_lines():
     await _wipe()
     p = _make_paste("blank")
     import json as _json
+
     jsonl = "\n\n" + _json.dumps(dataclasses.asdict(p)) + "\n\n\n"
     imported, skipped = await admin.import_all(io.StringIO(jsonl))
     assert imported == 1
@@ -164,9 +167,10 @@ async def test_import_tolerates_unknown_fields():
     warning, not treated as a fatal error."""
     await _wipe()
     record = dataclasses.asdict(_make_paste("fwd"))
-    record["future_field"] = "hello"   # new column from a later version
-    record["another_new"]  = 42
+    record["future_field"] = "hello"  # new column from a later version
+    record["another_new"] = 42
     import json as _json
+
     line = _json.dumps(record) + "\n"
 
     imported, skipped = await admin.import_all(io.StringIO(line))

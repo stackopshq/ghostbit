@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS pastes (
 
 # column_name -> DDL snippet for ALTER TABLE
 _EXPECTED_COLUMNS = {
-    "max_views":   "INTEGER",
-    "view_count":  "INTEGER NOT NULL DEFAULT 0",
+    "max_views": "INTEGER",
+    "view_count": "INTEGER NOT NULL DEFAULT 0",
     "webhook_url": "TEXT",
 }
 
@@ -94,9 +94,7 @@ class SQLiteStorage(StorageBackend):
             return cursor.rowcount > 0
 
     async def get(self, paste_id: str) -> PasteData | None:
-        async with self._db.execute(
-            "SELECT * FROM pastes WHERE id = ?", (paste_id,)
-        ) as cursor:
+        async with self._db.execute("SELECT * FROM pastes WHERE id = ?", (paste_id,)) as cursor:
             row = await cursor.fetchone()
         if row is None:
             return None
@@ -116,9 +114,7 @@ class SQLiteStorage(StorageBackend):
             webhook_url=row["webhook_url"],
         )
 
-    async def increment_and_check_burn(
-        self, paste_id: str
-    ) -> tuple[int | None, bool]:
+    async def increment_and_check_burn(self, paste_id: str) -> tuple[int | None, bool]:
         async with self._lock:
             await self._db.execute("BEGIN IMMEDIATE")
             async with self._db.execute(
@@ -132,9 +128,7 @@ class SQLiteStorage(StorageBackend):
                 await self._db.commit()
                 return None, False
             view_count, burn, max_views = row["view_count"], row["burn"], row["max_views"]
-            should_burn = bool(burn) or (
-                max_views is not None and view_count >= max_views
-            )
+            should_burn = bool(burn) or (max_views is not None and view_count >= max_views)
             if should_burn:
                 await self._db.execute("DELETE FROM pastes WHERE id = ?", (paste_id,))
             await self._db.commit()

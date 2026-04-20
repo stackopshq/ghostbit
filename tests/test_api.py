@@ -27,14 +27,15 @@ async def client():
 
 
 def _fake_paste(**kwargs):
-    key   = os.urandom(32)
+    key = os.urandom(32)
     nonce = os.urandom(12)
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
     ct = AESGCM(key).encrypt(nonce, b"hello world", None)
     return {
         "content": base64.b64encode(ct).decode(),
-        "nonce":   base64.b64encode(nonce).decode(),
-        "burn":    False,
+        "nonce": base64.b64encode(nonce).decode(),
+        "burn": False,
         **kwargs,
     }
 
@@ -64,6 +65,7 @@ async def test_csp_nonce_is_per_request(client):
     """Nonces must be unique per response — reuse would let an attacker
     who saw one nonce reuse it on later injections."""
     import re
+
     r1 = await client.get("/")
     r2 = await client.get("/")
     nonce_re = re.compile(r"'nonce-([^']+)'")
@@ -161,7 +163,7 @@ async def test_ssrf_webhook_blocked(client):
 async def test_content_too_large(client):
     payload = {
         "content": "A" * (1024 * 1024),
-        "nonce":   base64.b64encode(os.urandom(12)).decode(),
+        "nonce": base64.b64encode(os.urandom(12)).decode(),
     }
     r = await client.post("/api/v1/pastes", json=payload)
     # 413 from the body-size middleware (hard HTTP ceiling) or 400 from the

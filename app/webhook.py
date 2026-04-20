@@ -38,6 +38,7 @@ from .config import settings
 class SSRFError(RuntimeError):
     """Raised when a webhook target resolves to a non-public address."""
 
+
 _log = logging.getLogger("ghostbit.webhook")
 
 
@@ -106,15 +107,14 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
     to the original hostname so TLS cert validation and virtual hosting
     still work correctly."""
 
-    def __init__(self, hostname: str, pinned_ip: str, port: int,
-                 timeout: float, context: ssl.SSLContext) -> None:
+    def __init__(
+        self, hostname: str, pinned_ip: str, port: int, timeout: float, context: ssl.SSLContext
+    ) -> None:
         super().__init__(hostname, port=port, timeout=timeout, context=context)
         self._pinned_ip = pinned_ip
 
     def connect(self) -> None:
-        self.sock = socket.create_connection(
-            (self._pinned_ip, self.port), timeout=self.timeout
-        )
+        self.sock = socket.create_connection((self._pinned_ip, self.port), timeout=self.timeout)
         self.sock = self._context.wrap_socket(self.sock, server_hostname=self.host)
 
 
@@ -122,15 +122,12 @@ class _PinnedHTTPConnection(http.client.HTTPConnection):
     """HTTPConnection that connects to a fixed IP but keeps the Host header
     set to the original hostname."""
 
-    def __init__(self, hostname: str, pinned_ip: str, port: int,
-                 timeout: float) -> None:
+    def __init__(self, hostname: str, pinned_ip: str, port: int, timeout: float) -> None:
         super().__init__(hostname, port=port, timeout=timeout)
         self._pinned_ip = pinned_ip
 
     def connect(self) -> None:
-        self.sock = socket.create_connection(
-            (self._pinned_ip, self.port), timeout=self.timeout
-        )
+        self.sock = socket.create_connection((self._pinned_ip, self.port), timeout=self.timeout)
 
 
 def _is_ssrf_safe(url: str) -> bool:
@@ -190,26 +187,28 @@ async def _deliver(
     view_count: int,
     burned: bool,
 ) -> None:
-    payload = json.dumps({
-        "event":      "paste.read",
-        "paste_id":   paste_id,
-        "view_count": view_count,
-        "burned":     burned,
-        "timestamp":  int(time.time()),
-    }).encode()
+    payload = json.dumps(
+        {
+            "event": "paste.read",
+            "paste_id": paste_id,
+            "view_count": view_count,
+            "burned": burned,
+            "timestamp": int(time.time()),
+        }
+    ).encode()
 
     try:
         await asyncio.wait_for(
-            asyncio.get_running_loop().run_in_executor(
-                None, _post, url, payload
-            ),
+            asyncio.get_running_loop().run_in_executor(None, _post, url, payload),
             timeout=5.0,
         )
     except asyncio.TimeoutError:
         _log.warning("webhook delivery timed out for paste %s", paste_id)
     except Exception as exc:
         _log.warning(
-            "webhook delivery failed for paste %s: %s", paste_id, exc,
+            "webhook delivery failed for paste %s: %s",
+            paste_id,
+            exc,
         )
 
 
@@ -235,7 +234,7 @@ def _post(url: str, payload: bytes) -> None:
 
     headers: dict[str, str] = {
         "Content-Type": "application/json",
-        "User-Agent":   "Ghostbit-Webhook/1.0",
+        "User-Agent": "Ghostbit-Webhook/1.0",
     }
     if settings.webhook_secret:
         sig = hmac.new(

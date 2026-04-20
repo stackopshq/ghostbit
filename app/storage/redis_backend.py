@@ -59,21 +59,23 @@ class RedisStorage(StorageBackend):
         return f"paste:{paste_id}"
 
     async def save(self, paste: PasteData) -> bool:
-        data = json.dumps({
-            "id": paste.id,
-            "content": paste.content,
-            "nonce": paste.nonce,
-            "kdf_salt": paste.kdf_salt,
-            "language": paste.language,
-            "created_at": paste.created_at,
-            "expires_at": paste.expires_at,
-            "burn": paste.burn,
-            "has_password": paste.has_password,
-            "delete_token_hash": paste.delete_token_hash,
-            "max_views": paste.max_views,
-            "view_count": paste.view_count,
-            "webhook_url": paste.webhook_url,
-        })
+        data = json.dumps(
+            {
+                "id": paste.id,
+                "content": paste.content,
+                "nonce": paste.nonce,
+                "kdf_salt": paste.kdf_salt,
+                "language": paste.language,
+                "created_at": paste.created_at,
+                "expires_at": paste.expires_at,
+                "burn": paste.burn,
+                "has_password": paste.has_password,
+                "delete_token_hash": paste.delete_token_hash,
+                "max_views": paste.max_views,
+                "view_count": paste.view_count,
+                "webhook_url": paste.webhook_url,
+            }
+        )
         key = self._key(paste.id)
         if paste.expires_at:
             ttl = paste.expires_at - int(time.time())
@@ -94,9 +96,7 @@ class RedisStorage(StorageBackend):
         d.setdefault("webhook_url", None)
         return PasteData(**d)
 
-    async def increment_and_check_burn(
-        self, paste_id: str
-    ) -> tuple[int | None, bool]:
+    async def increment_and_check_burn(self, paste_id: str) -> tuple[int | None, bool]:
         result = await self._increment_and_check_burn_script(keys=[self._key(paste_id)])
         view_count, burned = int(result[0]), bool(result[1])
         if view_count < 0:

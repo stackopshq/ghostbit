@@ -9,8 +9,8 @@ from app.webhook import SSRFError, _is_ssrf_safe, _resolve_public_ip
 
 # Fake getaddrinfo that returns a public IP for any hostname lookup,
 # so tests are deterministic regardless of CI DNS availability.
-_PUBLIC_ADDRINFO  = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.215.14", 0))]
-_PRIVATE_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("127.0.0.1",     0))]
+_PUBLIC_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.215.14", 0))]
+_PRIVATE_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("127.0.0.1", 0))]
 
 
 def _fake_getaddrinfo(host, port, *args, **kwargs):
@@ -18,41 +18,48 @@ def _fake_getaddrinfo(host, port, *args, **kwargs):
     return _PUBLIC_ADDRINFO
 
 
-@pytest.mark.parametrize("url", [
-    "http://10.0.0.1/hook",
-    "http://172.16.5.5/hook",
-    "http://192.168.1.1/hook",
-    "http://127.0.0.1/hook",
-    "http://169.254.169.254/hook",      # AWS/GCP/Azure IMDS endpoint
-    "https://10.255.255.255/hook",
-    "ftp://example.com/hook",           # non-http scheme
-    "http://0.0.0.0/hook",              # unspecified — resolves to localhost on Linux
-    "http://100.64.1.1/hook",           # CGNAT (RFC 6598)
-    "http://198.18.0.1/hook",           # benchmark (RFC 2544)
-    "http://192.0.2.1/hook",            # TEST-NET-1
-    "http://198.51.100.1/hook",         # TEST-NET-2
-    "http://203.0.113.1/hook",          # TEST-NET-3
-    "http://224.0.0.1/hook",            # multicast
-    "http://[::1]/hook",                # IPv6 loopback
-    "http://[fe80::1]/hook",            # IPv6 link-local
-    "http://[fc00::1]/hook",            # IPv6 ULA
-    "http://[::]/hook",                 # IPv6 unspecified
-])
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://10.0.0.1/hook",
+        "http://172.16.5.5/hook",
+        "http://192.168.1.1/hook",
+        "http://127.0.0.1/hook",
+        "http://169.254.169.254/hook",  # AWS/GCP/Azure IMDS endpoint
+        "https://10.255.255.255/hook",
+        "ftp://example.com/hook",  # non-http scheme
+        "http://0.0.0.0/hook",  # unspecified — resolves to localhost on Linux
+        "http://100.64.1.1/hook",  # CGNAT (RFC 6598)
+        "http://198.18.0.1/hook",  # benchmark (RFC 2544)
+        "http://192.0.2.1/hook",  # TEST-NET-1
+        "http://198.51.100.1/hook",  # TEST-NET-2
+        "http://203.0.113.1/hook",  # TEST-NET-3
+        "http://224.0.0.1/hook",  # multicast
+        "http://[::1]/hook",  # IPv6 loopback
+        "http://[fe80::1]/hook",  # IPv6 link-local
+        "http://[fc00::1]/hook",  # IPv6 ULA
+        "http://[::]/hook",  # IPv6 unspecified
+    ],
+)
 def test_ssrf_blocked(url):
     assert _is_ssrf_safe(url) is False
 
 
-@pytest.mark.parametrize("url", [
-    "https://hooks.example.com/notify",
-    "https://discord.com/api/webhooks/123/abc",
-    "http://1.2.3.4/hook",             # public IP
-])
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://hooks.example.com/notify",
+        "https://discord.com/api/webhooks/123/abc",
+        "http://1.2.3.4/hook",  # public IP
+    ],
+)
 def test_ssrf_allowed(url):
     with patch("socket.getaddrinfo", side_effect=_fake_getaddrinfo):
         assert _is_ssrf_safe(url) is True
 
 
 # ── DNS rebinding defense (authoritative delivery-time check) ────────────────
+
 
 def test_resolve_public_ip_accepts_public_dns():
     with patch("socket.getaddrinfo", return_value=_PUBLIC_ADDRINFO):

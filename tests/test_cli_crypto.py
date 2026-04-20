@@ -20,14 +20,14 @@ def test_roundtrip_no_password():
 
 def test_roundtrip_with_password():
     salt = _gen_salt()
-    key  = _derive_key("s3cr3t", salt)
+    key = _derive_key("s3cr3t", salt)
     plaintext = "password-protected paste"
     ciphertext, nonce = _encrypt(plaintext, key)
     assert _decrypt(ciphertext, nonce, key) == plaintext
 
 
 def test_wrong_key_raises():
-    key   = _gen_key()
+    key = _gen_key()
     wrong = _gen_key()
     ciphertext, nonce = _encrypt("secret", key)
     with pytest.raises(InvalidTag):
@@ -35,8 +35,8 @@ def test_wrong_key_raises():
 
 
 def test_wrong_password_raises():
-    salt      = _gen_salt()
-    key       = _derive_key("correct", salt)
+    salt = _gen_salt()
+    key = _derive_key("correct", salt)
     ciphertext, nonce = _encrypt("secret", key)
     wrong_key = _derive_key("wrong", salt)
     with pytest.raises(InvalidTag):
@@ -45,7 +45,8 @@ def test_wrong_password_raises():
 
 def test_key_to_fragment_is_urlsafe():
     from cli import _key_to_fragment
-    key      = _gen_key()
+
+    key = _gen_key()
     fragment = _key_to_fragment(key)
     assert "+" not in fragment
     assert "/" not in fragment

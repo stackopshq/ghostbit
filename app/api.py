@@ -35,25 +35,29 @@ def _decode_b64(value: str, *, expected_len: int | None = None) -> bytes:
     except (binascii.Error, ValueError) as exc:
         raise ValueError(f"invalid base64: {exc}") from exc
     if expected_len is not None and len(raw) != expected_len:
-        raise ValueError(
-            f"expected {expected_len} bytes after decode, got {len(raw)}"
-        )
+        raise ValueError(f"expected {expected_len} bytes after decode, got {len(raw)}")
     return raw
+
 
 router = APIRouter(prefix="/api/v1", tags=["Pastes"])
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
 
+
 class PasteCreateRequest(BaseModel):
-    content: str = Field(..., min_length=1, description="Base64 AES-256-GCM ciphertext (client-encrypted).")
-    nonce: str                    = Field(..., description="Base64 12-byte GCM nonce.")
-    kdf_salt: str | None       = Field(None, description="Base64 PBKDF2 salt. Present only for password-protected pastes.")
-    language: str | None       = None
-    expires_in: int | None     = Field(None, ge=1, description="TTL in seconds (≥ 1). Null = never.")
-    burn: bool                    = False
-    max_views: int | None      = Field(None, ge=1, description="Delete after N views.")
-    webhook_url: str | None    = Field(None, description="URL to POST when the paste is read.")
+    content: str = Field(
+        ..., min_length=1, description="Base64 AES-256-GCM ciphertext (client-encrypted)."
+    )
+    nonce: str = Field(..., description="Base64 12-byte GCM nonce.")
+    kdf_salt: str | None = Field(
+        None, description="Base64 PBKDF2 salt. Present only for password-protected pastes."
+    )
+    language: str | None = None
+    expires_in: int | None = Field(None, ge=1, description="TTL in seconds (≥ 1). Null = never.")
+    burn: bool = False
+    max_views: int | None = Field(None, ge=1, description="Delete after N views.")
+    webhook_url: str | None = Field(None, description="URL to POST when the paste is read.")
 
     @field_validator("content")
     @classmethod
@@ -90,9 +94,9 @@ class PasteCreateResponse(BaseModel):
 
 class PasteResponse(BaseModel):
     id: str
-    content: str              # base64 AES-256-GCM ciphertext
-    nonce: str                # base64 12-byte GCM nonce
-    kdf_salt: str | None   # base64 PBKDF2 salt (password pastes only)
+    content: str  # base64 AES-256-GCM ciphertext
+    nonce: str  # base64 12-byte GCM nonce
+    kdf_salt: str | None  # base64 PBKDF2 salt (password pastes only)
     language: str | None
     created_at: int
     expires_at: int | None
@@ -104,14 +108,17 @@ class PasteResponse(BaseModel):
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _storage(request: Request):
     return request.app.state.storage
+
 
 def _base_url(request: Request) -> str:
     return str(request.base_url).rstrip("/")
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/pastes",
@@ -237,8 +244,10 @@ async def get_paste(request: Request, paste_id: str = Path(..., pattern=r"^[A-Za
 class DetectRequest(BaseModel):
     content: str
 
+
 class DetectResponse(BaseModel):
     language: str | None
+
 
 @router.post(
     "/detect",

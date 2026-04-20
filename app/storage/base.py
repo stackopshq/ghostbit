@@ -7,9 +7,11 @@ from dataclasses import dataclass
 @dataclass
 class PasteData:
     id: str
-    content: str            # base64 AES-256-GCM ciphertext (includes auth tag)
-    nonce: str              # base64 12-byte GCM nonce
-    kdf_salt: str | None # base64 16-byte PBKDF2 salt — only for password-protected pastes (client-side key derivation)
+    content: str  # base64 AES-256-GCM ciphertext (includes auth tag)
+    nonce: str  # base64 12-byte GCM nonce
+    kdf_salt: (
+        str | None
+    )  # base64 16-byte PBKDF2 salt — only for password-protected pastes (client-side key derivation)
     language: str | None
     created_at: int
     expires_at: int | None
@@ -41,9 +43,7 @@ class StorageBackend(ABC):
     async def get(self, paste_id: str) -> PasteData | None: ...
 
     @abstractmethod
-    async def increment_and_check_burn(
-        self, paste_id: str
-    ) -> tuple[int | None, bool]:
+    async def increment_and_check_burn(self, paste_id: str) -> tuple[int | None, bool]:
         """Atomically increment view_count, then burn if burn=True or
         max_views reached.
 

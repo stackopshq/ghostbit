@@ -114,10 +114,33 @@ TTL_OPTIONS = {
 }
 
 LANGUAGES = [
-    "", "bash", "c", "cpp", "csharp", "css", "diff", "dockerfile",
-    "go", "html", "java", "javascript", "json", "kotlin", "lua",
-    "makefile", "markdown", "php", "python", "ruby", "rust", "sql",
-    "swift", "toml", "typescript", "xml", "yaml",
+    "",
+    "bash",
+    "c",
+    "cpp",
+    "csharp",
+    "css",
+    "diff",
+    "dockerfile",
+    "go",
+    "html",
+    "java",
+    "javascript",
+    "json",
+    "kotlin",
+    "lua",
+    "makefile",
+    "markdown",
+    "php",
+    "python",
+    "ruby",
+    "rust",
+    "sql",
+    "swift",
+    "toml",
+    "typescript",
+    "xml",
+    "yaml",
 ]
 
 
@@ -157,6 +180,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 _health_log = logging.getLogger("ghostbit.health")
 
+
 @app.get("/healthz", include_in_schema=False)
 async def healthz(request: Request):
     try:
@@ -174,9 +198,8 @@ def _security_txt() -> str:
     # Expires must be an ISO 8601 UTC datetime < 1 year away (RFC 9116 §2.5.5).
     # We regenerate it on every request so self-hosters never ship a stale file.
     from datetime import datetime, timedelta, timezone
-    expires = (datetime.now(timezone.utc) + timedelta(days=180)).strftime(
-        "%Y-%m-%dT%H:%M:%SZ"
-    )
+
+    expires = (datetime.now(timezone.utc) + timedelta(days=180)).strftime("%Y-%m-%dT%H:%M:%SZ")
     return (
         f"Contact: https://github.com/stackopshq/ghostbit/security/advisories/new\n"
         f"Expires: {expires}\n"
@@ -191,12 +214,8 @@ async def security_txt():
     return PlainTextResponse(_security_txt())
 
 
-_ROBOTS_TXT = (
-    "User-agent: *\n"
-    "Disallow: /api/\n"
-    "Disallow: /docs\n"
-    "Disallow: /redoc\n"
-)
+_ROBOTS_TXT = "User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc\n"
+
 
 @app.get("/robots.txt", include_in_schema=False)
 async def robots_txt():
@@ -207,12 +226,15 @@ app.include_router(api_router)
 
 # Silence uvicorn access logs for /healthz so probes don't pollute logs
 logging.getLogger("uvicorn.access").addFilter(
-    type("_HealthzFilter", (logging.Filter,), {
-        "filter": lambda self, r: "/healthz" not in r.getMessage()
-    })()
+    type(
+        "_HealthzFilter",
+        (logging.Filter,),
+        {"filter": lambda self, r: "/healthz" not in r.getMessage()},
+    )()
 )
 app.mount("/static", StaticFiles(directory=str(_ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(_ROOT / "templates"))
+
 
 # Cache-busting: short hash of static assets computed once at startup
 def _asset_hash() -> str:
@@ -222,6 +244,7 @@ def _asset_hash() -> str:
         if f.is_file():
             h.update(f.read_bytes())
     return h.hexdigest()[:8]
+
 
 templates.env.globals["v"] = _asset_hash()
 
@@ -239,6 +262,7 @@ _ERROR_MESSAGES = {
     500: "Something went wrong on our end. Please try again later.",
 }
 
+
 @app.exception_handler(HTTPException)
 async def _http_exception_handler(request: Request, exc: HTTPException):
     # Keep JSON responses for API routes
@@ -250,7 +274,8 @@ async def _http_exception_handler(request: Request, exc: HTTPException):
         context={
             "code": exc.status_code,
             "title": _ERROR_TITLES.get(exc.status_code, "Error"),
-            "message": exc.detail or _ERROR_MESSAGES.get(exc.status_code, "An unexpected error occurred."),
+            "message": exc.detail
+            or _ERROR_MESSAGES.get(exc.status_code, "An unexpected error occurred."),
         },
         status_code=exc.status_code,
     )
@@ -275,8 +300,13 @@ def _format_expiry(expires_at: int | None) -> str | None:
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
-        request, "index.html",
-        context={"languages": LANGUAGES, "ttl_options": TTL_OPTIONS, "max_paste_size": settings.max_paste_size},
+        request,
+        "index.html",
+        context={
+            "languages": LANGUAGES,
+            "ttl_options": TTL_OPTIONS,
+            "max_paste_size": settings.max_paste_size,
+        },
     )
 
 
@@ -298,7 +328,8 @@ async def view_paste(
     # Serve the HTML shell only — increment_views, burn, and webhook
     # are handled by api.py when the client fetches the ciphertext.
     return templates.TemplateResponse(
-        request, "paste.html",
+        request,
+        "paste.html",
         context={
             "paste": paste,
             "expiry_label": _format_expiry(paste.expires_at),
@@ -325,7 +356,9 @@ async def raw_paste(
     # decrypt without the password, and we don't want to silently expose
     # the ciphertext in a plain-looking page.
     if paste.has_password:
-        raise HTTPException(status_code=404, detail="Raw view not available for password-protected pastes.")
+        raise HTTPException(
+            status_code=404, detail="Raw view not available for password-protected pastes."
+        )
 
     return templates.TemplateResponse(request, "raw.html", context={"paste": paste})
 

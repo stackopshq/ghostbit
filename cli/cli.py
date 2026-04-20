@@ -29,32 +29,58 @@ from pathlib import Path
 try:
     from importlib.metadata import PackageNotFoundError
     from importlib.metadata import version as _pkg_version
+
     try:
         __version__ = _pkg_version("ghostbit-cli")
     except PackageNotFoundError:
         __version__ = "dev"
 except ImportError:
     __version__ = "dev"
-_USER_AGENT  = f"Ghostbit-CLI/{__version__}"
+_USER_AGENT = f"Ghostbit-CLI/{__version__}"
 
 # Build an SSL context that works on macOS (certifi) and everywhere else.
 try:
     import certifi
+
     _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
 except ImportError:
     _SSL_CTX = ssl.create_default_context()
 
 LANGUAGES = [
-    "python", "javascript", "typescript", "go", "rust", "ruby", "php",
-    "java", "c", "cpp", "csharp", "bash", "powershell", "html", "css",
-    "sql", "json", "yaml", "toml", "xml", "markdown", "dockerfile",
-    "kotlin", "swift", "lua", "r", "diff",
+    "python",
+    "javascript",
+    "typescript",
+    "go",
+    "rust",
+    "ruby",
+    "php",
+    "java",
+    "c",
+    "cpp",
+    "csharp",
+    "bash",
+    "powershell",
+    "html",
+    "css",
+    "sql",
+    "json",
+    "yaml",
+    "toml",
+    "xml",
+    "markdown",
+    "dockerfile",
+    "kotlin",
+    "swift",
+    "lua",
+    "r",
+    "diff",
 ]
 
 try:
     from cryptography.hazmat.primitives import hashes as _hashes
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
     _CRYPTO_OK = True
 except ImportError:
     _CRYPTO_OK = False
@@ -62,39 +88,49 @@ except ImportError:
 
 # ── Crypto (mirrors e2e.js) ───────────────────────────────────────────────────
 
+
 def _require_crypto():
     if not _CRYPTO_OK:
-        print("Error: 'cryptography' package required. Run: pip install cryptography", file=sys.stderr)
+        print(
+            "Error: 'cryptography' package required. Run: pip install cryptography", file=sys.stderr
+        )
         sys.exit(1)
+
 
 def _gen_key() -> bytes:
     return os.urandom(32)
 
+
 def _gen_salt() -> str:
     return base64.b64encode(os.urandom(16)).decode()
+
 
 def _encrypt(plaintext: str, key: bytes) -> tuple[str, str]:
     nonce = os.urandom(12)
     ct = AESGCM(key).encrypt(nonce, plaintext.encode(), None)
     return base64.b64encode(ct).decode(), base64.b64encode(nonce).decode()
 
+
 def _decrypt(ciphertext_b64: str, nonce_b64: str, key: bytes) -> str:
-    ct    = base64.b64decode(ciphertext_b64)
+    ct = base64.b64decode(ciphertext_b64)
     nonce = base64.b64decode(nonce_b64)
-    pt    = AESGCM(key).decrypt(nonce, ct, None)
+    pt = AESGCM(key).decrypt(nonce, ct, None)
     return pt.decode()
+
 
 def _derive_key(password: str, salt_b64: str) -> bytes:
     salt = base64.b64decode(salt_b64)
-    kdf  = PBKDF2HMAC(algorithm=_hashes.SHA256(), length=32, salt=salt, iterations=600_000)
+    kdf = PBKDF2HMAC(algorithm=_hashes.SHA256(), length=32, salt=salt, iterations=600_000)
     return kdf.derive(password.encode())
 
+
 def _key_to_fragment(key: bytes) -> str:
-    return base64.urlsafe_b64encode(key).rstrip(b'=').decode()
+    return base64.urlsafe_b64encode(key).rstrip(b"=").decode()
+
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-CONFIG_PATH  = Path.home() / ".config" / "ghostbit.toml"
+CONFIG_PATH = Path.home() / ".config" / "ghostbit.toml"
 HISTORY_PATH = Path.home() / ".local" / "share" / "ghostbit" / "history.jsonl"
 DEFAULT_SERVER = "http://localhost:8000"
 
@@ -123,8 +159,11 @@ def _write_config(cfg: dict) -> None:
 
 # ── Subcommands ───────────────────────────────────────────────────────────────
 
+
 def _run_config(argv):
-    parser = argparse.ArgumentParser(prog="gbit config", description="Manage Ghostbit CLI configuration.")
+    parser = argparse.ArgumentParser(
+        prog="gbit config", description="Manage Ghostbit CLI configuration."
+    )
     sub = parser.add_subparsers(dest="action")
 
     sub.add_parser("show", help="Show current configuration.")
@@ -192,19 +231,41 @@ def cmd_paste(args):
         # Infer language from extension if not specified
         if args.lang is None:
             ext_map = {
-                ".py": "python", ".js": "javascript", ".ts": "typescript",
-                ".go": "go", ".rs": "rust", ".rb": "ruby", ".php": "php",
-                ".java": "java", ".c": "c", ".cpp": "cpp", ".cs": "csharp",
-                ".sh": "bash", ".bash": "bash", ".zsh": "bash",
-                ".html": "html", ".css": "css", ".sql": "sql",
-                ".json": "json", ".yaml": "yaml", ".yml": "yaml",
-                ".toml": "toml", ".xml": "xml", ".md": "markdown",
-                ".dockerfile": "dockerfile", ".kt": "kotlin", ".swift": "swift",
-                ".lua": "lua", ".r": "r", ".diff": "diff", ".patch": "diff",
+                ".py": "python",
+                ".js": "javascript",
+                ".ts": "typescript",
+                ".go": "go",
+                ".rs": "rust",
+                ".rb": "ruby",
+                ".php": "php",
+                ".java": "java",
+                ".c": "c",
+                ".cpp": "cpp",
+                ".cs": "csharp",
+                ".sh": "bash",
+                ".bash": "bash",
+                ".zsh": "bash",
+                ".html": "html",
+                ".css": "css",
+                ".sql": "sql",
+                ".json": "json",
+                ".yaml": "yaml",
+                ".yml": "yaml",
+                ".toml": "toml",
+                ".xml": "xml",
+                ".md": "markdown",
+                ".dockerfile": "dockerfile",
+                ".kt": "kotlin",
+                ".swift": "swift",
+                ".lua": "lua",
+                ".r": "r",
+                ".diff": "diff",
+                ".patch": "diff",
             }
             # Handle extensionless files by name (e.g. Dockerfile, Makefile)
             name_map = {
-                "dockerfile": "dockerfile", "makefile": "makefile",
+                "dockerfile": "dockerfile",
+                "makefile": "makefile",
             }
             args.lang = ext_map.get(path.suffix.lower()) or name_map.get(path.name.lower())
     else:
@@ -221,29 +282,29 @@ def cmd_paste(args):
     # ── Encrypt client-side (mirrors browser e2e.js) ──
     # If --password was given without a value, prompt interactively
     password = args.password
-    if password is True or password == '':
-        password = getpass.getpass('Password: ')
+    if password is True or password == "":
+        password = getpass.getpass("Password: ")
         if not password:
-            print('Error: password cannot be empty.', file=sys.stderr)
+            print("Error: password cannot be empty.", file=sys.stderr)
             sys.exit(1)
 
     if password:
         kdf_salt = _gen_salt()
-        key      = _derive_key(password, kdf_salt)
+        key = _derive_key(password, kdf_salt)
     else:
-        key      = _gen_key()
+        key = _gen_key()
         kdf_salt = None
 
     ciphertext, nonce = _encrypt(content, key)
 
     payload = {
-        "content":     ciphertext,
-        "nonce":       nonce,
-        "kdf_salt":    kdf_salt,
-        "language":    args.lang,
-        "expires_in":  args.expires,
-        "burn":        args.burn,
-        "max_views":   args.max_views,
+        "content": ciphertext,
+        "nonce": nonce,
+        "kdf_salt": kdf_salt,
+        "language": args.lang,
+        "expires_in": args.expires,
+        "burn": args.burn,
+        "max_views": args.max_views,
     }
 
     result = _api_create(server, payload)
@@ -258,14 +319,16 @@ def cmd_paste(args):
 
     # Append to local history (best-effort, privacy-first — stays on disk only)
     if not args.no_history:
-        _history_append({
-            "id":         result["id"],
-            "url":        result["url"],
-            "full_url":   full_url,
-            "created_at": int(time.time()),
-            "language":   args.lang,
-            "expires_at": result.get("expires_at"),
-        })
+        _history_append(
+            {
+                "id": result["id"],
+                "url": result["url"],
+                "full_url": full_url,
+                "created_at": int(time.time()),
+                "language": args.lang,
+                "expires_at": result.get("expires_at"),
+            }
+        )
 
     if args.json:
         result["full_url"] = full_url
@@ -293,7 +356,10 @@ def cmd_paste(args):
             if parts:
                 print("  " + "  ·  ".join(parts), file=sys.stderr)
             if not password:
-                print("  Share the full URL — the decryption key is in the #fragment.", file=sys.stderr)
+                print(
+                    "  Share the full URL — the decryption key is in the #fragment.",
+                    file=sys.stderr,
+                )
 
 
 def _print_highlighted(content: str, language: str | None) -> None:
@@ -307,6 +373,7 @@ def _print_highlighted(content: str, language: str | None) -> None:
         try:
             from rich.console import Console
             from rich.markdown import Markdown
+
             Console().print(Markdown(content))
             return
         except ImportError:
@@ -335,8 +402,8 @@ def cmd_view(args):
     from urllib.parse import urldefrag, urlparse
 
     url_no_frag, fragment = urldefrag(args.url)
-    parsed   = urlparse(url_no_frag)
-    server   = f"{parsed.scheme}://{parsed.netloc}"
+    parsed = urlparse(url_no_frag)
+    server = f"{parsed.scheme}://{parsed.netloc}"
     paste_id = parsed.path.strip("/")
 
     if not paste_id or not parsed.scheme:
@@ -392,7 +459,10 @@ def cmd_view(args):
         data.get("max_views") and data.get("view_count", 0) >= data["max_views"]
     )
     if burned and sys.stderr.isatty():
-        print("⚠️  This paste has been burned and is no longer available on the server.", file=sys.stderr)
+        print(
+            "⚠️  This paste has been burned and is no longer available on the server.",
+            file=sys.stderr,
+        )
 
     language = data.get("language")
     if sys.stdout.isatty():
@@ -402,6 +472,7 @@ def cmd_view(args):
 
 
 # ── API ───────────────────────────────────────────────────────────────────────
+
 
 def _api_create(server: str, payload: dict) -> dict:
     url = server.rstrip("/") + "/api/v1/pastes"
@@ -431,6 +502,7 @@ def _api_create(server: str, payload: dict) -> dict:
 
 # ── Local history ────────────────────────────────────────────────────────────
 
+
 def _history_append(entry: dict) -> None:
     """Append one entry to the local history file (JSONL, one JSON object per line)."""
     try:
@@ -457,8 +529,8 @@ def cmd_delete(url: str) -> None:
     from urllib.parse import urldefrag, urlparse
 
     url_no_frag, fragment = urldefrag(url)
-    parsed   = urlparse(url_no_frag)
-    server   = f"{parsed.scheme}://{parsed.netloc}"
+    parsed = urlparse(url_no_frag)
+    server = f"{parsed.scheme}://{parsed.netloc}"
     paste_id = parsed.path.strip("/")
 
     if not paste_id or not parsed.scheme:
@@ -468,7 +540,10 @@ def cmd_delete(url: str) -> None:
     # Fragment: KEY~DELETE_TOKEN  or  ~DELETE_TOKEN
     delete_token = fragment.partition("~")[2]
     if not delete_token:
-        print("Error: delete token missing from URL fragment (expected KEY~TOKEN or ~TOKEN).", file=sys.stderr)
+        print(
+            "Error: delete token missing from URL fragment (expected KEY~TOKEN or ~TOKEN).",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     api_url = f"{server}/api/v1/pastes/{paste_id}"
@@ -536,11 +611,11 @@ def cmd_list(clear: bool = False) -> None:
     print(f"{'ID':<12} {'Lang':<14} {'Created':<12} {'Expires':<10}  URL")
     print("-" * 80)
     for e in reversed(entries):
-        row_id      = e.get("id", "?")[:10]
-        lang        = (e.get("language") or "plain")[:12]
-        created     = _age(e.get("created_at", 0))
-        expires     = _expiry(e.get("expires_at"))
-        full_url    = e.get("full_url", e.get("url", ""))
+        row_id = e.get("id", "?")[:10]
+        lang = (e.get("language") or "plain")[:12]
+        created = _age(e.get("created_at", 0))
+        expires = _expiry(e.get("expires_at"))
+        full_url = e.get("full_url", e.get("url", ""))
         print(f"{row_id:<12} {lang:<14} {created:<12} {expires:<10}  {full_url}")
 
 
@@ -691,7 +766,7 @@ def cmd_completion(shell: str) -> None:
     langs_str = " ".join(LANGUAGES)
     templates = {
         "bash": _COMPLETION_BASH,
-        "zsh":  _COMPLETION_ZSH,
+        "zsh": _COMPLETION_ZSH,
         "fish": _COMPLETION_FISH,
     }
     script = templates[shell].replace("LANGS_PLACEHOLDER", langs_str)
@@ -699,6 +774,7 @@ def cmd_completion(shell: str) -> None:
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
+
 
 def main():
     # Route to config subcommand early so file paths aren't mistaken for subcommands
@@ -767,37 +843,43 @@ current server: {current_server}
         help="File to paste. Reads from stdin if omitted.",
     )
     parser.add_argument(
-        "--server", "-s",
+        "--server",
+        "-s",
         default=None,
         metavar="URL",
         help=f"Server URL for this invocation only (current: {current_server})",
     )
     parser.add_argument(
-        "--lang", "-l",
+        "--lang",
+        "-l",
         default=None,
         help="Language (e.g. python, javascript, go). Auto-detected if omitted.",
     )
     parser.add_argument(
-        "--expires", "-e",
+        "--expires",
+        "-e",
         type=int,
         default=None,
         metavar="SECONDS",
         help="Expiry TTL in seconds (3600 = 1 h, 86400 = 1 d). Default: never.",
     )
     parser.add_argument(
-        "--burn", "-b",
+        "--burn",
+        "-b",
         action="store_true",
         help="Delete after the first view.",
     )
     parser.add_argument(
-        "--max-views", "-m",
+        "--max-views",
+        "-m",
         type=int,
         default=None,
         metavar="N",
         help="Delete after N views.",
     )
     parser.add_argument(
-        "--password", "-p",
+        "--password",
+        "-p",
         nargs="?",
         const=True,
         default=None,
@@ -805,7 +887,8 @@ current server: {current_server}
         help="Encrypt with a password. Omit value to be prompted securely.",
     )
     parser.add_argument(
-        "--quiet", "-q",
+        "--quiet",
+        "-q",
         action="store_true",
         help="Print only the URL.",
     )
@@ -820,7 +903,8 @@ current server: {current_server}
         help="Don't save this paste to local history.",
     )
     parser.add_argument(
-        "--version", "-V",
+        "--version",
+        "-V",
         action="version",
         version=f"%(prog)s {__version__}",
     )

@@ -12,11 +12,11 @@ def _make_request(xff: str | None = None, peer: str = "203.0.113.9") -> Request:
     if xff is not None:
         headers.append((b"x-forwarded-for", xff.encode()))
     scope = {
-        "type":    "http",
-        "method":  "GET",
-        "path":    "/",
+        "type": "http",
+        "method": "GET",
+        "path": "/",
         "headers": headers,
-        "client":  (peer, 12345),
+        "client": (peer, 12345),
     }
     return Request(scope)
 
