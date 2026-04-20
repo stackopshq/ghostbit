@@ -48,6 +48,11 @@ ENV PORT=8000
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD wget -qO- http://localhost:${PORT}/healthz || exit 1
+    CMD ["sh", "-c", "wget -qO- http://localhost:${PORT}/healthz || exit 1"]
 
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
+# JSON-array CMD (silences Dockerfile JSONArgsRecommended) + `exec` so the
+# shell is replaced by uvicorn. Without exec, uvicorn would be a child of
+# /bin/sh and `podman stop` / `docker stop` SIGTERM would be delivered to
+# the shell, not uvicorn — that's ~10 s of wasted shutdown time and risks
+# half-committed requests on containers with many workers.
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
