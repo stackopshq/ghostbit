@@ -80,7 +80,11 @@ class RedisStorage(StorageBackend):
         if paste.expires_at:
             ttl = paste.expires_at - int(time.time())
             if ttl <= 0:
-                return True  # Already expired, caller gets no-op success
+                # Paste is already past its expiry — skip instead of writing
+                # a key Redis would immediately evict. Report the skip to the
+                # caller (e.g. admin import) instead of pretending we saved
+                # something that never hits disk.
+                return False
             result = await self._client.set(key, data, ex=ttl, nx=True)
         else:
             result = await self._client.set(key, data, nx=True)

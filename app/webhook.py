@@ -169,6 +169,14 @@ def _is_ssrf_safe(url: str) -> bool:
         return False
 
 
+# Hold strong references to in-flight delivery tasks so the event loop
+# doesn't garbage-collect them mid-flight. `asyncio.create_task` only keeps
+# a weak reference, and a task with no other referrer can be collected
+# before it finishes — the webhook would silently never fire. The done
+# callback discards the task from the set once delivery completes.
+_pending_deliveries: set[asyncio.Task] = set()
+
+
 def fire(
     url: str,
     paste_id: str,
@@ -178,7 +186,9 @@ def fire(
     """Schedule a webhook delivery without awaiting it."""
     if not _is_ssrf_safe(url):
         return
-    asyncio.create_task(_deliver(url, paste_id, view_count, burned))
+    task = asyncio.create_task(_deliver(url, paste_id, view_count, burned))
+    _pending_deliveries.add(task)
+    task.add_done_callback(_pending_deliveries.discard)
 
 
 async def _deliver(

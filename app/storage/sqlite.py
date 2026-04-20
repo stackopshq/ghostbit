@@ -93,11 +93,8 @@ class SQLiteStorage(StorageBackend):
             await self._db.commit()
             return cursor.rowcount > 0
 
-    async def get(self, paste_id: str) -> PasteData | None:
-        async with self._db.execute("SELECT * FROM pastes WHERE id = ?", (paste_id,)) as cursor:
-            row = await cursor.fetchone()
-        if row is None:
-            return None
+    @staticmethod
+    def _row_to_paste(row: aiosqlite.Row) -> PasteData:
         return PasteData(
             id=row["id"],
             content=row["content"],
@@ -113,6 +110,11 @@ class SQLiteStorage(StorageBackend):
             view_count=row["view_count"] or 0,
             webhook_url=row["webhook_url"],
         )
+
+    async def get(self, paste_id: str) -> PasteData | None:
+        async with self._db.execute("SELECT * FROM pastes WHERE id = ?", (paste_id,)) as cursor:
+            row = await cursor.fetchone()
+        return None if row is None else self._row_to_paste(row)
 
     async def increment_and_check_burn(self, paste_id: str) -> tuple[int | None, bool]:
         async with self._lock:
@@ -150,14 +152,16 @@ class SQLiteStorage(StorageBackend):
             await self._db.commit()
 
     async def iter_all(self) -> AsyncIterator[PasteData]:
-        # Fetch IDs up-front so the admin cursor can't starve concurrent
-        # writes on the shared connection (aiosqlite serializes operations).
-        async with self._db.execute("SELECT id FROM pastes") as cursor:
-            rows = await cursor.fetchall()
-        for row in rows:
-            paste = await self.get(row["id"])
-            if paste is not None:
-                yield paste
+        # Stream in chunks so admin export on a large DB doesn't materialize
+        # every row in memory. Selecting all columns in one pass also avoids
+        # the N extra `get()` round-trips the previous implementation did.
+        async with self._db.execute("SELECT * FROM pastes") as cursor:
+            while True:
+                batch = await cursor.fetchmany(500)
+                if not batch:
+                    return
+                for row in batch:
+                    yield self._row_to_paste(row)
 
     async def _cleanup_loop(self) -> None:
         while True:

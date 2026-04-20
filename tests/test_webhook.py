@@ -103,3 +103,29 @@ def test_resolve_public_ip_raises_on_nxdomain():
         pytest.raises(SSRFError),
     ):
         _resolve_public_ip("nope.invalid", 443)
+
+
+# ── Fire-and-forget task lifecycle ───────────────────────────────────────────
+
+
+@pytest.mark.anyio
+async def test_fire_keeps_strong_reference_to_delivery_task():
+    """`fire()` must keep a strong reference to the created task so the event
+    loop doesn't garbage-collect it mid-delivery. Without it, a delivery
+    could silently never run — the task object is the only thing holding
+    the coroutine alive."""
+    import asyncio
+
+    from app import webhook
+
+    # Make `_post` a slow no-op so the task is still pending when we inspect.
+    async def slow_post(*_args, **_kwargs):
+        await asyncio.sleep(0.05)
+
+    with patch.object(webhook, "_deliver", slow_post):
+        webhook._pending_deliveries.clear()
+        webhook.fire("http://1.2.3.4/hook", "abc", 1, False)
+        assert len(webhook._pending_deliveries) == 1
+        # Let the task finish; the done-callback must discard it from the set.
+        await asyncio.sleep(0.1)
+        assert len(webhook._pending_deliveries) == 0
