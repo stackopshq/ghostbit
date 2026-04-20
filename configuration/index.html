@@ -383,6 +383,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reverse-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reverse proxy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#env-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -657,6 +679,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reverse-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reverse proxy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#env-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -710,6 +754,11 @@
 <td>Path to the SQLite database file (Docker overrides to <code>/data/ghostbit.db</code>)</td>
 </tr>
 <tr>
+<td><code>SQLITE_POOL_SIZE</code></td>
+<td><code>5</code></td>
+<td>Number of pooled SQLite connections. WAL enables parallel readers; raise if <code>ghostbit_sqlite_pool_wait_seconds</code> shows contention.</td>
+</tr>
+<tr>
 <td><code>REDIS_URL</code></td>
 <td><code>redis://localhost:6379</code></td>
 <td>Redis connection URL</td>
@@ -743,6 +792,11 @@
 <td><code>RATE_LIMIT_VIEW</code></td>
 <td><code>120/minute</code></td>
 <td>Rate limit for paste reads per IP (<code>GET /api/v1/pastes/{id}</code>)</td>
+</tr>
+<tr>
+<td><code>TRUST_PROXY_HEADERS</code></td>
+<td><code>false</code></td>
+<td>Read client IP from <code>X-Forwarded-For</code> for rate-limiting. See the <a href="#reverse-proxy">Reverse proxy</a> note below before enabling.</td>
 </tr>
 </tbody>
 </table>
@@ -800,6 +854,94 @@ The format is <code>"N/period"</code> where period is <code>second</code>, <code
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a>RATE_LIMIT_VIEW=600/minute
 </span></code></pre></div></td></tr></table></div>
 <p>When a limit is exceeded the API returns <code>429 Too Many Requests</code>.</p>
+<h2 id="reverse-proxy">Reverse proxy<a class="headerlink" href="#reverse-proxy" title="Permanent link">&para;</a></h2>
+<p>When Ghostbit sits behind a reverse proxy (Nginx, Caddy, Traefik, Cloudflare…),
+the direct peer address is the proxy's, not the client's — so per-IP rate limits
+would apply globally. Enable <code>TRUST_PROXY_HEADERS=true</code> to key limits on
+<code>X-Forwarded-For</code> instead.</p>
+<p>The <strong>rightmost</strong> XFF entry is used: that's the IP appended by the hop nearest
+to Ghostbit, which is the only entry you can trust. Leftmost entries are
+client-controlled (a malicious client could forge <code>X-Forwarded-For: 1.2.3.4</code> to
+impersonate another IP).</p>
+<div class="admonition warning">
+<p class="admonition-title">Multi-hop setups (CDN → LB → app)</p>
+<p>If more than one trusted proxy sits between the client and Ghostbit, the
+rightmost entry will be the nearest proxy (not the client), and rate
+limits will apply to that proxy globally. Collapse the chain at the
+nearest proxy (Nginx: <code>set_real_ip_from &lt;CDN-range&gt;; real_ip_header
+X-Forwarded-For;</code>) so only one hop contributes by the time Ghostbit
+reads the header.</p>
+</div>
+<h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
+<p>Ghostbit exposes two unauthenticated endpoints for operators:</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Format</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/healthz</code></td>
+<td>JSON (<code>{"status": "ok"}</code>)</td>
+<td>Liveness probe. Returns 503 if the storage backend is unreachable.</td>
+</tr>
+<tr>
+<td><code>/metrics</code></td>
+<td>Prometheus text</td>
+<td>Scrape target for Prometheus/Grafana/Alertmanager.</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>/metrics</code> endpoint has no sensitive data (only aggregate counters and a
+latency histogram) but you can still restrict it to your scraper's IP at the
+reverse proxy if you prefer.</p>
+<p>Exposed metrics:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type</th>
+<th>Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ghostbit_pastes_created_total</code></td>
+<td>counter</td>
+<td><code>has_password</code></td>
+</tr>
+<tr>
+<td><code>ghostbit_pastes_viewed_total</code></td>
+<td>counter</td>
+<td><code>burned</code></td>
+</tr>
+<tr>
+<td><code>ghostbit_pastes_deleted_total</code></td>
+<td>counter</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ghostbit_webhook_deliveries_total</code></td>
+<td>counter</td>
+<td><code>outcome</code> (<code>ok</code> | <code>timeout</code> | <code>error</code> | <code>ssrf_blocked</code>)</td>
+</tr>
+<tr>
+<td><code>ghostbit_http_request_duration_seconds</code></td>
+<td>histogram</td>
+<td><code>method</code>, <code>path</code>, <code>status</code></td>
+</tr>
+<tr>
+<td><code>ghostbit_sqlite_pool_wait_seconds</code></td>
+<td>histogram</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><code>/healthz</code> and <code>/metrics</code> are excluded from the HTTP latency histogram so probe
+traffic doesn't skew P99.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
@@ -811,17 +953,31 @@ The format is <code>"N/period"</code> where period is <code>second</code>, <code
 <span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-6-10">10</a></span>
-<span class="normal"><a href="#__codelineno-6-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>STORAGE_BACKEND=sqlite
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span>
+<span class="normal"><a href="#__codelineno-6-13">13</a></span>
+<span class="normal"><a href="#__codelineno-6-14">14</a></span>
+<span class="normal"><a href="#__codelineno-6-15">15</a></span>
+<span class="normal"><a href="#__codelineno-6-16">16</a></span>
+<span class="normal"><a href="#__codelineno-6-17">17</a></span>
+<span class="normal"><a href="#__codelineno-6-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>STORAGE_BACKEND=sqlite
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>SQLITE_PATH=/data/ghostbit.db
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>MAX_PASTE_SIZE=524288
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>PORT=8000
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a># Rate limiting (defaults shown)
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a># RATE_LIMIT_CREATE=30/minute
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a># RATE_LIMIT_VIEW=120/minute
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a># Optional: sign webhook deliveries
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a># SQLITE_POOL_SIZE=5
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a># Rate limiting (defaults shown)
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a># RATE_LIMIT_CREATE=30/minute
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a># RATE_LIMIT_VIEW=120/minute
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13"></a># Enable when behind a reverse proxy — rightmost X-Forwarded-For entry
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15"></a># TRUST_PROXY_HEADERS=true
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16"></a>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17"></a># Optional: sign webhook deliveries
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div></td></tr></table></div>
 
 
