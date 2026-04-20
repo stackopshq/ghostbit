@@ -44,17 +44,20 @@ jobs:
             requirements*.txt
 
       # ── Install from pyproject.toml (dev extra pulls pytest + ruff) ─────────
+      # The CLI is installed as a second editable package so test_cli_crypto
+      # can `from cli import …` without a sys.path hack.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[dev]'
+          pip install -e cli/
 
       # ── Lint ────────────────────────────────────────────────────────────────
       - name: Ruff check
-        run: ruff check app/ tests/ cli/cli.py
+        run: ruff check app/ tests/ cli/cli
 
       - name: Ruff format check
-        run: ruff format --check app/ tests/ cli/cli.py
+        run: ruff format --check app/ tests/ cli/cli
 
       # ── Tests ───────────────────────────────────────────────────────────────
       - name: Pytest

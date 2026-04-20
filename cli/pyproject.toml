@@ -44,5 +44,10 @@ Repository = "https://github.com/stackopshq/ghostbit"
 gbit = "cli:main"
 ghostbit = "cli:main"
 
+# Flat layout: pyproject.toml lives next to __init__.py, so the project
+# root _is_ the `cli` package. Explicit packages list + package-dir mapping
+# — setuptools' auto-discovery can't figure this out on its own because
+# there's no `cli/cli/` subdirectory to walk into.
 [tool.setuptools]
-py-modules = ["cli"]
+packages = ["cli"]
+package-dir = {"cli" = "."}

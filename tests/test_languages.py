@@ -1,4 +1,4 @@
-"""Contract tests for app.languages + drift guard against cli/cli.py.
+"""Contract tests for app.languages + drift guard against the CLI.
 
 languages.json is the single source of truth for the server side; the CLI
 keeps its own list because it ships as a separate PyPI package. These tests
@@ -9,14 +9,9 @@ instead of silently diverging.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "cli"))
-
-from app import languages  # noqa: E402
+from app import languages
 
 
 @pytest.fixture(scope="module")

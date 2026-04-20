@@ -1,13 +1,11 @@
 """Tests for CLI crypto — mirrors e2e.js behaviour."""
 
-import sys
-from pathlib import Path
-
 import pytest
 from cryptography.exceptions import InvalidTag
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "cli"))
-
+# Relies on the CLI being installed as an editable package (handled by the
+# test workflow via `pip install -e cli/`). Lets the test reference the
+# public names directly instead of a sys.path hack.
 from cli import _decrypt, _derive_key, _encrypt, _gen_key, _gen_salt
 
 
