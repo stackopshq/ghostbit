@@ -22,9 +22,20 @@ def _fake_getaddrinfo(host, port, *args, **kwargs):
     "http://172.16.5.5/hook",
     "http://192.168.1.1/hook",
     "http://127.0.0.1/hook",
-    "http://169.254.169.254/hook",      # AWS metadata endpoint
+    "http://169.254.169.254/hook",      # AWS/GCP/Azure IMDS endpoint
     "https://10.255.255.255/hook",
     "ftp://example.com/hook",           # non-http scheme
+    "http://0.0.0.0/hook",              # unspecified — resolves to localhost on Linux
+    "http://100.64.1.1/hook",           # CGNAT (RFC 6598)
+    "http://198.18.0.1/hook",           # benchmark (RFC 2544)
+    "http://192.0.2.1/hook",            # TEST-NET-1
+    "http://198.51.100.1/hook",         # TEST-NET-2
+    "http://203.0.113.1/hook",          # TEST-NET-3
+    "http://224.0.0.1/hook",            # multicast
+    "http://[::1]/hook",                # IPv6 loopback
+    "http://[fe80::1]/hook",            # IPv6 link-local
+    "http://[fc00::1]/hook",            # IPv6 ULA
+    "http://[::]/hook",                 # IPv6 unspecified
 ])
 def test_ssrf_blocked(url):
     assert _is_ssrf_safe(url) is False
@@ -64,7 +75,7 @@ def test_resolve_public_ip_rejects_rebound_hostname():
     attacker flipped the record to a private IP before delivery. The
     delivery-time re-check must catch it."""
     with patch("socket.getaddrinfo", return_value=_PRIVATE_ADDRINFO):
-        with pytest.raises(SSRFError, match="private IP"):
+        with pytest.raises(SSRFError, match="non-public IP"):
             _resolve_public_ip("attacker.example.com", 443)
 
 

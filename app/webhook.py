@@ -40,17 +40,20 @@ class SSRFError(RuntimeError):
 
 _log = logging.getLogger("ghostbit.webhook")
 
-# RFC-1918 + loopback + link-local ranges forbidden as webhook targets
-_PRIVATE_NETWORKS = [
-    ipaddress.ip_network("10.0.0.0/8"),
-    ipaddress.ip_network("172.16.0.0/12"),
-    ipaddress.ip_network("192.168.0.0/16"),
-    ipaddress.ip_network("127.0.0.0/8"),
-    ipaddress.ip_network("169.254.0.0/16"),
-    ipaddress.ip_network("::1/128"),
-    ipaddress.ip_network("fc00::/7"),
-    ipaddress.ip_network("fe80::/10"),
-]
+
+def _is_non_public(ip: "ipaddress.IPv4Address | ipaddress.IPv6Address") -> bool:
+    """Return True if `ip` is not a public, globally-routable unicast address.
+
+    Delegates to the stdlib `is_global` property, which covers RFC-1918,
+    loopback, link-local, CGNAT (100.64/10), benchmark (198.18/15), TEST-NET,
+    reserved, and unspecified ranges. Multicast is also rejected — Python
+    considers multicast ranges `is_global=True` but they make no sense as
+    unicast webhook targets and could be abused (e.g. flooding).
+
+    Keeping this logic here means we don't ship our own catalogue of ranges
+    that drifts whenever a new block gets reserved.
+    """
+    return (not ip.is_global) or ip.is_multicast
 
 
 def _resolve_public_ip(host: str, port: int) -> str:
@@ -75,7 +78,7 @@ def _resolve_public_ip(host: str, port: int) -> str:
     except ValueError:
         addr = None
     if addr is not None:
-        if any(addr in net for net in _PRIVATE_NETWORKS):
+        if _is_non_public(addr):
             raise SSRFError(f"refusing non-public IP {host}")
         return host
 
@@ -92,8 +95,8 @@ def _resolve_public_ip(host: str, port: int) -> str:
             ip = ipaddress.ip_address(ip_str)
         except ValueError as exc:
             raise SSRFError(f"unparseable address {ip_str}") from exc
-        if any(ip in net for net in _PRIVATE_NETWORKS):
-            raise SSRFError(f"{host} resolved to private IP {ip_str}")
+        if _is_non_public(ip):
+            raise SSRFError(f"{host} resolved to non-public IP {ip_str}")
 
     return infos[0][4][0]
 
@@ -149,10 +152,10 @@ def _is_ssrf_safe(url: str) -> bool:
         # Fast path: bare IP address
         try:
             addr = ipaddress.ip_address(host)
-            return not any(addr in net for net in _PRIVATE_NETWORKS)
+            return not _is_non_public(addr)
         except ValueError:
             pass
-        # Hostname: resolve all returned addresses and reject if any is private
+        # Hostname: resolve all returned addresses and reject if any is non-public
         try:
             infos = socket.getaddrinfo(host, None)
         except socket.gaierror:
@@ -160,7 +163,7 @@ def _is_ssrf_safe(url: str) -> bool:
         for info in infos:
             try:
                 addr = ipaddress.ip_address(info[4][0])
-                if any(addr in net for net in _PRIVATE_NETWORKS):
+                if _is_non_public(addr):
                     return False
             except ValueError:
                 return False
