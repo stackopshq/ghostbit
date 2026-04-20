@@ -20,11 +20,10 @@ from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException, Path, Request
 from pydantic import BaseModel, Field, field_validator
-from slowapi import Limiter
 
 from .config import settings
 from .detect import detect_language
-from .rate_limit import client_ip
+from .rate_limit import limiter
 from .storage.base import PasteData
 from . import webhook
 from .webhook import _is_ssrf_safe
@@ -41,8 +40,6 @@ def _decode_b64(value: str, *, expected_len: Optional[int] = None) -> bytes:
             f"expected {expected_len} bytes after decode, got {len(raw)}"
         )
     return raw
-
-limiter = Limiter(key_func=client_ip)
 
 router = APIRouter(prefix="/api/v1", tags=["Pastes"])
 
@@ -202,7 +199,7 @@ async def create_paste(body: PasteCreateRequest, request: Request):
     },
 )
 @limiter.limit(lambda: settings.rate_limit_view)
-async def get_paste(paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"), request: Request = None):
+async def get_paste(request: Request, paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$")):
     storage = _storage(request)
     paste = await storage.get(paste_id)
 
@@ -276,7 +273,11 @@ async def detect(body: DetectRequest, request: Request):
         403: {"description": "Invalid delete token, or paste does not exist."},
     },
 )
-async def delete_paste(paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"), request: Request = None, x_delete_token: str = Header(..., description="Delete token returned at paste creation.")):
+async def delete_paste(
+    request: Request,
+    paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
+    x_delete_token: str = Header(..., description="Delete token returned at paste creation."),
+):
     # Unified 403 response — see docstring. `storage.delete` returns False
     # identically for a missing paste and a bad token, so we don't need to
     # look up the paste first (which would also leak existence via timing).

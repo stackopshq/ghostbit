@@ -10,14 +10,14 @@ from fastapi import FastAPI, Form, HTTPException, Path as PathParam, Request
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from . import __version__
 from .api import router as api_router
 from .config import settings
-from .rate_limit import client_ip
+from .rate_limit import limiter
 from .storage import get_storage
 
 
@@ -104,8 +104,6 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
 _MAX_BODY_BYTES = int(settings.max_paste_size * 1.4) + 8192
 
 _ROOT = Path(__file__).resolve().parent.parent
-
-limiter = Limiter(key_func=client_ip)
 
 TTL_OPTIONS = {
     0: "Never",

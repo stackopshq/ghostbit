@@ -17,6 +17,7 @@ reaches us with a single trusted hop.
 """
 
 from fastapi import Request
+from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from .config import settings
@@ -30,3 +31,11 @@ def client_ip(request: Request) -> str:
             if last:
                 return last
     return get_remote_address(request)
+
+
+# Single Limiter instance used by both the HTTP app (main.py) and the API
+# router (api.py). slowapi routes decorator-registered limits through the
+# instance attached to `app.state.limiter`; keeping two separate instances
+# worked only because the instance wiring happens at decoration time, but
+# it meant runtime config changes applied to one and not the other.
+limiter = Limiter(key_func=client_ip)
