@@ -251,7 +251,12 @@
     marked.setOptions({ breaks: true, gfm: true });
 
     function switchTab(tab) {
-      const viewCode    = document.getElementById('viewCode');
+      // The tab-switcher buttons live inside #viewCode > .paste-inbar, so
+      // hiding #viewCode itself would hide the "Code" button with it —
+      // trapping the user in preview. Toggle only the editor body and the
+      // preview pane; the header (paste-id, badges, tabs, action buttons)
+      // stays visible in both modes.
+      const codeBody    = document.querySelector('#viewCode .paste-body');
       const viewPreview = document.getElementById('viewPreview');
       const tabCode     = document.getElementById('tabCode');
       const tabPreview  = document.getElementById('tabPreview');
@@ -259,12 +264,12 @@
       if (tab === 'preview') {
         const dirty = marked.parse(cm ? cm.getValue() : '');
         document.getElementById('mdBody').innerHTML = DOMPurify.sanitize(dirty);
-        viewCode.style.display    = 'none';
+        codeBody.style.display    = 'none';
         viewPreview.style.display = '';
         tabCode.classList.remove('active');
         tabPreview.classList.add('active');
       } else {
-        viewCode.style.display    = '';
+        codeBody.style.display    = '';
         viewPreview.style.display = 'none';
         tabCode.classList.add('active');
         tabPreview.classList.remove('active');
