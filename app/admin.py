@@ -20,7 +20,7 @@ import asyncio
 import dataclasses
 import json
 import sys
-from typing import IO, Tuple
+from typing import IO
 
 from .storage import get_storage
 from .storage.base import PasteData
@@ -41,7 +41,7 @@ async def export_all(out: IO[str]) -> int:
         await storage.close()
 
 
-async def import_all(src: IO[str], *, overwrite: bool = False) -> Tuple[int, int]:
+async def import_all(src: IO[str], *, overwrite: bool = False) -> tuple[int, int]:
     storage = await get_storage()
     try:
         imported = skipped = 0

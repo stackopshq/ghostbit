@@ -1,7 +1,7 @@
 import time
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import AsyncIterator, Optional, Tuple
 
 
 @dataclass
@@ -9,18 +9,18 @@ class PasteData:
     id: str
     content: str            # base64 AES-256-GCM ciphertext (includes auth tag)
     nonce: str              # base64 12-byte GCM nonce
-    kdf_salt: Optional[str] # base64 16-byte PBKDF2 salt — only for password-protected pastes (client-side key derivation)
-    language: Optional[str]
+    kdf_salt: str | None # base64 16-byte PBKDF2 salt — only for password-protected pastes (client-side key derivation)
+    language: str | None
     created_at: int
-    expires_at: Optional[int]
+    expires_at: int | None
     burn: bool
     has_password: bool
     delete_token_hash: str
-    max_views: Optional[int] = None  # None = unlimited
+    max_views: int | None = None  # None = unlimited
     view_count: int = 0
-    webhook_url: Optional[str] = None
+    webhook_url: str | None = None
 
-    def is_expired(self, now: Optional[int] = None) -> bool:
+    def is_expired(self, now: int | None = None) -> bool:
         if self.expires_at is None:
             return False
         return (now if now is not None else int(time.time())) > self.expires_at
@@ -38,12 +38,12 @@ class StorageBackend(ABC):
         ...
 
     @abstractmethod
-    async def get(self, paste_id: str) -> Optional[PasteData]: ...
+    async def get(self, paste_id: str) -> PasteData | None: ...
 
     @abstractmethod
     async def increment_and_check_burn(
         self, paste_id: str
-    ) -> Tuple[Optional[int], bool]:
+    ) -> tuple[int | None, bool]:
         """Atomically increment view_count, then burn if burn=True or
         max_views reached.
 

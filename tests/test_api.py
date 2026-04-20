@@ -10,12 +10,11 @@ from httpx import ASGITransport, AsyncClient
 
 os.environ.setdefault("STORAGE_BACKEND", "sqlite")
 # Use a temp file so tests work in any environment (CI has no /data/)
-_tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-os.environ["SQLITE_PATH"] = _tmp_db.name
-_tmp_db.close()
+with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as _tmp_db:
+    os.environ["SQLITE_PATH"] = _tmp_db.name
 
-from app.main import app
-from app.storage import get_storage
+from app.main import app  # noqa: E402
+from app.storage import get_storage  # noqa: E402
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -183,6 +182,7 @@ async def test_id_collision_retry(client, monkeypatch):
     up to 8 times before giving up — it must never overwrite an existing paste."""
     # Force the generator to return a colliding ID twice, then a fresh one.
     import secrets as _secrets
+
     from app import api as api_mod
 
     first = await client.post("/api/v1/pastes", json=_fake_paste())

@@ -2,7 +2,6 @@
 
 from unittest.mock import patch
 
-import pytest
 from starlette.requests import Request
 
 from app.rate_limit import client_ip

@@ -4,9 +4,9 @@ import secrets
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
 
-from fastapi import FastAPI, Form, HTTPException, Path as PathParam, Request
+from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi import Path as PathParam
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -256,7 +256,7 @@ async def _http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-def _format_expiry(expires_at: Optional[int]) -> Optional[str]:
+def _format_expiry(expires_at: int | None) -> str | None:
     if expires_at is None:
         return None
     delta = expires_at - int(time.time())

@@ -1,7 +1,7 @@
 import hashlib
 import json
 import time
-from typing import AsyncIterator, Optional, Tuple
+from collections.abc import AsyncIterator
 
 import redis.asyncio as aioredis
 
@@ -46,7 +46,7 @@ return 1
 class RedisStorage(StorageBackend):
     def __init__(self, url: str) -> None:
         self.url = url
-        self._client: Optional[aioredis.Redis] = None
+        self._client: aioredis.Redis | None = None
 
     async def init(self) -> None:
         self._client = aioredis.from_url(self.url, decode_responses=True)
@@ -84,7 +84,7 @@ class RedisStorage(StorageBackend):
             result = await self._client.set(key, data, nx=True)
         return bool(result)
 
-    async def get(self, paste_id: str) -> Optional[PasteData]:
+    async def get(self, paste_id: str) -> PasteData | None:
         data = await self._client.get(self._key(paste_id))
         if data is None:
             return None
@@ -96,7 +96,7 @@ class RedisStorage(StorageBackend):
 
     async def increment_and_check_burn(
         self, paste_id: str
-    ) -> Tuple[Optional[int], bool]:
+    ) -> tuple[int | None, bool]:
         result = await self._increment_and_check_burn_script(keys=[self._key(paste_id)])
         view_count, burned = int(result[0]), bool(result[1])
         if view_count < 0:

@@ -4,7 +4,6 @@ detect_language is best-effort (Pygments heuristics) — tests verify
 the interface contract, not specific detection accuracy.
 """
 
-import pytest
 from app.detect import detect_language
 
 _PYTHON = """

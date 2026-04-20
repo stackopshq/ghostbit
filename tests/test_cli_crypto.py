@@ -1,10 +1,10 @@
 """Tests for CLI crypto — mirrors e2e.js behaviour."""
 
-import base64
 import sys
 from pathlib import Path
 
 import pytest
+from cryptography.exceptions import InvalidTag
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "cli"))
 
@@ -30,7 +30,7 @@ def test_wrong_key_raises():
     key   = _gen_key()
     wrong = _gen_key()
     ciphertext, nonce = _encrypt("secret", key)
-    with pytest.raises(Exception):
+    with pytest.raises(InvalidTag):
         _decrypt(ciphertext, nonce, wrong)
 
 
@@ -39,7 +39,7 @@ def test_wrong_password_raises():
     key       = _derive_key("correct", salt)
     ciphertext, nonce = _encrypt("secret", key)
     wrong_key = _derive_key("wrong", salt)
-    with pytest.raises(Exception):
+    with pytest.raises(InvalidTag):
         _decrypt(ciphertext, nonce, wrong_key)
 
 

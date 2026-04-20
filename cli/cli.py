@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import base64
+import contextlib
 import getpass
 import json
 import os
@@ -26,7 +27,8 @@ from pathlib import Path
 # Version is read from the installed package metadata (single source of truth:
 # cli/pyproject.toml). Falls back to "dev" when running from a source checkout.
 try:
-    from importlib.metadata import PackageNotFoundError, version as _pkg_version
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version as _pkg_version
     try:
         __version__ = _pkg_version("ghostbit-cli")
     except PackageNotFoundError:
@@ -50,9 +52,9 @@ LANGUAGES = [
 ]
 
 try:
+    from cryptography.hazmat.primitives import hashes as _hashes
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-    from cryptography.hazmat.primitives import hashes as _hashes
     _CRYPTO_OK = True
 except ImportError:
     _CRYPTO_OK = False
@@ -423,7 +425,7 @@ def _api_create(server: str, payload: dict) -> dict:
         sys.exit(1)
     except urllib.error.URLError as e:
         print(f"Could not connect to {server}: {e.reason}", file=sys.stderr)
-        print(f"  Tip: run `gbit config set server <URL>` to set your server.", file=sys.stderr)
+        print("  Tip: run `gbit config set server <URL>` to set your server.", file=sys.stderr)
         sys.exit(1)
 
 
@@ -446,10 +448,8 @@ def _history_load() -> list[dict]:
     for line in HISTORY_PATH.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if line:
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 entries.append(json.loads(line))
-            except json.JSONDecodeError:
-                pass
     return entries
 
 
@@ -513,18 +513,24 @@ def cmd_list(clear: bool = False) -> None:
 
     def _age(ts: int) -> str:
         delta = now - ts
-        if delta < 120:      return "just now"
-        if delta < 3600:     return f"{delta // 60}m ago"
-        if delta < 86400:    return f"{delta // 3600}h ago"
+        if delta < 120:
+            return "just now"
+        if delta < 3600:
+            return f"{delta // 60}m ago"
+        if delta < 86400:
+            return f"{delta // 3600}h ago"
         return f"{delta // 86400}d ago"
 
     def _expiry(expires_at) -> str:
         if not expires_at:
             return "never"
         delta = expires_at - now
-        if delta <= 0:       return "expired"
-        if delta < 3600:     return f"in {delta // 60}m"
-        if delta < 86400:    return f"in {delta // 3600}h"
+        if delta <= 0:
+            return "expired"
+        if delta < 3600:
+            return f"in {delta // 60}m"
+        if delta < 86400:
+            return f"in {delta // 3600}h"
         return f"in {delta // 86400}d"
 
     print(f"{'ID':<12} {'Lang':<14} {'Created':<12} {'Expires':<10}  URL")

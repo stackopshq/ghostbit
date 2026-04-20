@@ -1,9 +1,10 @@
 import asyncio
+import contextlib
 import hashlib
 import logging
 import time
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import AsyncIterator, Optional, Tuple
 
 import aiosqlite
 
@@ -40,11 +41,11 @@ _EXPECTED_COLUMNS = {
 class SQLiteStorage(StorageBackend):
     def __init__(self, path: str) -> None:
         self.path = path
-        self._db: Optional[aiosqlite.Connection] = None
+        self._db: aiosqlite.Connection | None = None
         # Serializes multi-statement transactions on the shared connection so
         # concurrent requests can't interleave statements inside a BEGIN…COMMIT.
         self._lock = asyncio.Lock()
-        self._cleanup_task: Optional[asyncio.Task] = None
+        self._cleanup_task: asyncio.Task | None = None
 
     async def init(self) -> None:
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
@@ -92,7 +93,7 @@ class SQLiteStorage(StorageBackend):
             await self._db.commit()
             return cursor.rowcount > 0
 
-    async def get(self, paste_id: str) -> Optional[PasteData]:
+    async def get(self, paste_id: str) -> PasteData | None:
         async with self._db.execute(
             "SELECT * FROM pastes WHERE id = ?", (paste_id,)
         ) as cursor:
@@ -117,7 +118,7 @@ class SQLiteStorage(StorageBackend):
 
     async def increment_and_check_burn(
         self, paste_id: str
-    ) -> Tuple[Optional[int], bool]:
+    ) -> tuple[int | None, bool]:
         async with self._lock:
             await self._db.execute("BEGIN IMMEDIATE")
             async with self._db.execute(
@@ -185,10 +186,8 @@ class SQLiteStorage(StorageBackend):
     async def close(self) -> None:
         if self._cleanup_task:
             self._cleanup_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError, Exception):
                 await self._cleanup_task
-            except (asyncio.CancelledError, Exception):
-                pass
         if self._db is not None:
             await self._db.close()
             self._db = None

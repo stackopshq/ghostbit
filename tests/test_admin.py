@@ -8,9 +8,8 @@ import tempfile
 import pytest
 
 os.environ.setdefault("STORAGE_BACKEND", "sqlite")
-_tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-os.environ["SQLITE_PATH"] = _tmp_db.name
-_tmp_db.close()
+with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as _tmp_db:
+    os.environ["SQLITE_PATH"] = _tmp_db.name
 
 from app import admin  # noqa: E402
 from app.storage import get_storage  # noqa: E402
@@ -18,21 +17,21 @@ from app.storage.base import PasteData  # noqa: E402
 
 
 def _make_paste(pid: str, **overrides) -> PasteData:
-    base = dict(
-        id=pid,
-        content="Y2lwaGVydGV4dA==",
-        nonce="bm9uY2UxMjM0NTY=",
-        kdf_salt=None,
-        language="python",
-        created_at=1_700_000_000,
-        expires_at=None,
-        burn=False,
-        has_password=False,
-        delete_token_hash="0" * 64,
-        max_views=None,
-        view_count=0,
-        webhook_url=None,
-    )
+    base = {
+        "id":                pid,
+        "content":           "Y2lwaGVydGV4dA==",
+        "nonce":             "bm9uY2UxMjM0NTY=",
+        "kdf_salt":          None,
+        "language":          "python",
+        "created_at":        1_700_000_000,
+        "expires_at":        None,
+        "burn":              False,
+        "has_password":      False,
+        "delete_token_hash": "0" * 64,
+        "max_views":         None,
+        "view_count":        0,
+        "webhook_url":       None,
+    }
     base.update(overrides)
     return PasteData(**base)
 

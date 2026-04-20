@@ -16,20 +16,19 @@ import binascii
 import hashlib
 import secrets
 import time
-from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException, Path, Request
 from pydantic import BaseModel, Field, field_validator
 
+from . import webhook
 from .config import settings
 from .detect import detect_language
 from .rate_limit import limiter
 from .storage.base import PasteData
-from . import webhook
 from .webhook import _is_ssrf_safe
 
 
-def _decode_b64(value: str, *, expected_len: Optional[int] = None) -> bytes:
+def _decode_b64(value: str, *, expected_len: int | None = None) -> bytes:
     """Strict base64 decode with optional length assertion."""
     try:
         raw = base64.b64decode(value, validate=True)
@@ -49,12 +48,12 @@ router = APIRouter(prefix="/api/v1", tags=["Pastes"])
 class PasteCreateRequest(BaseModel):
     content: str = Field(..., min_length=1, description="Base64 AES-256-GCM ciphertext (client-encrypted).")
     nonce: str                    = Field(..., description="Base64 12-byte GCM nonce.")
-    kdf_salt: Optional[str]       = Field(None, description="Base64 PBKDF2 salt. Present only for password-protected pastes.")
-    language: Optional[str]       = None
-    expires_in: Optional[int]     = Field(None, ge=1, description="TTL in seconds (≥ 1). Null = never.")
+    kdf_salt: str | None       = Field(None, description="Base64 PBKDF2 salt. Present only for password-protected pastes.")
+    language: str | None       = None
+    expires_in: int | None     = Field(None, ge=1, description="TTL in seconds (≥ 1). Null = never.")
     burn: bool                    = False
-    max_views: Optional[int]      = Field(None, ge=1, description="Delete after N views.")
-    webhook_url: Optional[str]    = Field(None, description="URL to POST when the paste is read.")
+    max_views: int | None      = Field(None, ge=1, description="Delete after N views.")
+    webhook_url: str | None    = Field(None, description="URL to POST when the paste is read.")
 
     @field_validator("content")
     @classmethod
@@ -73,7 +72,7 @@ class PasteCreateRequest(BaseModel):
 
     @field_validator("kdf_salt")
     @classmethod
-    def _validate_kdf_salt(cls, v: Optional[str]) -> Optional[str]:
+    def _validate_kdf_salt(cls, v: str | None) -> str | None:
         if v is None:
             return v
         _decode_b64(v, expected_len=16)
@@ -84,21 +83,21 @@ class PasteCreateResponse(BaseModel):
     id: str
     url: str
     delete_token: str
-    expires_at: Optional[int]
+    expires_at: int | None
     burn: bool
-    max_views: Optional[int]
+    max_views: int | None
 
 
 class PasteResponse(BaseModel):
     id: str
     content: str              # base64 AES-256-GCM ciphertext
     nonce: str                # base64 12-byte GCM nonce
-    kdf_salt: Optional[str]   # base64 PBKDF2 salt (password pastes only)
-    language: Optional[str]
+    kdf_salt: str | None   # base64 PBKDF2 salt (password pastes only)
+    language: str | None
     created_at: int
-    expires_at: Optional[int]
+    expires_at: int | None
     burn: bool
-    max_views: Optional[int]
+    max_views: int | None
     view_count: int
     has_password: bool
 
@@ -239,7 +238,7 @@ class DetectRequest(BaseModel):
     content: str
 
 class DetectResponse(BaseModel):
-    language: Optional[str]
+    language: str | None
 
 @router.post(
     "/detect",

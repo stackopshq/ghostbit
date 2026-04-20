@@ -2,7 +2,8 @@
 # the root pyproject.toml). Falls back when running from a raw source checkout
 # without `pip install -e .`.
 try:
-    from importlib.metadata import PackageNotFoundError, version as _pkg_version
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version as _pkg_version
     try:
         __version__ = _pkg_version("ghostbit")
     except PackageNotFoundError:
