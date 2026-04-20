@@ -162,19 +162,21 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 |----------|---------|-------------|
 | `STORAGE_BACKEND` | `sqlite` | `sqlite` or `redis` |
 | `SQLITE_PATH` | `./ghostbit.db` | SQLite file path (Docker overrides to `/data/ghostbit.db`) |
+| `SQLITE_POOL_SIZE` | `5` | Pooled SQLite connections (WAL enables parallel readers) |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
 | `REDIS_PASSWORD` | — | Redis password (injected into `REDIS_URL` automatically) |
 | `MAX_PASTE_SIZE` | `524288` | Max paste size in bytes (512 KB) |
 | `PORT` | `8000` | Server port |
 | `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation |
 | `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste viewing |
+| `TRUST_PROXY_HEADERS` | `false` | Use rightmost `X-Forwarded-For` for rate limiting (enable only behind a trusted proxy) |
 | `WEBHOOK_SECRET` | — | HMAC-SHA256 secret for signing webhook payloads |
 
 ---
 
 ## API
 
-All content is encrypted **client-side** — the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc).
+All content is encrypted **client-side** — the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc). Operators also get `/healthz` (JSON liveness probe) and `/metrics` (Prometheus exposition).
 
 ```bash
 # Create (content must be pre-encrypted — use the CLI or e2e.js)
