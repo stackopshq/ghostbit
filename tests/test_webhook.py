@@ -4,11 +4,12 @@ import socket
 from unittest.mock import patch
 
 import pytest
-from app.webhook import _is_ssrf_safe
+from app.webhook import SSRFError, _is_ssrf_safe, _resolve_public_ip
 
 # Fake getaddrinfo that returns a public IP for any hostname lookup,
 # so tests are deterministic regardless of CI DNS availability.
-_PUBLIC_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.215.14", 0))]
+_PUBLIC_ADDRINFO  = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.215.14", 0))]
+_PRIVATE_ADDRINFO = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("127.0.0.1",     0))]
 
 
 def _fake_getaddrinfo(host, port, *args, **kwargs):
@@ -37,3 +38,46 @@ def test_ssrf_blocked(url):
 def test_ssrf_allowed(url):
     with patch("socket.getaddrinfo", side_effect=_fake_getaddrinfo):
         assert _is_ssrf_safe(url) is True
+
+
+# ── DNS rebinding defense (authoritative delivery-time check) ────────────────
+
+def test_resolve_public_ip_accepts_public_dns():
+    with patch("socket.getaddrinfo", return_value=_PUBLIC_ADDRINFO):
+        assert _resolve_public_ip("hooks.example.com", 443) == "93.184.215.14"
+
+
+def test_resolve_public_ip_accepts_bare_public_ip_without_dns():
+    # Bare IP literal must not trigger DNS — protects against spoofed resolvers
+    # and keeps the fast path deterministic.
+    with patch("socket.getaddrinfo", side_effect=AssertionError("DNS must not be called")):
+        assert _resolve_public_ip("1.2.3.4", 443) == "1.2.3.4"
+
+
+def test_resolve_public_ip_rejects_bare_private_ip():
+    with pytest.raises(SSRFError):
+        _resolve_public_ip("127.0.0.1", 443)
+
+
+def test_resolve_public_ip_rejects_rebound_hostname():
+    """DNS rebinding: `_is_ssrf_safe` saw a public IP at creation, the
+    attacker flipped the record to a private IP before delivery. The
+    delivery-time re-check must catch it."""
+    with patch("socket.getaddrinfo", return_value=_PRIVATE_ADDRINFO):
+        with pytest.raises(SSRFError, match="private IP"):
+            _resolve_public_ip("attacker.example.com", 443)
+
+
+def test_resolve_public_ip_rejects_mixed_result():
+    """If one returned record is private, reject the whole host — we don't
+    trust the attacker to let us pick the 'safe' one."""
+    mixed = _PUBLIC_ADDRINFO + _PRIVATE_ADDRINFO
+    with patch("socket.getaddrinfo", return_value=mixed):
+        with pytest.raises(SSRFError):
+            _resolve_public_ip("mixed.example.com", 443)
+
+
+def test_resolve_public_ip_raises_on_nxdomain():
+    with patch("socket.getaddrinfo", side_effect=socket.gaierror("no such host")):
+        with pytest.raises(SSRFError):
+            _resolve_public_ip("nope.invalid", 443)

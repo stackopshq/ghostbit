@@ -23,16 +23,20 @@ Signature (optional):
 import asyncio
 import hashlib
 import hmac
+import http.client
 import ipaddress
 import json
 import logging
 import socket
+import ssl
 import time
 import urllib.parse
-import urllib.request
-from typing import Optional
 
 from .config import settings
+
+
+class SSRFError(RuntimeError):
+    """Raised when a webhook target resolves to a non-public address."""
 
 _log = logging.getLogger("ghostbit.webhook")
 
@@ -49,8 +53,92 @@ _PRIVATE_NETWORKS = [
 ]
 
 
+def _resolve_public_ip(host: str, port: int) -> str:
+    """Resolve `host` and return a single IP that passes the SSRF filter.
+
+    This is the authoritative check: it runs at delivery time and pins the
+    TCP connection to the returned IP, defeating DNS-rebinding attacks where
+    `_is_ssrf_safe` sees a public record at creation time and the attacker
+    flips the record to a private IP before the webhook fires.
+
+    Policy: if *any* resolved address is private, the whole host is rejected
+    (not just the bad IP) — the caller shouldn't be asked to pick a "safe
+    one" among a set the attacker controls.
+
+    Raises SSRFError on any failure. Callers must not fall back to hostname-
+    based connection if this raises — the whole point is to bypass the
+    kernel resolver for the actual request.
+    """
+    # Bare IP literal: no DNS, validate directly.
+    try:
+        addr = ipaddress.ip_address(host)
+    except ValueError:
+        addr = None
+    if addr is not None:
+        if any(addr in net for net in _PRIVATE_NETWORKS):
+            raise SSRFError(f"refusing non-public IP {host}")
+        return host
+
+    try:
+        infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise SSRFError(f"cannot resolve {host}") from exc
+    if not infos:
+        raise SSRFError(f"no addresses for {host}")
+
+    for info in infos:
+        ip_str = info[4][0]
+        try:
+            ip = ipaddress.ip_address(ip_str)
+        except ValueError as exc:
+            raise SSRFError(f"unparseable address {ip_str}") from exc
+        if any(ip in net for net in _PRIVATE_NETWORKS):
+            raise SSRFError(f"{host} resolved to private IP {ip_str}")
+
+    return infos[0][4][0]
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """HTTPSConnection that connects to a fixed IP but keeps Host/SNI set
+    to the original hostname so TLS cert validation and virtual hosting
+    still work correctly."""
+
+    def __init__(self, hostname: str, pinned_ip: str, port: int,
+                 timeout: float, context: ssl.SSLContext) -> None:
+        super().__init__(hostname, port=port, timeout=timeout, context=context)
+        self._pinned_ip = pinned_ip
+
+    def connect(self) -> None:
+        self.sock = socket.create_connection(
+            (self._pinned_ip, self.port), timeout=self.timeout
+        )
+        self.sock = self._context.wrap_socket(self.sock, server_hostname=self.host)
+
+
+class _PinnedHTTPConnection(http.client.HTTPConnection):
+    """HTTPConnection that connects to a fixed IP but keeps the Host header
+    set to the original hostname."""
+
+    def __init__(self, hostname: str, pinned_ip: str, port: int,
+                 timeout: float) -> None:
+        super().__init__(hostname, port=port, timeout=timeout)
+        self._pinned_ip = pinned_ip
+
+    def connect(self) -> None:
+        self.sock = socket.create_connection(
+            (self._pinned_ip, self.port), timeout=self.timeout
+        )
+
+
 def _is_ssrf_safe(url: str) -> bool:
-    """Return True only if the URL hostname is public (bare IP or resolved DNS)."""
+    """Return True only if the URL hostname is public (bare IP or resolved DNS).
+
+    This is a pre-check used at paste creation so users get fast feedback on
+    an obviously-bad webhook URL. The authoritative check lives in
+    `_resolve_public_ip`, which runs at delivery time and pins the TCP
+    connection to the validated IP — that's what actually defeats DNS
+    rebinding.
+    """
     try:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme not in ("http", "https"):
@@ -123,11 +211,29 @@ async def _deliver(
 
 
 def _post(url: str, payload: bytes) -> None:
+    """Deliver the webhook, pinning the TCP connection to a re-validated IP.
+
+    We don't use `urllib.request.urlopen` here because it would trigger its
+    own name resolution, which is precisely the gap DNS-rebinding exploits.
+    Instead we resolve once via `_resolve_public_ip`, reject anything private,
+    and connect straight to that IP while keeping Host header + TLS SNI set
+    to the original hostname so routing and cert validation still work.
+    """
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise SSRFError(f"unsupported scheme {parsed.scheme!r}")
+    host = parsed.hostname
+    if not host:
+        raise SSRFError("missing hostname")
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    path = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
+
+    pinned_ip = _resolve_public_ip(host, port)
+
     headers: dict[str, str] = {
         "Content-Type": "application/json",
         "User-Agent":   "Ghostbit-Webhook/1.0",
     }
-
     if settings.webhook_secret:
         sig = hmac.new(
             settings.webhook_secret.encode(),
@@ -136,6 +242,16 @@ def _post(url: str, payload: bytes) -> None:
         ).hexdigest()
         headers["X-Ghostbit-Signature"] = f"sha256={sig}"
 
-    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
-    with urllib.request.urlopen(req, timeout=5) as resp:
+    if parsed.scheme == "https":
+        conn: http.client.HTTPConnection = _PinnedHTTPSConnection(
+            host, pinned_ip, port, timeout=5, context=ssl.create_default_context()
+        )
+    else:
+        conn = _PinnedHTTPConnection(host, pinned_ip, port, timeout=5)
+
+    try:
+        conn.request("POST", path, body=payload, headers=headers)
+        resp = conn.getresponse()
         resp.read()
+    finally:
+        conn.close()
