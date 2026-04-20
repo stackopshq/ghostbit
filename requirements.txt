@@ -9,3 +9,4 @@ cryptography>=42.0.0
 argon2-cffi>=23.1.0
 pydantic-settings>=2.2.0
 pygments>=2.17.0
+prometheus-client>=0.20.0

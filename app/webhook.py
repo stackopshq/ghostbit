@@ -32,6 +32,7 @@ import ssl
 import time
 import urllib.parse
 
+from . import metrics
 from .config import settings
 
 
@@ -185,6 +186,7 @@ def fire(
 ) -> None:
     """Schedule a webhook delivery without awaiting it."""
     if not _is_ssrf_safe(url):
+        metrics.webhook_deliveries_total.labels(outcome="ssrf_blocked").inc()
         return
     task = asyncio.create_task(_deliver(url, paste_id, view_count, burned))
     _pending_deliveries.add(task)
@@ -212,9 +214,12 @@ async def _deliver(
             asyncio.get_running_loop().run_in_executor(None, _post, url, payload),
             timeout=5.0,
         )
+        metrics.webhook_deliveries_total.labels(outcome="ok").inc()
     except asyncio.TimeoutError:
+        metrics.webhook_deliveries_total.labels(outcome="timeout").inc()
         _log.warning("webhook delivery timed out for paste %s", paste_id)
     except Exception as exc:
+        metrics.webhook_deliveries_total.labels(outcome="error").inc()
         _log.warning(
             "webhook delivery failed for paste %s: %s",
             paste_id,

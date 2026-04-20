@@ -20,7 +20,7 @@ import time
 from fastapi import APIRouter, Header, HTTPException, Path, Request
 from pydantic import BaseModel, Field, field_validator
 
-from . import webhook
+from . import metrics, webhook
 from .config import settings
 from .detect import detect_language
 from .rate_limit import limiter
@@ -179,6 +179,8 @@ async def create_paste(body: PasteCreateRequest, request: Request):
     else:
         raise HTTPException(500, "Could not allocate a unique paste ID.")
 
+    metrics.pastes_created_total.labels(has_password=str(paste.has_password).lower()).inc()
+
     return PasteCreateResponse(
         id=paste.id,
         url=f"{_base_url(request)}/{paste.id}",
@@ -222,6 +224,8 @@ async def get_paste(request: Request, paste_id: str = Path(..., pattern=r"^[A-Za
     if new_count is None:
         raise HTTPException(404, "Paste not found or expired.")
     view_count = new_count
+
+    metrics.pastes_viewed_total.labels(burned=str(burned).lower()).inc()
 
     if paste.webhook_url:
         webhook.fire(paste.webhook_url, paste_id, view_count, burned)
@@ -292,3 +296,4 @@ async def delete_paste(
     storage = _storage(request)
     if not await storage.delete(paste_id, x_delete_token):
         raise HTTPException(403, "Invalid delete token.")
+    metrics.pastes_deleted_total.inc()

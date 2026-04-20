@@ -14,7 +14,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from . import __version__
+from . import __version__, metrics
 from .api import router as api_router
 from .config import settings
 from .languages import codemirror_mode_map, extension_map, slugs
@@ -100,6 +100,37 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
+# Paths excluded from the latency histogram to keep /metrics from observing
+# itself (scrape storm → infinite feedback) and to keep /healthz scrapes off
+# the P99 line, since they're much more frequent than real traffic.
+_LATENCY_EXCLUDED_PATHS = {"/metrics", "/healthz"}
+
+
+class LatencyMiddleware(BaseHTTPMiddleware):
+    """Record request latency in the Prometheus histogram.
+
+    Uses the route template (e.g. "/api/v1/pastes/{paste_id}") rather than
+    the raw URL so cardinality stays bounded regardless of traffic patterns.
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path in _LATENCY_EXCLUDED_PATHS:
+            return await call_next(request)
+
+        start = time.perf_counter()
+        response = await call_next(request)
+        elapsed = time.perf_counter() - start
+
+        route = request.scope.get("route")
+        template = getattr(route, "path", request.url.path)
+        metrics.http_request_duration_seconds.labels(
+            method=request.method,
+            path=template,
+            status=str(response.status_code),
+        ).observe(elapsed)
+        return response
+
+
 # Hard HTTP body ceiling: base64-expanded ciphertext (~1.4x) + 8 KB headroom
 # for other JSON fields (nonce, salt, language, webhook_url, structure).
 _MAX_BODY_BYTES = int(settings.max_paste_size * 1.4) + 8192
@@ -149,8 +180,20 @@ app = FastAPI(
 )
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(BodySizeLimitMiddleware, max_bytes=_MAX_BODY_BYTES)
+app.add_middleware(LatencyMiddleware)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+# Prometheus scrape endpoint. Explicit route (not `app.mount`) because
+# Starlette's prefix-mount only matches `/metrics/…`, redirecting bare
+# `/metrics` to `/metrics/` — scrapers hate redirect chains.
+@app.get("/metrics", include_in_schema=False)
+async def prometheus_metrics():
+    return PlainTextResponse(
+        metrics.generate_latest(),
+        media_type=metrics.CONTENT_TYPE_LATEST,
+    )
 
 
 _health_log = logging.getLogger("ghostbit.health")
