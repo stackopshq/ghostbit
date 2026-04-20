@@ -25,6 +25,8 @@ from typing import IO, Tuple
 from .storage import get_storage
 from .storage.base import PasteData
 
+_PASTE_FIELDS = {f.name for f in dataclasses.fields(PasteData)}
+
 
 async def export_all(out: IO[str]) -> int:
     storage = await get_storage()
@@ -43,11 +45,24 @@ async def import_all(src: IO[str], *, overwrite: bool = False) -> Tuple[int, int
     storage = await get_storage()
     try:
         imported = skipped = 0
+        warned_unknown: set[str] = set()
         for raw in src:
             raw = raw.strip()
             if not raw:
                 continue
             data = json.loads(raw)
+            # Tolerate export files from a newer version that adds columns: drop
+            # unknown keys (warn once per key) instead of crashing the import.
+            unknown = set(data) - _PASTE_FIELDS
+            if unknown:
+                new = unknown - warned_unknown
+                if new:
+                    print(
+                        f"warning: ignoring unknown field(s) in import: {', '.join(sorted(new))}",
+                        file=sys.stderr,
+                    )
+                    warned_unknown |= new
+                data = {k: v for k, v in data.items() if k in _PASTE_FIELDS}
             paste = PasteData(**data)
             if overwrite:
                 await storage.force_delete(paste.id)

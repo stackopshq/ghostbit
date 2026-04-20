@@ -156,3 +156,28 @@ async def test_import_ignores_blank_lines():
     imported, skipped = await admin.import_all(io.StringIO(jsonl))
     assert imported == 1
     assert skipped == 0
+
+
+@pytest.mark.anyio
+async def test_import_tolerates_unknown_fields():
+    """A JSONL export from a future version that adds a column must still
+    import cleanly on an older server — unknown fields are dropped with a
+    warning, not treated as a fatal error."""
+    await _wipe()
+    record = dataclasses.asdict(_make_paste("fwd"))
+    record["future_field"] = "hello"   # new column from a later version
+    record["another_new"]  = 42
+    import json as _json
+    line = _json.dumps(record) + "\n"
+
+    imported, skipped = await admin.import_all(io.StringIO(line))
+    assert imported == 1
+    assert skipped == 0
+
+    storage = await get_storage()
+    try:
+        actual = await storage.get("fwd")
+        assert actual is not None
+        assert actual.id == "fwd"
+    finally:
+        await storage.close()
