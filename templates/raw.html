@@ -24,9 +24,9 @@
   <div id="error"></div>
 </body>
 
-<script id="paste-meta" type="application/json">{"id": {{ paste.id | tojson }}}</script>
+<script id="paste-meta" type="application/json" nonce="{{ request.state.csp_nonce }}">{"id": {{ paste.id | tojson }}}</script>
 <script src="/static/e2e.js?v={{ v }}"></script>
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
 (async () => {
   const meta    = JSON.parse(document.getElementById('paste-meta').textContent);
   const fragment = window.location.hash.slice(1);

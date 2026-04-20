@@ -17,7 +17,7 @@
   <form method="post" action="/" id="pasteForm" class="index-form">
 
     {% if error %}
-    <script>window.__serverError = {{ error | tojson }};</script>
+    <script nonce="{{ request.state.csp_nonce }}">window.__serverError = {{ error | tojson }};</script>
     {% endif %}
 
     <!-- Card 1: Code editor -->
@@ -145,7 +145,7 @@
 <script src="/static/cm/codemirror-core.min.js?v={{ v }}"></script>
 <script src="/static/cm/codemirror-modes.min.js?v={{ v }}"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
   const textarea = document.getElementById('content'); // hidden mirror for form submit
   const counter  = document.getElementById('charCounter');
   const MAX = {{ max_paste_size }};
@@ -355,11 +355,15 @@
   function showToast(msg, type = 'error') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
+    // Inline onclick would be blocked by CSP (no 'unsafe-inline' in script-src).
+    // Build the close button in code and wire it via addEventListener.
     toast.innerHTML =
       `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` +
-      `<span>${msg}</span>` +
-      `<button class="toast-close" onclick="this.parentElement.remove()">` +
+      `<span></span>` +
+      `<button type="button" class="toast-close">` +
       `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+    toast.querySelector('span').textContent = msg;   // avoid HTML injection in msg
+    toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
     document.body.appendChild(toast);
     // Trigger animation
     requestAnimationFrame(() => toast.classList.add('toast-visible'));

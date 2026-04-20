@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import secrets
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -20,28 +21,46 @@ from .rate_limit import client_ip
 from .storage import get_storage
 
 
-# Content Security Policy — 'unsafe-inline' for scripts/styles is required by
-# existing inline scripts in templates (Secure-Context redirect, star counter,
-# per-page bootstrap). Replace with nonces in a future pass if those are moved
-# to external files. api.github.com is whitelisted for the footer star count.
-_CSP = (
-    "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline'; "
-    "style-src 'self' 'unsafe-inline'; "
-    "img-src 'self' data:; "
-    "font-src 'self'; "
-    "connect-src 'self' https://api.github.com; "
-    "frame-ancestors 'none'; "
-    "base-uri 'self'; "
-    "form-action 'self'; "
-    "object-src 'none'"
-)
+# Content Security Policy.
+#
+# script-src uses a per-request nonce: inline <script> tags must carry
+# `nonce="{{ request.state.csp_nonce }}"` or they are blocked. This
+# neutralises reflected/stored XSS even if an injection point appears,
+# because the attacker cannot guess the nonce.
+#
+# style-src still carries 'unsafe-inline' because the templates use many
+# `style="…"` attributes (nonces apply to <style> tags only, not to inline
+# attribute styles). Externalising those to CSS classes is a separate
+# refactor; until then, style-based attacks remain possible but their
+# practical impact is limited (no script execution via CSS in current
+# browsers, modulo already-broken setups).
+#
+# api.github.com is whitelisted for the footer star counter.
+def _build_csp(nonce: str) -> str:
+    return (
+        "default-src 'self'; "
+        f"script-src 'self' 'nonce-{nonce}'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self'; "
+        "connect-src 'self' https://api.github.com; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self'; "
+        "object-src 'none'"
+    )
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Generate the nonce before dispatching so handlers and templates
+        # can read `request.state.csp_nonce`. 128 bits of entropy is well
+        # above the "unguessable in a request lifetime" bar.
+        nonce = secrets.token_urlsafe(16)
+        request.state.csp_nonce = nonce
+
         response = await call_next(request)
-        response.headers.setdefault("Content-Security-Policy", _CSP)
+        response.headers.setdefault("Content-Security-Policy", _build_csp(nonce))
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "no-referrer")

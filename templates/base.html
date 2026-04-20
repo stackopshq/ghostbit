@@ -15,7 +15,7 @@
   {% endblock %}
   <link rel="icon" type="image/png" href="/static/logo.png?v={{ v }}">
   <link rel="stylesheet" href="/static/style.css?v={{ v }}">
-  <script>
+  <script nonce="{{ request.state.csp_nonce }}">
     // crypto.subtle requires a Secure Context. Browsers grant it to 'localhost'
     // but NOT '127.0.0.1'. Redirect immediately before anything else loads.
     if (location.hostname === '127.0.0.1') {
@@ -50,7 +50,7 @@
   {% block page %}{% endblock %}
 
   {% block scripts %}{% endblock %}
-  <script>
+  <script nonce="{{ request.state.csp_nonce }}">
   (function() {
     const el    = document.getElementById('footerStarCount');
     const key   = 'gb_stars';

@@ -64,7 +64,7 @@
           <strong id="ownerNoticeTitle">You own this paste.</strong>
           <div class="owner-notice-sub">Save this link — it's the only way to delete it.</div>
         </div>
-        <button type="button" class="btn btn-primary btn-owner-copy" id="ownerCopyBtn" onclick="copyUrl()">
+        <button type="button" class="btn btn-primary btn-owner-copy" id="ownerCopyBtn">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           <span id="ownerCopyLabel">Copy URL</span>
         </button>
@@ -81,8 +81,8 @@
             <span id="pasteConditions"></span>
             {% if paste.language == "markdown" %}
             <div class="tab-switcher">
-              <button class="tab active" id="tabCode" onclick="switchTab('code')">Code</button>
-              <button class="tab" id="tabPreview" onclick="switchTab('preview')">
+              <button type="button" class="tab active" id="tabCode">Code</button>
+              <button type="button" class="tab" id="tabPreview">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 Preview
               </button>
@@ -90,20 +90,19 @@
             {% endif %}
           </div>
           <div class="paste-inbar-actions">
-            <button class="btn-action btn-action-copy" id="copyBtn" onclick="copyContent()">
+            <button type="button" class="btn-action btn-action-copy" id="copyBtn">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <span>Copy content</span>
             </button>
-            <button class="btn-action btn-action-raw" id="rawBtn" onclick="openRaw()" style="display:none;">
+            <button type="button" class="btn-action btn-action-raw" id="rawBtn" style="display:none;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               <span>Raw</span>
             </button>
-            <button class="btn-action btn-action-download" id="downloadBtn" onclick="downloadContent()" style="display:none;">
+            <button type="button" class="btn-action btn-action-download" id="downloadBtn" style="display:none;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>Download</span>
             </button>
-            <form method="post" action="/{{ paste.id }}/delete" id="deleteForm" style="display:none"
-                  onsubmit="return confirm('Delete this paste?')">
+            <form method="post" action="/{{ paste.id }}/delete" id="deleteForm" style="display:none">
               <input type="hidden" name="key" id="deleteKey">
               <button type="submit" class="btn-action btn-action-delete">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
@@ -134,7 +133,7 @@
 </div>
 
 <!-- Paste metadata for client-side bootstrap (no ciphertext — fetched from API) -->
-<script id="paste-meta" type="application/json">
+<script id="paste-meta" type="application/json" nonce="{{ request.state.csp_nonce }}">
 {
   "id":           {{ paste.id | tojson }},
   "has_password": {{ "true" if paste.has_password else "false" }}
@@ -151,7 +150,7 @@
 <script src="/static/marked.min.js?v={{ v }}"></script>
 <script src="/static/purify.min.js?v={{ v }}"></script>
 {% endif %}
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
 (async () => {
   'use strict';
 
@@ -281,15 +280,18 @@
     cm.refresh();
   }
 
-  // ── Open raw content in a new tab (no API re-fetch) ──────────────────────
-  window.openRaw = function() {
+  // ── Action handlers (bound via addEventListener below — no inline
+  //    onclick=, so CSP can stay strict: 'script-src self nonce-…' with
+  //    no 'unsafe-inline'. Inline attribute handlers would require
+  //    'unsafe-inline', which would defeat the whole point of the nonce.) ──
+
+  function openRaw() {
     const text = cm ? cm.getValue() : '';
     const blob = new Blob([text], { type: 'text/plain; charset=utf-8' });
     window.open(URL.createObjectURL(blob), '_blank');
-  };
+  }
 
-  // ── Download content as file ──────────────────────────────────────────────
-  window.downloadContent = function() {
+  function downloadContent() {
     const text = cm ? cm.getValue() : '';
     const lang = {{ paste.language | tojson }};
     const extMap = { python: '.py', javascript: '.js', typescript: '.ts', html: '.html', css: '.css', json: '.json', yaml: '.yml', markdown: '.md', bash: '.sh', ruby: '.rb', go: '.go', rust: '.rs', java: '.java', cpp: '.cpp', c: '.c', sql: '.sql', php: '.php', swift: '.swift', kotlin: '.kt', lua: '.lua', toml: '.toml', xml: '.xml', dockerfile: '', makefile: '', diff: '.diff' };
@@ -301,7 +303,52 @@
     a.download = filename;
     a.click();
     URL.revokeObjectURL(a.href);
-  };
+  }
+
+  function copyUrl() {
+    const label = document.getElementById('ownerCopyLabel');
+    const flash = () => {
+      if (!label) return;
+      label.textContent = 'Copied!';
+      setTimeout(() => { label.textContent = 'Copy URL'; }, 2000);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).then(flash).catch(flash);
+    } else {
+      flash();
+    }
+  }
+
+  // CodeMirror handles its own copy event cleanly (plain text, no styled HTML).
+  function copyContent() {
+    const text = cm ? cm.getValue() : '';
+    const btn  = document.getElementById('copyBtn');
+    const stateCopy  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy content</span>`;
+    const stateDone  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
+    const done = () => {
+      btn.innerHTML = stateDone;
+      setTimeout(() => { btn.innerHTML = stateCopy; }, 2000);
+    };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(() => _fallbackCopy(text, done));
+    else _fallbackCopy(text, done);
+  }
+
+  function _fallbackCopy(text, cb) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); cb(); } finally { document.body.removeChild(ta); }
+  }
+
+  // Bind listeners up-front on the (hidden) controls in the paste shell.
+  // They're inert until `renderPaste` reveals the container.
+  document.getElementById('copyBtn').addEventListener('click', copyContent);
+  document.getElementById('rawBtn').addEventListener('click', openRaw);
+  document.getElementById('downloadBtn').addEventListener('click', downloadContent);
+  document.getElementById('ownerCopyBtn').addEventListener('click', copyUrl);
+  document.getElementById('deleteForm').addEventListener('submit', (e) => {
+    if (!confirm('Delete this paste?')) e.preventDefault();
+  });
 
   // ── Main decryption flow ─────────────────────────────────────────────────
   if (!meta.has_password) {
@@ -357,48 +404,11 @@
     });
   }
 
-  // ── Copy URL ────────────────────────────────────────────────────────────
-  window.copyUrl = function() {
-    const label = document.getElementById('ownerCopyLabel');
-    const flash = () => {
-      if (!label) return;
-      label.textContent = 'Copied!';
-      setTimeout(() => { label.textContent = 'Copy URL'; }, 2000);
-    };
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href).then(flash).catch(flash);
-    } else {
-      flash();
-    }
-  };
-
-  // ── Copy ─────────────────────────────────────────────────────────────────
-  // CodeMirror handles its own copy event cleanly (plain text, no styled HTML).
-  window.copyContent = function() {
-    const text = cm ? cm.getValue() : '';
-    const btn  = document.getElementById('copyBtn');
-    const stateCopy  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy content</span>`;
-    const stateDone  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
-    const done = () => {
-      btn.innerHTML = stateDone;
-      setTimeout(() => { btn.innerHTML = stateCopy; }, 2000);
-    };
-    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(() => _fallbackCopy(text, done));
-    else _fallbackCopy(text, done);
-  };
-
-  function _fallbackCopy(text, cb) {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); cb(); } finally { document.body.removeChild(ta); }
-  }
-
   {% if paste.language == "markdown" %}
   // ── Markdown tab switcher ─────────────────────────────────────────────────
   marked.setOptions({ breaks: true, gfm: true });
 
-  window.switchTab = function(tab) {
+  function switchTab(tab) {
     const viewCode    = document.getElementById('viewCode');
     const viewPreview = document.getElementById('viewPreview');
     const tabCode     = document.getElementById('tabCode');
@@ -417,7 +427,10 @@
       tabCode.classList.add('active');
       tabPreview.classList.remove('active');
     }
-  };
+  }
+
+  document.getElementById('tabCode').addEventListener('click', () => switchTab('code'));
+  document.getElementById('tabPreview').addEventListener('click', () => switchTab('preview'));
   {% endif %}
 })();
 </script>

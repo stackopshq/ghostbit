@@ -49,6 +49,34 @@ async def test_healthz(client):
 
 
 @pytest.mark.anyio
+async def test_csp_uses_nonce_not_unsafe_inline(client):
+    """script-src must be nonce-based, not 'unsafe-inline'. A weakening
+    of this header would silently re-enable XSS via any injection point."""
+    r = await client.get("/")
+    csp = r.headers.get("content-security-policy", "")
+    assert "script-src" in csp
+    # Extract the script-src directive
+    script_src = next(d for d in csp.split(";") if d.strip().startswith("script-src"))
+    assert "'nonce-" in script_src
+    assert "'unsafe-inline'" not in script_src
+
+
+@pytest.mark.anyio
+async def test_csp_nonce_is_per_request(client):
+    """Nonces must be unique per response — reuse would let an attacker
+    who saw one nonce reuse it on later injections."""
+    import re
+    r1 = await client.get("/")
+    r2 = await client.get("/")
+    nonce_re = re.compile(r"'nonce-([^']+)'")
+    n1 = nonce_re.search(r1.headers["content-security-policy"]).group(1)
+    n2 = nonce_re.search(r2.headers["content-security-policy"]).group(1)
+    assert n1 != n2
+    # And the HTML must carry the same nonce as the header.
+    assert f'nonce="{n1}"' in r1.text
+
+
+@pytest.mark.anyio
 async def test_create_and_get_paste(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     assert r.status_code == 201
