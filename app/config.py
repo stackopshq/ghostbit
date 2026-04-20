@@ -22,11 +22,9 @@ class Settings(BaseSettings):
     # can spoof it and bypass rate limits.
     trust_proxy_headers: bool = False
 
-    # ENCRYPTION_KEY is no longer used — all encryption is performed client-side (E2E).
-    # Kept here so existing .env files don't cause startup errors.
-    encryption_key: str  = ""
-
-    model_config = {"env_file": ".env"}
+    # Ignore extra env vars (e.g. a stale ENCRYPTION_KEY from pre-E2E setups)
+    # instead of failing at startup.
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
 
 settings = Settings()

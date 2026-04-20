@@ -7,7 +7,6 @@ import tempfile
 
 import pytest
 
-os.environ.setdefault("ENCRYPTION_KEY", "a" * 64)
 os.environ.setdefault("STORAGE_BACKEND", "sqlite")
 _tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 os.environ["SQLITE_PATH"] = _tmp_db.name

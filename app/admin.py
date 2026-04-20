@@ -1,7 +1,7 @@
 """Admin CLI — export / import pastes for backup or cross-backend migration.
 
-The CLI reads the same config as the server (ENCRYPTION_KEY, STORAGE_BACKEND,
-SQLITE_PATH/REDIS_URL) so it targets whichever backend is currently active.
+The CLI reads the same config as the server (STORAGE_BACKEND, SQLITE_PATH /
+REDIS_URL) so it targets whichever backend is currently active.
 
     python -m app.admin export > backup.jsonl
     python -m app.admin import < backup.jsonl
