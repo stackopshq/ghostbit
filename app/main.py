@@ -338,11 +338,11 @@ async def delete_paste(
     paste_id: str = PathParam(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
     key: str = Form(...),
 ):
+    # Unified 403 response whether the paste is missing or the token is wrong,
+    # same rationale as the JSON API: avoid leaking paste existence to anyone
+    # who can POST a form. The legitimate owner has the token, so they always
+    # hit the success path.
     storage = request.app.state.storage
-    paste = await storage.get(paste_id)
-    if paste is None:
-        raise HTTPException(status_code=404, detail="Paste not found.")
-    success = await storage.delete(paste_id, key)
-    if not success:
+    if not await storage.delete(paste_id, key):
         raise HTTPException(status_code=403, detail="Invalid delete token.")
     return RedirectResponse("/", status_code=303)

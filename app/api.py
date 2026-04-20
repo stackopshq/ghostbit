@@ -267,18 +267,19 @@ async def detect(body: DetectRequest, request: Request):
     description=(
         "Permanently delete a paste.\n\n"
         "Requires the `X-Delete-Token` header returned at creation time. "
-        "The token is verified against a SHA-256 hash — the plaintext token is never stored."
+        "The token is verified against a SHA-256 hash — the plaintext token is never stored.\n\n"
+        "Returns 403 whether the paste is missing, expired, or the token is wrong. "
+        "This is intentional: distinguishing those cases would let a caller enumerate "
+        "existing paste IDs by probing with arbitrary tokens."
     ),
     responses={
-        403: {"description": "Invalid or missing delete token."},
-        404: {"description": "Paste not found."},
+        403: {"description": "Invalid delete token, or paste does not exist."},
     },
 )
 async def delete_paste(paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"), request: Request = None, x_delete_token: str = Header(..., description="Delete token returned at paste creation.")):
+    # Unified 403 response — see docstring. `storage.delete` returns False
+    # identically for a missing paste and a bad token, so we don't need to
+    # look up the paste first (which would also leak existence via timing).
     storage = _storage(request)
-    paste = await storage.get(paste_id)
-    if paste is None:
-        raise HTTPException(404, "Paste not found.")
-    success = await storage.delete(paste_id, x_delete_token)
-    if not success:
+    if not await storage.delete(paste_id, x_delete_token):
         raise HTTPException(403, "Invalid delete token.")

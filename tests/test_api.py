@@ -131,6 +131,29 @@ async def test_delete_with_invalid_token(client):
 
 
 @pytest.mark.anyio
+async def test_delete_of_unknown_paste_also_returns_403(client):
+    """The API must not distinguish 'paste exists with wrong token' from
+    'paste does not exist' — otherwise an attacker can enumerate IDs by
+    probing with an arbitrary token."""
+    r = await client.delete(
+        "/api/v1/pastes/doesnotexist",
+        headers={"X-Delete-Token": "anything"},
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_form_delete_of_unknown_paste_also_returns_403(client):
+    """Same policy for the HTML form endpoint — the form is the legitimate
+    owner path, but we still avoid leaking existence to anyone who can POST."""
+    r = await client.post(
+        "/doesnotexist/delete",
+        data={"key": "anything"},
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.anyio
 async def test_ssrf_webhook_blocked(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste(webhook_url="http://192.168.1.1/hook"))
     assert r.status_code == 400
