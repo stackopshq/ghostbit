@@ -1,0 +1,158 @@
+[
+  {
+    "slug": "bash",
+    "extensions": [".sh", ".bash", ".zsh"],
+    "cm_mode": "shell",
+    "pygments_aliases": ["bash", "sh", "shell", "zsh"]
+  },
+  {
+    "slug": "c",
+    "extensions": [".c", ".h"],
+    "cm_mode": "text/x-csrc",
+    "pygments_aliases": ["c"]
+  },
+  {
+    "slug": "cpp",
+    "extensions": [".cpp", ".cc", ".cxx", ".hpp"],
+    "cm_mode": "text/x-c++src",
+    "pygments_aliases": ["cpp", "c++"]
+  },
+  {
+    "slug": "csharp",
+    "extensions": [".cs"],
+    "cm_mode": "text/x-csharp",
+    "pygments_aliases": ["csharp", "c#"]
+  },
+  {
+    "slug": "css",
+    "extensions": [".css"],
+    "cm_mode": "css",
+    "pygments_aliases": ["css"]
+  },
+  {
+    "slug": "diff",
+    "extensions": [".diff", ".patch"],
+    "cm_mode": "diff",
+    "pygments_aliases": ["diff", "patch"]
+  },
+  {
+    "slug": "dockerfile",
+    "extensions": [".dockerfile"],
+    "cm_mode": "dockerfile",
+    "pygments_aliases": ["docker", "dockerfile"]
+  },
+  {
+    "slug": "go",
+    "extensions": [".go"],
+    "cm_mode": "go",
+    "pygments_aliases": ["go"]
+  },
+  {
+    "slug": "html",
+    "extensions": [".html", ".htm"],
+    "cm_mode": "htmlmixed",
+    "pygments_aliases": ["html"]
+  },
+  {
+    "slug": "java",
+    "extensions": [".java"],
+    "cm_mode": "text/x-java",
+    "pygments_aliases": ["java"]
+  },
+  {
+    "slug": "javascript",
+    "extensions": [".js", ".mjs", ".cjs"],
+    "cm_mode": "javascript",
+    "pygments_aliases": ["js", "javascript"]
+  },
+  {
+    "slug": "json",
+    "extensions": [".json"],
+    "cm_mode": "application/json",
+    "pygments_aliases": ["json"]
+  },
+  {
+    "slug": "kotlin",
+    "extensions": [".kt", ".kts"],
+    "cm_mode": "text/x-kotlin",
+    "pygments_aliases": ["kotlin"]
+  },
+  {
+    "slug": "lua",
+    "extensions": [".lua"],
+    "cm_mode": "lua",
+    "pygments_aliases": ["lua"]
+  },
+  {
+    "slug": "makefile",
+    "extensions": [],
+    "cm_mode": null,
+    "pygments_aliases": ["make", "makefile"]
+  },
+  {
+    "slug": "markdown",
+    "extensions": [".md", ".markdown"],
+    "cm_mode": "markdown",
+    "pygments_aliases": ["markdown", "md"]
+  },
+  {
+    "slug": "php",
+    "extensions": [".php"],
+    "cm_mode": "application/x-httpd-php",
+    "pygments_aliases": ["php"]
+  },
+  {
+    "slug": "python",
+    "extensions": [".py"],
+    "cm_mode": "python",
+    "pygments_aliases": ["python", "python3", "py"]
+  },
+  {
+    "slug": "ruby",
+    "extensions": [".rb"],
+    "cm_mode": "ruby",
+    "pygments_aliases": ["rb", "ruby"]
+  },
+  {
+    "slug": "rust",
+    "extensions": [".rs"],
+    "cm_mode": "rust",
+    "pygments_aliases": ["rust"]
+  },
+  {
+    "slug": "sql",
+    "extensions": [".sql"],
+    "cm_mode": "sql",
+    "pygments_aliases": ["sql"]
+  },
+  {
+    "slug": "swift",
+    "extensions": [".swift"],
+    "cm_mode": "swift",
+    "pygments_aliases": ["swift"]
+  },
+  {
+    "slug": "toml",
+    "extensions": [".toml"],
+    "cm_mode": "toml",
+    "pygments_aliases": ["toml"]
+  },
+  {
+    "slug": "typescript",
+    "extensions": [".ts", ".tsx"],
+    "cm_mode": "application/typescript",
+    "pygments_aliases": ["ts", "typescript"]
+  },
+  {
+    "slug": "xml",
+    "extensions": [".xml"],
+    "cm_mode": "xml",
+    "pygments_aliases": ["xml"]
+  },
+  {
+    "slug": "yaml",
+    "extensions": [".yaml", ".yml"],
+    "cm_mode": "yaml",
+    "pygments_aliases": ["yaml", "yml"]
+  }
+]

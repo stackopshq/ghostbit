@@ -156,17 +156,8 @@
 
   const meta = JSON.parse(document.getElementById('paste-meta').textContent);
 
-  // Ghostbit language → CodeMirror 5 mode/MIME (mirrors index.html).
-  const CM_MODE = {
-    "": null, bash: "shell", c: "text/x-csrc", cpp: "text/x-c++src",
-    csharp: "text/x-csharp", css: "css", diff: "diff", dockerfile: "dockerfile",
-    go: "go", html: "htmlmixed", java: "text/x-java", javascript: "javascript",
-    json: "application/json", kotlin: "text/x-kotlin", lua: "lua",
-    makefile: null, markdown: "markdown", php: "application/x-httpd-php",
-    python: "python", ruby: "ruby", rust: "rust", sql: "sql",
-    swift: "swift", toml: "toml", typescript: "application/typescript",
-    xml: "xml", yaml: "yaml",
-  };
+  // slug → CodeMirror 5 mode/MIME (sourced from app/languages.json).
+  const CM_MODE = {{ cm_mode_map | tojson }};
 
   let cm = null; // lazy — only instantiate after decryption
 
@@ -294,8 +285,11 @@
   function downloadContent() {
     const text = cm ? cm.getValue() : '';
     const lang = {{ paste.language | tojson }};
-    const extMap = { python: '.py', javascript: '.js', typescript: '.ts', html: '.html', css: '.css', json: '.json', yaml: '.yml', markdown: '.md', bash: '.sh', ruby: '.rb', go: '.go', rust: '.rs', java: '.java', cpp: '.cpp', c: '.c', sql: '.sql', php: '.php', swift: '.swift', kotlin: '.kt', lua: '.lua', toml: '.toml', xml: '.xml', dockerfile: '', makefile: '', diff: '.diff' };
-    const ext = (lang && extMap[lang] !== undefined) ? extMap[lang] : '.txt';
+    // slug → preferred file extension (sourced from app/languages.json).
+    // Empty string for extensionless slugs (makefile, dockerfile); we then
+    // fall back to '.txt' below.
+    const extMap = {{ extension_map | tojson }};
+    const ext = (lang && extMap[lang]) ? extMap[lang] : '.txt';
     const filename = meta.id + ext;
     const blob = new Blob([text], { type: 'text/plain' });
     const a = document.createElement('a');

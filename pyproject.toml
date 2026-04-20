@@ -43,6 +43,9 @@ Repository = "https://github.com/stackopshq/ghostbit"
 [tool.setuptools.packages.find]
 include = ["app*"]
 
+[tool.setuptools.package-data]
+app = ["languages.json"]
+
 # ── Ruff — lint + format ─────────────────────────────────────────────────────
 # Intentionally narrow ruleset for an established codebase: enable the checks
 # that catch real bugs (pyflakes F, pycodestyle E/W, bugbear B, simplify SIM,

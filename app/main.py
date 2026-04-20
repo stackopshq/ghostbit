@@ -17,6 +17,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from . import __version__
 from .api import router as api_router
 from .config import settings
+from .languages import codemirror_mode_map, extension_map, slugs
 from .rate_limit import limiter
 from .storage import get_storage
 
@@ -113,35 +114,9 @@ TTL_OPTIONS = {
     2592000: "30 days",
 }
 
-LANGUAGES = [
-    "",
-    "bash",
-    "c",
-    "cpp",
-    "csharp",
-    "css",
-    "diff",
-    "dockerfile",
-    "go",
-    "html",
-    "java",
-    "javascript",
-    "json",
-    "kotlin",
-    "lua",
-    "makefile",
-    "markdown",
-    "php",
-    "python",
-    "ruby",
-    "rust",
-    "sql",
-    "swift",
-    "toml",
-    "typescript",
-    "xml",
-    "yaml",
-]
+LANGUAGES = slugs()
+CM_MODE_MAP = codemirror_mode_map()
+EXTENSION_MAP = extension_map()
 
 
 @asynccontextmanager
@@ -304,6 +279,7 @@ async def index(request: Request):
         "index.html",
         context={
             "languages": LANGUAGES,
+            "cm_mode_map": CM_MODE_MAP,
             "ttl_options": TTL_OPTIONS,
             "max_paste_size": settings.max_paste_size,
         },
@@ -333,6 +309,8 @@ async def view_paste(
         context={
             "paste": paste,
             "expiry_label": _format_expiry(paste.expires_at),
+            "cm_mode_map": CM_MODE_MAP,
+            "extension_map": EXTENSION_MAP,
         },
     )
 

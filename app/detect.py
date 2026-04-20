@@ -14,6 +14,8 @@ import re
 from pygments.lexers import guess_lexer
 from pygments.util import ClassNotFound
 
+from .languages import pygments_alias_map
+
 # Ordered list of (language_slug, compiled_pattern).
 # Patterns look for strong, unambiguous markers — NOT generic keywords.
 _PATTERNS: list[tuple[str, re.Pattern]] = [
@@ -78,50 +80,8 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ("diff", re.compile(r"^(?:---|\+\+\+|@@\s+-\d+)", re.M)),
 ]
 
-# Map Pygments lexer aliases → our language slugs (fallback for long content)
-_ALIAS_MAP: dict[str, str] = {
-    "bash": "bash",
-    "sh": "bash",
-    "shell": "bash",
-    "zsh": "bash",
-    "c": "c",
-    "cpp": "cpp",
-    "c++": "cpp",
-    "csharp": "csharp",
-    "c#": "csharp",
-    "css": "css",
-    "diff": "diff",
-    "patch": "diff",
-    "docker": "dockerfile",
-    "dockerfile": "dockerfile",
-    "go": "go",
-    "html": "html",
-    "java": "java",
-    "js": "javascript",
-    "javascript": "javascript",
-    "json": "json",
-    "kotlin": "kotlin",
-    "lua": "lua",
-    "make": "makefile",
-    "makefile": "makefile",
-    "markdown": "markdown",
-    "md": "markdown",
-    "php": "php",
-    "python": "python",
-    "python3": "python",
-    "py": "python",
-    "rb": "ruby",
-    "ruby": "ruby",
-    "rust": "rust",
-    "sql": "sql",
-    "swift": "swift",
-    "toml": "toml",
-    "ts": "typescript",
-    "typescript": "typescript",
-    "xml": "xml",
-    "yaml": "yaml",
-    "yml": "yaml",
-}
+# Pygments lexer alias → slug (sourced from languages.json).
+_ALIAS_MAP = pygments_alias_map()
 
 _NOISY_LEXERS = {"text only", "plain text", "tex", "restructuredtext"}
 _PYGMENTS_MIN = 100
