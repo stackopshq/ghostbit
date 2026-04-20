@@ -52,6 +52,16 @@ http_request_duration_seconds = Histogram(
     buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0),
 )
 
+# ── SQLite pool ─────────────────────────────────────────────────────────────
+
+sqlite_pool_wait_seconds = Histogram(
+    "ghostbit_sqlite_pool_wait_seconds",
+    "Time a storage call spent waiting for a free SQLite connection. A non-zero "
+    "P99 means the pool is a bottleneck — raise SQLITE_POOL_SIZE.",
+    # 10 µs … 1 s; anything above 100 ms means serious contention.
+    buckets=(0.00001, 0.0001, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0),
+)
+
 # ── ASGI sub-app ─────────────────────────────────────────────────────────────
 
 # Prometheus client ships an ASGI app that serves the exposition format.
@@ -66,5 +76,6 @@ __all__ = [
     "pastes_created_total",
     "pastes_deleted_total",
     "pastes_viewed_total",
+    "sqlite_pool_wait_seconds",
     "webhook_deliveries_total",
 ]

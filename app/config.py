@@ -4,6 +4,10 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     storage_backend: str = "sqlite"  # "sqlite" or "redis"
     sqlite_path: str = "./ghostbit.db"
+    # Number of SQLite connections held in the pool. WAL mode lets multiple
+    # readers progress in parallel; writers still serialize at the DB level.
+    # Raise if `ghostbit_sqlite_pool_wait_seconds` histogram shows backlog.
+    sqlite_pool_size: int = 5
     redis_url: str = "redis://localhost:6379"
     redis_password: str = ""  # injected into redis_url if set
     max_paste_size: int = 524288  # 512 KB
