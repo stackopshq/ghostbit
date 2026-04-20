@@ -1,0 +1,73 @@
+[build-system]
+requires      = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name            = "ghostbit"
+version         = "1.2.0"
+description     = "Self-hosted, end-to-end encrypted paste service"
+readme          = "README.md"
+license         = "MIT"
+requires-python = ">=3.10"
+authors         = [{ name = "StackOps" }]
+
+# Keep this list aligned with requirements.txt. The requirements files stay
+# the source of truth for the Docker build (pinned, no extras resolution),
+# pyproject.toml describes the package for editable installs and tooling.
+dependencies = [
+    "fastapi>=0.110.0",
+    "slowapi>=0.1.9",
+    "uvicorn[standard]>=0.27.0",
+    "jinja2>=3.1.3",
+    "python-multipart>=0.0.9",
+    "aiosqlite>=0.20.0",
+    "redis>=5.0.0",
+    "cryptography>=42.0.0",
+    "argon2-cffi>=23.1.0",
+    "pydantic-settings>=2.2.0",
+    "pygments>=2.17.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "ruff>=0.5",
+]
+
+[project.urls]
+Homepage   = "https://github.com/stackopshq/ghostbit"
+Repository = "https://github.com/stackopshq/ghostbit"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+# ── Ruff — lint + format ─────────────────────────────────────────────────────
+# Intentionally narrow ruleset for an established codebase: enable the checks
+# that catch real bugs (pyflakes F, pycodestyle E/W, bugbear B, simplify SIM,
+# comprehensions C4, pyupgrade UP) and rely on ruff format for style. The full
+# E501 line length enforcement is off because much of the existing code has
+# intentionally long URLs/strings.
+[tool.ruff]
+line-length    = 100
+target-version = "py310"
+extend-exclude = ["static/*.min.js", "static/cm"]
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "B", "SIM", "C4", "UP"]
+ignore = [
+    "E501",  # line too long — handled loosely; formatter wraps what it can
+    "E731",  # lambda assignments — used deliberately in a couple of rate-limit decorators
+    "B008",  # function calls in argument defaults — FastAPI relies on these (Path, Header, Form, Field)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+asyncio_mode         = "auto"
+testpaths            = ["tests"]
+filterwarnings       = [
+    "ignore::DeprecationWarning:slowapi.*",
+]
