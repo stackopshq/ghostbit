@@ -241,6 +241,19 @@ async def security_txt():
     return PlainTextResponse(_security_txt())
 
 
+# Browser icon probes. Without these routes, every browser hits
+#   GET /favicon.ico / /apple-touch-icon.png / /apple-touch-icon-precomposed.png
+# on page load and those paths fall through to the `/{paste_id}` catch-all,
+# which fails the ID regex and returns 422. The redirect to our existing
+# logo.png is small, cacheable (browsers remember 301s aggressively), and
+# stops the access log from filling up with 422 noise.
+@app.get("/favicon.ico", include_in_schema=False)
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+@app.get("/apple-touch-icon-precomposed.png", include_in_schema=False)
+async def _browser_icon_redirect():
+    return RedirectResponse("/static/logo.png", status_code=301)
+
+
 _ROBOTS_TXT = "User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc\n"
 
 

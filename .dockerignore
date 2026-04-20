@@ -12,4 +12,10 @@ site
 docs
 cli/dist
 cli/build
-cli/*.egg-info
+# Any egg-info anywhere in the repo. A maintainer running `pip install -e .`
+# locally leaves ghostbit.egg-info/ at the root, which would otherwise be
+# COPY-ed into the image and shadow the real dist-info that pip installs,
+# making importlib.metadata resolve to the pre-install version.
+**/*.egg-info
+.venv
+venv

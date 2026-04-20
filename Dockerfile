@@ -66,4 +66,11 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
 # /bin/sh and `podman stop` / `docker stop` SIGTERM would be delivered to
 # the shell, not uvicorn — that's ~10 s of wasted shutdown time and risks
 # half-committed requests on containers with many workers.
-CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
+#
+# When TRUST_PROXY_HEADERS=true, we also turn on uvicorn's --proxy-headers
+# so the access log and request.client.host reflect the real client IP
+# forwarded by the reverse proxy — otherwise the logs are full of the
+# proxy's internal IP which is useless for triage. Kept conditional so
+# the flag never applies when the operator hasn't opted in; otherwise a
+# client that speaks directly to the app could spoof their address.
+CMD ["sh", "-c", "set -- --host 0.0.0.0 --port ${PORT}; [ \"$TRUST_PROXY_HEADERS\" = \"true\" ] && set -- \"$@\" --proxy-headers --forwarded-allow-ips=\"*\"; exec uvicorn app.main:app \"$@\""]

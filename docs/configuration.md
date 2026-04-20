@@ -90,6 +90,13 @@ to Ghostbit, which is the only entry you can trust. Leftmost entries are
 client-controlled (a malicious client could forge `X-Forwarded-For: 1.2.3.4` to
 impersonate another IP).
 
+When `TRUST_PROXY_HEADERS=true`, the Docker image also starts uvicorn with
+`--proxy-headers` so the real client IP is substituted for the proxy's address
+in the access log and in `request.client.host`. Otherwise the uvicorn logs
+would show only the reverse proxy's internal IP, which is not useful for
+incident triage. If you run the server outside of Docker, pass those flags
+yourself (`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
+
 !!! warning "Multi-hop setups (CDN → LB → app)"
     If more than one trusted proxy sits between the client and Ghostbit, the
     rightmost entry will be the nearest proxy (not the client), and rate
