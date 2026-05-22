@@ -8,12 +8,19 @@
   <meta property="og:title" content="Ghostbit — Encrypted paste, zero knowledge">
   <meta property="og:description" content="Self-hosted, end-to-end encrypted paste service. Your data never touches the server in plaintext.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="/static/logo.png">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Ghostbit">
+  <meta property="og:url" content="{{ request.url }}">
+  <meta property="og:image" content="{{ request.base_url }}static/og-banner.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ghostbit — end-to-end encrypted pastes">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ghostbit — Encrypted paste, zero knowledge">
   <meta name="twitter:description" content="Self-hosted, end-to-end encrypted paste service.">
+  <meta name="twitter:image" content="{{ request.base_url }}static/og-banner.png">
   {% endblock %}
-  <link rel="icon" type="image/png" href="/static/logo.png?v={{ v }}">
+  <link rel="icon" type="image/png" href="/static/icon.png?v={{ v }}">
+  <link rel="apple-touch-icon" href="/static/icon.png?v={{ v }}">
   <link rel="stylesheet" href="/static/style.css?v={{ v }}">
   <script nonce="{{ request.state.csp_nonce }}">
     // crypto.subtle requires a Secure Context. Browsers grant it to 'localhost'
