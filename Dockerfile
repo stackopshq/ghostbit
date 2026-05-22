@@ -58,8 +58,11 @@ ENV PORT=8000
 
 EXPOSE ${PORT}
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD ["sh", "-c", "wget -qO- http://localhost:${PORT}/healthz || exit 1"]
+# No HEALTHCHECK instruction on purpose: `podman build` produces OCI-format
+# images, which silently drop it ("HEALTHCHECK is not supported for OCI image
+# format"). The liveness probe lives with the orchestrator instead — the
+# `healthcheck:` block in docker-compose.yml and the Health* keys in the Podman
+# Quadlet (see README) — so it behaves the same regardless of build engine.
 
 # JSON-array CMD (silences Dockerfile JSONArgsRecommended) + `exec` so the
 # shell is replaced by uvicorn. Without exec, uvicorn would be a child of
