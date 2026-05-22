@@ -391,6 +391,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Reverse proxy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#absolute-urls-for-link-previews" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Absolute URLs for link previews
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -687,6 +704,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Reverse proxy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#absolute-urls-for-link-previews" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Absolute URLs for link previews
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -798,6 +832,11 @@
 <td><code>false</code></td>
 <td>Read client IP from <code>X-Forwarded-For</code> for rate-limiting. See the <a href="#reverse-proxy">Reverse proxy</a> note below before enabling.</td>
 </tr>
+<tr>
+<td><code>BASE_URL</code></td>
+<td>—</td>
+<td>Public base URL (e.g. <code>https://paste.example.com</code>). Builds the absolute URLs in social-preview meta tags (<code>og:image</code>, <code>og:url</code>). Derived from the request when unset — see <a href="#reverse-proxy">Reverse proxy</a>.</td>
+</tr>
 </tbody>
 </table>
 <div class="admonition info">
@@ -869,6 +908,16 @@ in the access log and in <code>request.client.host</code>. Otherwise the uvicorn
 would show only the reverse proxy's internal IP, which is not useful for
 incident triage. If you run the server outside of Docker, pass those flags
 yourself (<code>uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"</code>).</p>
+<h3 id="absolute-urls-for-link-previews">Absolute URLs for link previews<a class="headerlink" href="#absolute-urls-for-link-previews" title="Permanent link">&para;</a></h3>
+<p>Ghostbit puts absolute URLs in its social-preview <code>&lt;meta&gt;</code> tags (<code>og:image</code>,
+<code>og:url</code>) so link-unfurl bots — iMessage, Slack, Discord… — can fetch the
+preview banner. They are derived from the incoming request by default, which
+is correct for direct exposure and for proxies that forward the scheme and
+<code>Host</code> header. If a TLS-terminating proxy would otherwise make the app emit
+<code>http://</code> URLs, pin the public origin explicitly:</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>BASE_URL=https://paste.example.com
+</span></code></pre></div></td></tr></table></div>
+<p>A malformed value (missing <code>http://</code> / <code>https://</code> scheme) fails fast at startup.</p>
 <div class="admonition warning">
 <p class="admonition-title">Multi-hop setups (CDN → LB → app)</p>
 <p>If more than one trusted proxy sits between the client and Ghostbit, the
@@ -949,41 +998,41 @@ reverse proxy if you prefer.</p>
 <p><code>/healthz</code> and <code>/metrics</code> are excluded from the HTTP latency histogram so probe
 traffic doesn't skew P99.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-6-10">10</a></span>
-<span class="normal"><a href="#__codelineno-6-11">11</a></span>
-<span class="normal"><a href="#__codelineno-6-12">12</a></span>
-<span class="normal"><a href="#__codelineno-6-13">13</a></span>
-<span class="normal"><a href="#__codelineno-6-14">14</a></span>
-<span class="normal"><a href="#__codelineno-6-15">15</a></span>
-<span class="normal"><a href="#__codelineno-6-16">16</a></span>
-<span class="normal"><a href="#__codelineno-6-17">17</a></span>
-<span class="normal"><a href="#__codelineno-6-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>SQLITE_PATH=/data/ghostbit.db
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>MAX_PASTE_SIZE=524288
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>PORT=8000
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a># SQLITE_POOL_SIZE=5
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a># Rate limiting (defaults shown)
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a># RATE_LIMIT_CREATE=30/minute
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a># RATE_LIMIT_VIEW=120/minute
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13"></a># Enable when behind a reverse proxy — rightmost X-Forwarded-For entry
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15"></a># TRUST_PROXY_HEADERS=true
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16"></a>
-</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17"></a># Optional: sign webhook deliveries
-</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-7-10">10</a></span>
+<span class="normal"><a href="#__codelineno-7-11">11</a></span>
+<span class="normal"><a href="#__codelineno-7-12">12</a></span>
+<span class="normal"><a href="#__codelineno-7-13">13</a></span>
+<span class="normal"><a href="#__codelineno-7-14">14</a></span>
+<span class="normal"><a href="#__codelineno-7-15">15</a></span>
+<span class="normal"><a href="#__codelineno-7-16">16</a></span>
+<span class="normal"><a href="#__codelineno-7-17">17</a></span>
+<span class="normal"><a href="#__codelineno-7-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a>SQLITE_PATH=/data/ghostbit.db
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>PORT=8000
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a># SQLITE_POOL_SIZE=5
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9"></a># Rate limiting (defaults shown)
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10"></a># RATE_LIMIT_CREATE=30/minute
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11"></a># RATE_LIMIT_VIEW=120/minute
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13"></a># Enable when behind a reverse proxy — rightmost X-Forwarded-For entry
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15"></a># TRUST_PROXY_HEADERS=true
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17"></a># Optional: sign webhook deliveries
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div></td></tr></table></div>
 
 
