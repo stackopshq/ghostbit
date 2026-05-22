@@ -3,10 +3,13 @@
 {% block title %}{{ paste.id }} — Ghostbit{% endblock %}
 
 {% block meta %}
+{# Paste pages deliberately omit og:image. An encrypted paste has nothing to
+   preview, so link unfurls (iMessage, Slack, …) fall back to the compact card
+   with the square favicon instead of blowing up a logo into a hero image. #}
 <meta property="og:title" content="{{ paste.id }} — Ghostbit">
 <meta property="og:description" content="End-to-end encrypted paste. Decryption happens in your browser — the server never sees your data.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="/static/logo.png">
+<meta property="og:url" content="{{ request.url }}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ paste.id }} — Ghostbit">
 <meta name="twitter:description" content="End-to-end encrypted paste. Decryption happens in your browser.">
