@@ -83,6 +83,45 @@ async def test_csp_nonce_is_per_request(client):
 
 
 @pytest.mark.anyio
+async def test_homepage_og_image_is_absolute_banner(client):
+    """Link unfurls need an absolute og:image. A relative URL (or the portrait
+    logo) is what made iMessage render a huge blown-up icon."""
+    html = (await client.get("/")).text
+    assert 'property="og:image" content="http://test/static/og-banner.png"' in html
+    assert 'name="twitter:card" content="summary_large_image"' in html
+
+
+@pytest.mark.anyio
+async def test_paste_page_omits_og_image(client):
+    """Paste pages carry no og:image on purpose, so unfurls fall back to the
+    compact card instead of stretching an image into the hero slot."""
+    pid = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
+    html = (await client.get(f"/{pid}")).text
+    assert "og:image" not in html
+    assert 'name="twitter:card" content="summary"' in html
+
+
+def test_abs_url_prefers_configured_base_url(monkeypatch):
+    """BASE_URL, when set, overrides the request-derived origin — the escape
+    hatch for TLS-terminating proxies that would otherwise emit http:// URLs."""
+    from app.config import settings
+    from app.main import _abs_url
+
+    class _Req:
+        base_url = "http://internal:8000/"
+
+    monkeypatch.setattr(settings, "base_url", "https://paste.example.com")
+    assert _abs_url(_Req(), "/static/og-banner.png") == (
+        "https://paste.example.com/static/og-banner.png"
+    )
+
+    monkeypatch.setattr(settings, "base_url", "")
+    assert _abs_url(_Req(), "/static/og-banner.png") == (
+        "http://internal:8000/static/og-banner.png"
+    )
+
+
+@pytest.mark.anyio
 async def test_create_and_get_paste(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     assert r.status_code == 201

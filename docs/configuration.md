@@ -17,6 +17,7 @@ All configuration is done via environment variables (or a `.env` file at the pro
 | `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation per IP (`POST /api/v1/pastes`) |
 | `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste reads per IP (`GET /api/v1/pastes/{id}`) |
 | `TRUST_PROXY_HEADERS` | `false` | Read client IP from `X-Forwarded-For` for rate-limiting. See the [Reverse proxy](#reverse-proxy) note below before enabling. |
+| `BASE_URL` | — | Public base URL (e.g. `https://paste.example.com`). Builds the absolute URLs in social-preview meta tags (`og:image`, `og:url`). Derived from the request when unset — see [Reverse proxy](#reverse-proxy). |
 
 !!! info "No server-side encryption key"
     All encryption is performed client-side (AES-256-GCM in the browser or CLI). The server never sees plaintext — no `ENCRYPTION_KEY` is needed.
@@ -96,6 +97,21 @@ in the access log and in `request.client.host`. Otherwise the uvicorn logs
 would show only the reverse proxy's internal IP, which is not useful for
 incident triage. If you run the server outside of Docker, pass those flags
 yourself (`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
+
+### Absolute URLs for link previews
+
+Ghostbit puts absolute URLs in its social-preview `<meta>` tags (`og:image`,
+`og:url`) so link-unfurl bots — iMessage, Slack, Discord… — can fetch the
+preview banner. They are derived from the incoming request by default, which
+is correct for direct exposure and for proxies that forward the scheme and
+`Host` header. If a TLS-terminating proxy would otherwise make the app emit
+`http://` URLs, pin the public origin explicitly:
+
+```env
+BASE_URL=https://paste.example.com
+```
+
+A malformed value (missing `http://` / `https://` scheme) fails fast at startup.
 
 !!! warning "Multi-hop setups (CDN → LB → app)"
     If more than one trusted proxy sits between the client and Ghostbit, the

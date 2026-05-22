@@ -288,6 +288,22 @@ def _asset_hash() -> str:
 
 templates.env.globals["v"] = _asset_hash()
 
+
+def _abs_url(request: Request, path: str) -> str:
+    """Absolute URL for a site path, used by social-preview meta tags.
+
+    Prefers settings.base_url when configured — the escape hatch for
+    TLS-terminating proxies, where request.base_url would otherwise carry an
+    internal http:// scheme/host that link-preview bots cannot reach. Falls
+    back to the request's own base URL for direct exposure and scheme-aware
+    proxies.
+    """
+    base = settings.base_url or str(request.base_url).rstrip("/")
+    return f"{base}/{path.lstrip('/')}"
+
+
+templates.env.globals["abs_url"] = _abs_url
+
 _ERROR_TITLES = {
     404: "Not found",
     403: "Forbidden",

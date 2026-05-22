@@ -9,7 +9,7 @@
 <meta property="og:title" content="{{ paste.id }} — Ghostbit">
 <meta property="og:description" content="End-to-end encrypted paste. Decryption happens in your browser — the server never sees your data.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="{{ request.url }}">
+<meta property="og:url" content="{{ abs_url(request, request.url.path) }}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ paste.id }} — Ghostbit">
 <meta name="twitter:description" content="End-to-end encrypted paste. Decryption happens in your browser.">
