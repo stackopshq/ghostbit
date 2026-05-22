@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -26,9 +27,26 @@ class Settings(BaseSettings):
     # can spoof it and bypass rate limits.
     trust_proxy_headers: bool = False
 
+    # Public-facing base URL (scheme + host [+ :port]), e.g. "https://paste.example.com".
+    # Builds the absolute URLs in social-preview meta tags (og:image, og:url).
+    # Empty → derived from the incoming request, which is correct for direct
+    # exposure and for proxies that forward scheme + Host. Set it explicitly when
+    # a TLS-terminating proxy would otherwise leave the app advertising http://.
+    base_url: str = ""
+
     # Ignore extra env vars (e.g. a stale ENCRYPTION_KEY from pre-E2E setups)
     # instead of failing at startup.
     model_config = {"env_file": ".env", "extra": "ignore"}
+
+    @field_validator("base_url")
+    @classmethod
+    def _normalize_base_url(cls, v: str) -> str:
+        # Fail fast on a malformed value rather than silently emitting broken
+        # <meta> URLs. Trailing slash stripped so callers can join cleanly.
+        v = v.strip().rstrip("/")
+        if v and not v.startswith(("http://", "https://")):
+            raise ValueError("BASE_URL must start with http:// or https://")
+        return v
 
 
 settings = Settings()

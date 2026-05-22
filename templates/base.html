@@ -8,8 +8,8 @@
   <meta property="og:title" content="Ghostbit — Encrypted paste, zero knowledge">
   <meta property="og:description" content="Self-hosted, end-to-end encrypted paste service. Your data never touches the server in plaintext.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="{{ request.url }}">
-  <meta property="og:image" content="{{ request.base_url }}static/og-banner.png">
+  <meta property="og:url" content="{{ abs_url(request, request.url.path) }}">
+  <meta property="og:image" content="{{ abs_url(request, '/static/og-banner.png') }}">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -17,7 +17,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Ghostbit — Encrypted paste, zero knowledge">
   <meta name="twitter:description" content="Self-hosted, end-to-end encrypted paste service.">
-  <meta name="twitter:image" content="{{ request.base_url }}static/og-banner.png">
+  <meta name="twitter:image" content="{{ abs_url(request, '/static/og-banner.png') }}">
   {% endblock %}
   <link rel="icon" type="image/png" href="/static/icon.png?v={{ v }}">
   <link rel="apple-touch-icon" href="/static/icon.png?v={{ v }}">

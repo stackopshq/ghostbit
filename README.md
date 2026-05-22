@@ -176,6 +176,7 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 | `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation |
 | `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste viewing |
 | `TRUST_PROXY_HEADERS` | `false` | Use rightmost `X-Forwarded-For` for rate limiting (enable only behind a trusted proxy) |
+| `BASE_URL` | — | Public base URL (e.g. `https://paste.example.com`) for the absolute links in social-preview meta tags. Derived from the request when unset. |
 | `WEBHOOK_SECRET` | — | HMAC-SHA256 secret for signing webhook payloads |
 
 ---
