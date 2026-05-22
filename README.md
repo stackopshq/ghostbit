@@ -139,6 +139,12 @@ Environment=SQLITE_PATH=/data/ghostbit.db
 Environment=MAX_PASTE_SIZE=524288
 Environment=PORT=8000
 
+HealthCmd=wget -qO- http://127.0.0.1:8000/healthz || exit 1
+HealthInterval=30s
+HealthTimeout=5s
+HealthStartPeriod=15s
+HealthRetries=3
+
 [Service]
 Restart=always
 

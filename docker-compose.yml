@@ -12,6 +12,14 @@ services:
       - PORT=${PORT:-8000}
     volumes:
       - ghostbit_data:/data
+    # 127.0.0.1, not localhost: busybox wget resolves localhost to [::1], but
+    # uvicorn binds IPv4 only (--host 0.0.0.0), so an IPv6 probe is refused.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${PORT:-8000}/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
     restart: unless-stopped
 
   redis:
