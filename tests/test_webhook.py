@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app.webhook import SSRFError, _is_ssrf_safe, _resolve_public_ip
+from app.webhook import SSRFError, _is_ssrf_safe, _resolve_public_ip, _signed_headers
 
 # Fake getaddrinfo that returns a public IP for any hostname lookup,
 # so tests are deterministic regardless of CI DNS availability.
@@ -129,3 +129,36 @@ async def test_fire_keeps_strong_reference_to_delivery_task():
         # Let the task finish; the done-callback must discard it from the set.
         await asyncio.sleep(0.1)
         assert len(webhook._pending_deliveries) == 0
+
+
+# ─── Signature & timestamp headers ──────────────────────────────────────────
+
+
+def test_signed_headers_timestamp_always_present_even_without_secret():
+    """Receivers should be able to read the timestamp for replay protection
+    independently of whether HMAC signing is enabled."""
+    headers = _signed_headers(b'{"x":1}', 1700000000, secret="")
+    assert headers["X-Ghostbit-Webhook-Timestamp"] == "1700000000"
+    assert "X-Ghostbit-Signature" not in headers
+
+
+def test_signed_headers_signature_matches_hmac_when_secret_set():
+    """The header value must equal the HMAC the receiver will recompute
+    locally — any drift here silently breaks every consumer's verification."""
+    import hashlib
+    import hmac as _hmac
+
+    payload = b'{"event":"paste.read","paste_id":"abc"}'
+    headers = _signed_headers(payload, 1700000000, secret="topsecret")
+    expected = _hmac.new(b"topsecret", payload, hashlib.sha256).hexdigest()
+    assert headers["X-Ghostbit-Signature"] == f"sha256={expected}"
+
+
+def test_signed_headers_signature_format_is_stable():
+    """The "sha256=<hex>" format is part of the public contract — receiver
+    snippets in docs/api.md and docs/encryption.md depend on it."""
+    headers = _signed_headers(b"x", 0, secret="k")
+    assert headers["X-Ghostbit-Signature"].startswith("sha256=")
+    sig_hex = headers["X-Ghostbit-Signature"].removeprefix("sha256=")
+    assert len(sig_hex) == 64
+    int(sig_hex, 16)  # raises if non-hex

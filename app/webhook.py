@@ -13,8 +13,11 @@ Payload (JSON):
 Signature (optional):
   If WEBHOOK_SECRET is set in config, every request includes:
     X-Ghostbit-Signature: sha256=<HMAC-SHA256(payload, secret)>
+    X-Ghostbit-Webhook-Timestamp: <unix-seconds>
   The recipient can verify authenticity by recomputing the HMAC over the raw
   request body and comparing to the header value (constant-time comparison).
+  The timestamp header mirrors `payload.timestamp` and is offered so receivers
+  can reject stale deliveries (replay protection) without parsing the body.
 
 - Non-blocking: runs in a background task, never delays the response.
 - Single attempt with a 5s timeout — no retries to avoid hammering.
@@ -193,25 +196,45 @@ def fire(
     task.add_done_callback(_pending_deliveries.discard)
 
 
+def _signed_headers(payload: bytes, timestamp: int, secret: str) -> dict[str, str]:
+    """Build the outbound headers, signing the payload when a secret is set.
+
+    Extracted from _post so it's directly testable without mocking sockets.
+    The timestamp header mirrors the one inside the payload so receivers can
+    reject stale deliveries without parsing JSON first.
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Ghostbit-Webhook/1.0",
+        "X-Ghostbit-Webhook-Timestamp": str(timestamp),
+    }
+    if secret:
+        sig = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+        headers["X-Ghostbit-Signature"] = f"sha256={sig}"
+    return headers
+
+
 async def _deliver(
     url: str,
     paste_id: str,
     view_count: int,
     burned: bool,
 ) -> None:
+    timestamp = int(time.time())
     payload = json.dumps(
         {
             "event": "paste.read",
             "paste_id": paste_id,
             "view_count": view_count,
             "burned": burned,
-            "timestamp": int(time.time()),
+            "timestamp": timestamp,
         }
     ).encode()
+    headers = _signed_headers(payload, timestamp, settings.webhook_secret)
 
     try:
         await asyncio.wait_for(
-            asyncio.get_running_loop().run_in_executor(None, _post, url, payload),
+            asyncio.get_running_loop().run_in_executor(None, _post, url, payload, headers),
             timeout=5.0,
         )
         metrics.webhook_deliveries_total.labels(outcome="ok").inc()
@@ -227,7 +250,7 @@ async def _deliver(
         )
 
 
-def _post(url: str, payload: bytes) -> None:
+def _post(url: str, payload: bytes, headers: dict[str, str]) -> None:
     """Deliver the webhook, pinning the TCP connection to a re-validated IP.
 
     We don't use `urllib.request.urlopen` here because it would trigger its
@@ -246,18 +269,6 @@ def _post(url: str, payload: bytes) -> None:
     path = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
 
     pinned_ip = _resolve_public_ip(host, port)
-
-    headers: dict[str, str] = {
-        "Content-Type": "application/json",
-        "User-Agent": "Ghostbit-Webhook/1.0",
-    }
-    if settings.webhook_secret:
-        sig = hmac.new(
-            settings.webhook_secret.encode(),
-            payload,
-            hashlib.sha256,
-        ).hexdigest()
-        headers["X-Ghostbit-Signature"] = f"sha256={sig}"
 
     if parsed.scheme == "https":
         conn: http.client.HTTPConnection = _PinnedHTTPSConnection(

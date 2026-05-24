@@ -139,13 +139,14 @@ The request has a 5-second timeout and is fire-and-forget (failures are not retr
 
 ### Webhook signature
 
-If `WEBHOOK_SECRET` is configured on the server, every delivery includes an HMAC-SHA256 signature:
+If `WEBHOOK_SECRET` is configured on the server, every delivery includes an HMAC-SHA256 signature and a timestamp:
 
 ```
 X-Ghostbit-Signature: sha256=<hex>
+X-Ghostbit-Webhook-Timestamp: <unix-seconds>
 ```
 
-The signature is computed over the raw JSON body. Verify it on the receiving end:
+The timestamp header is always sent (even without `WEBHOOK_SECRET`) and mirrors `payload.timestamp` — use it to reject stale replays (~5 min window) without parsing the body. The signature is computed over the raw JSON body. Verify it on the receiving end:
 
 ```python
 import hmac, hashlib

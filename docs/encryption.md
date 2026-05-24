@@ -91,13 +91,16 @@ The ciphertext format is identical — pastes created by the CLI can be decrypte
 
 ## Webhook signatures
 
-When `WEBHOOK_SECRET` is configured, every webhook delivery is signed with **HMAC-SHA256**:
+When `WEBHOOK_SECRET` is configured, every webhook delivery is signed with **HMAC-SHA256** and carries a timestamp header:
 
 ```
 X-Ghostbit-Signature: sha256=<hex>
+X-Ghostbit-Webhook-Timestamp: <unix-seconds>
 ```
 
-The signature is computed over the raw JSON request body. To verify on the receiving end:
+The signature is computed over the raw JSON request body. The timestamp header is **always present** (even without `WEBHOOK_SECRET`) and mirrors `payload.timestamp` — verifiers can use it for replay protection without having to parse the body first. A typical receiver rejects deliveries older than 5 minutes.
+
+To verify on the receiving end:
 
 === "Python"
 
@@ -130,3 +133,13 @@ The signature is computed over the raw JSON request body. To verify on the recei
 
 !!! warning
     Always use a **constant-time comparison** (`hmac.compare_digest`, `timingSafeEqual`) to prevent timing attacks.
+
+!!! tip "Replay protection"
+    Even with a valid signature, an attacker who once intercepted a delivery could replay it. Reject any request whose `X-Ghostbit-Webhook-Timestamp` differs from the current time by more than ~5 minutes:
+
+    ```python
+    import time
+    drift = abs(int(time.time()) - int(headers["X-Ghostbit-Webhook-Timestamp"]))
+    if drift > 300:
+        raise ValueError("stale delivery — refusing")
+    ```
