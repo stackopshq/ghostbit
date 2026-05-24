@@ -655,7 +655,7 @@
 
 <h1 id="adr-0002-argon2id-alongside-pbkdf2-for-password-pastes">ADR 0002 — Argon2id alongside PBKDF2 for password pastes<a class="headerlink" href="#adr-0002-argon2id-alongside-pbkdf2-for-password-pastes" title="Permanent link">&para;</a></h1>
 <ul>
-<li><strong>Status:</strong> Accepted (server + CLI). Browser implementation deferred to a follow-up commit.</li>
+<li><strong>Status:</strong> Accepted — server, CLI <strong>and</strong> browser implementations all shipped.</li>
 <li><strong>Date:</strong> 2026-05-24</li>
 <li><strong>Builds on:</strong> <a href="../0001-zero-knowledge-crypto/">ADR 0001 — Zero-knowledge end-to-end encryption</a></li>
 </ul>
@@ -698,17 +698,18 @@
 </tr>
 <tr>
 <td>Browser</td>
-<td><code>hash-wasm</code> (<code>argon2id</code>), ~70 KB minified, lazy-loaded only on password pastes that use it</td>
-<td>⏳ follow-up commit</td>
+<td><code>hash-wasm</code> argon2 bundle (29 KB UMD with the WASM inline), loaded on the homepage and on password paste pages only</td>
+<td>✅</td>
 </tr>
 </tbody>
 </table>
-<p>The browser implementation is split off because the WASM library adds ~70 KB to first paint on every paste page and we want to lazy-load it only when actually needed. That dynamic-load plumbing is non-trivial enough to deserve its own change.</p>
+<p>The browser bundle came in smaller than expected once the argon2-only build was selected (29 KB instead of the ~70 KB full hash-wasm bundle), so we ship it eagerly with <code>defer</code> rather than dynamic-loading it on demand. Non-password paste pages don't include it at all, which is the only conditional needed in practice.</p>
+<p>The CSP gains <code>'wasm-unsafe-eval'</code> in <code>script-src</code> so the bundle can <code>WebAssembly.instantiate()</code> its embedded module. This is a narrow opt-in — it does not enable JS <code>eval()</code>, only WebAssembly compilation — and is supported by Chrome 92+ / Firefox 122+ / Safari 16.4+.</p>
 <h2 id="backward-compatibility">Backward compatibility<a class="headerlink" href="#backward-compatibility" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Existing pastes have <code>kdf=NULL</code> in the row → storage layer fills in <code>"pbkdf2-sha256"</code> on read (SQLite NOT NULL default, Redis <code>setdefault</code>).</li>
 <li>CLI defaults <code>--kdf pbkdf2-sha256</code>. Users explicitly opt in with <code>gbit paste -p --kdf argon2id</code>.</li>
-<li>Browser will refuse to attempt Argon2id until the follow-up commit ships — in the meantime, a password paste created with <code>--kdf argon2id</code> is only readable by a CLI that has <code>argon2-cffi</code>.</li>
+<li>A paste created with <code>--kdf argon2id</code> (CLI) is now decryptable in any modern browser that can run WebAssembly — and conversely, a paste created with "Argon2id" picked in the browser KDF picker is readable by a CLI with <code>argon2-cffi</code>. Cross-impl round-trip verified manually.</li>
 </ul>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <h3 id="positive">Positive<a class="headerlink" href="#positive" title="Permanent link">&para;</a></h3>
