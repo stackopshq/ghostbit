@@ -853,10 +853,13 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <p>The ciphertext format is identical — pastes created by the CLI can be decrypted in the browser and vice versa.</p>
 <hr />
 <h2 id="webhook-signatures">Webhook signatures<a class="headerlink" href="#webhook-signatures" title="Permanent link">&para;</a></h2>
-<p>When <code>WEBHOOK_SECRET</code> is configured, every webhook delivery is signed with <strong>HMAC-SHA256</strong>:</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>X-Ghostbit-Signature: sha256=&lt;hex&gt;
+<p>When <code>WEBHOOK_SECRET</code> is configured, every webhook delivery is signed with <strong>HMAC-SHA256</strong> and carries a timestamp header:</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>X-Ghostbit-Signature: sha256=&lt;hex&gt;
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>X-Ghostbit-Webhook-Timestamp: &lt;unix-seconds&gt;
 </span></code></pre></div></td></tr></table></div>
-<p>The signature is computed over the raw JSON request body. To verify on the receiving end:</p>
+<p>The signature is computed over the raw JSON request body. The timestamp header is <strong>always present</strong> (even without <code>WEBHOOK_SECRET</code>) and mirrors <code>payload.timestamp</code> — verifiers can use it for replay protection without having to parse the body first. A typical receiver rejects deliveries older than 5 minutes.</p>
+<p>To verify on the receiving end:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Python</label><label for="__tabbed_2_2">Node.js</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -906,6 +909,18 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Always use a <strong>constant-time comparison</strong> (<code>hmac.compare_digest</code>, <code>timingSafeEqual</code>) to prevent timing attacks.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Replay protection</p>
+<p>Even with a valid signature, an attacker who once intercepted a delivery could replay it. Reject any request whose <code>X-Ghostbit-Webhook-Timestamp</code> differs from the current time by more than ~5 minutes:</p>
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">drift</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;X-Ghostbit-Webhook-Timestamp&quot;</span><span class="p">]))</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="k">if</span> <span class="n">drift</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stale delivery — refusing&quot;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
 </div>
 
 

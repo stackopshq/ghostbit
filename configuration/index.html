@@ -928,7 +928,7 @@ X-Forwarded-For;</code>) so only one hop contributes by the time Ghostbit
 reads the header.</p>
 </div>
 <h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
-<p>Ghostbit exposes two unauthenticated endpoints for operators:</p>
+<p>Ghostbit exposes three unauthenticated endpoints for operators:</p>
 <table>
 <thead>
 <tr>
@@ -941,7 +941,12 @@ reads the header.</p>
 <tr>
 <td><code>/healthz</code></td>
 <td>JSON (<code>{"status": "ok"}</code>)</td>
-<td>Liveness probe. Returns 503 if the storage backend is unreachable.</td>
+<td>Liveness probe — always 200 while the process is alive. Does <strong>not</strong> touch the storage backend, so a Redis outage will not trigger a container restart.</td>
+</tr>
+<tr>
+<td><code>/readyz</code></td>
+<td>JSON (<code>{"status": "ok"}</code> or <code>"error"</code>)</td>
+<td>Readiness probe — pings the storage backend. Returns <strong>503</strong> if it doesn't answer, so the ingress / load balancer drains traffic until the dependency recovers.</td>
 </tr>
 <tr>
 <td><code>/metrics</code></td>
@@ -995,7 +1000,7 @@ reverse proxy if you prefer.</p>
 </tr>
 </tbody>
 </table>
-<p><code>/healthz</code> and <code>/metrics</code> are excluded from the HTTP latency histogram so probe
+<p><code>/healthz</code>, <code>/readyz</code> and <code>/metrics</code> are excluded from the HTTP latency histogram so probe
 traffic doesn't skew P99.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>

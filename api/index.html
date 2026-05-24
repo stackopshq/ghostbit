@@ -1152,10 +1152,12 @@
 </span></code></pre></div></td></tr></table></div>
 <p>The request has a 5-second timeout and is fire-and-forget (failures are not retried).</p>
 <h3 id="webhook-signature">Webhook signature<a class="headerlink" href="#webhook-signature" title="Permanent link">&para;</a></h3>
-<p>If <code>WEBHOOK_SECRET</code> is configured on the server, every delivery includes an HMAC-SHA256 signature:</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a>X-Ghostbit-Signature: sha256=&lt;hex&gt;
+<p>If <code>WEBHOOK_SECRET</code> is configured on the server, every delivery includes an HMAC-SHA256 signature and a timestamp:</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a>X-Ghostbit-Signature: sha256=&lt;hex&gt;
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>X-Ghostbit-Webhook-Timestamp: &lt;unix-seconds&gt;
 </span></code></pre></div></td></tr></table></div>
-<p>The signature is computed over the raw JSON body. Verify it on the receiving end:</p>
+<p>The timestamp header is always sent (even without <code>WEBHOOK_SECRET</code>) and mirrors <code>payload.timestamp</code> — use it to reject stale replays (~5 min window) without parsing the body. The signature is computed over the raw JSON body. Verify it on the receiving end:</p>
 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
 <span class="normal"><a href="#__codelineno-9-2">2</a></span>
 <span class="normal"><a href="#__codelineno-9-3">3</a></span>
