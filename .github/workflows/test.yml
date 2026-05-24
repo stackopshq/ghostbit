@@ -29,8 +29,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Lint & test
+  # ── Lint runs once, no backend dependency. ───────────────────────────────────
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -43,22 +44,58 @@ jobs:
             pyproject.toml
             requirements*.txt
 
-      # ── Install from pyproject.toml (dev extra pulls pytest + ruff) ─────────
-      # The CLI is installed as a second editable package so test_cli_crypto
-      # can `from cli import …` without a sys.path hack.
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[dev]'
           pip install -e cli/
 
-      # ── Lint ────────────────────────────────────────────────────────────────
       - name: Ruff check
         run: ruff check app/ tests/ cli/
 
       - name: Ruff format check
         run: ruff format --check app/ tests/ cli/
 
-      # ── Tests ───────────────────────────────────────────────────────────────
+  # ── Test matrix: both backends, since prod runs Redis but most local
+  #    development uses SQLite — we need either to break the build, not
+  #    just the one that happens to match the developer's setup.
+  test:
+    name: Test (${{ matrix.backend }})
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [sqlite, redis]
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      STORAGE_BACKEND: ${{ matrix.backend }}
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            requirements*.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+          pip install -e cli/
+
       - name: Pytest
         run: pytest tests/ -v
