@@ -101,6 +101,17 @@ async def test_paste_page_omits_og_image(client):
     assert 'name="twitter:card" content="summary"' in html
 
 
+@pytest.mark.anyio
+async def test_paste_page_emits_sri_for_third_party_libs(client):
+    """Third-party scripts on the paste page carry SRI hashes so a tampered
+    file in /static/ (or a compromised CDN if we ever front it) fails to load
+    instead of executing silently."""
+    pid = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
+    html = (await client.get(f"/{pid}")).text
+    assert 'integrity="sha384-' in html
+    assert 'crossorigin="anonymous"' in html
+
+
 def test_abs_url_prefers_configured_base_url(monkeypatch):
     """BASE_URL, when set, overrides the request-derived origin — the escape
     hatch for TLS-terminating proxies that would otherwise emit http:// URLs."""

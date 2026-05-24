@@ -151,13 +151,13 @@
 {% endblock %}
 
 {% block scripts %}
-<link rel="stylesheet" href="/static/cm/codemirror.min.css?v={{ v }}">
-<script src="/static/cm/codemirror-core.min.js?v={{ v }}"></script>
-<script src="/static/cm/codemirror-modes.min.js?v={{ v }}"></script>
+<link rel="stylesheet" href="/static/cm/codemirror.min.css?v={{ v }}" integrity="{{ sri('/static/cm/codemirror.min.css') }}" crossorigin="anonymous">
+<script src="/static/cm/codemirror-core.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-core.min.js') }}" crossorigin="anonymous"></script>
+<script src="/static/cm/codemirror-modes.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-modes.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
 {% if paste.language == "markdown" %}
-<script src="/static/marked.min.js?v={{ v }}"></script>
-<script src="/static/purify.min.js?v={{ v }}"></script>
+<script src="/static/marked.min.js?v={{ v }}" integrity="{{ sri('/static/marked.min.js') }}" crossorigin="anonymous"></script>
+<script src="/static/purify.min.js?v={{ v }}" integrity="{{ sri('/static/purify.min.js') }}" crossorigin="anonymous"></script>
 {% endif %}
 <script src="/static/paste.js?v={{ v }}" defer></script>
 {% endblock %}

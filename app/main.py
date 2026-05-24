@@ -1,3 +1,5 @@
+import base64
+import functools
 import hashlib
 import logging
 import secrets
@@ -287,6 +289,19 @@ def _asset_hash() -> str:
 
 
 templates.env.globals["v"] = _asset_hash()
+
+
+# Subresource Integrity helper for third-party scripts. Mostly defense-in-depth
+# since assets are self-hosted, but it would also catch a tampered file served
+# from a stale CDN cache should we ever front /static/ with one.
+@functools.lru_cache(maxsize=128)
+def _sri(path: str) -> str:
+    rel = path.lstrip("/").removeprefix("static/")
+    digest = hashlib.sha384((_ROOT / "static" / rel).read_bytes()).digest()
+    return "sha384-" + base64.b64encode(digest).decode()
+
+
+templates.env.globals["sri"] = _sri
 
 
 def _abs_url(request: Request, path: str) -> str:
