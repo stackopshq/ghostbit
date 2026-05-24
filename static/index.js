@@ -54,6 +54,55 @@
   cm.on('change', updateCounter);
   cm.focus();
 
+  // ── Drag & drop: load a text file into the editor ────────────────────────
+  // Build the reverse extension → language map once. EXT_MAP is lang → ".ext".
+  const EXT_TO_LANG = (() => {
+    const m = {};
+    for (const [lang, ext] of Object.entries(META.extension_map || {})) {
+      if (ext) m[ext.toLowerCase()] = lang;
+    }
+    return m;
+  })();
+
+  const dropZone = document.getElementById('cmHost');
+  ['dragenter', 'dragover'].forEach((evt) => {
+    dropZone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drop-active');
+    });
+  });
+  ['dragleave', 'drop'].forEach((evt) => {
+    dropZone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drop-active');
+    });
+  });
+  dropZone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!file) return;
+    if (file.size > MAX) {
+      counter.textContent = 'File too large: ' + fmt(file.size) + ' > ' + fmt(MAX);
+      counter.classList.add('error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      cm.setValue(typeof reader.result === 'string' ? reader.result : '');
+      cm.focus();
+      // Pick the language from the file extension if one matches.
+      const dot = file.name.lastIndexOf('.');
+      if (dot >= 0) {
+        const ext = file.name.slice(dot).toLowerCase();
+        const lang = EXT_TO_LANG[ext];
+        if (lang && langSelect.value === '') {
+          langSelect.value = lang;
+          setCmMode(lang);
+        }
+      }
+    };
+    reader.readAsText(file);
+  });
+
   // Language auto-detection
   const langSelect = document.getElementById('language');
   const langLabel  = document.querySelector('.lang-picker-label');

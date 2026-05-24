@@ -387,6 +387,7 @@ async def index(request: Request):
         context={
             "languages": LANGUAGES,
             "cm_mode_map": CM_MODE_MAP,
+            "extension_map": EXTENSION_MAP,
             "ttl_options": TTL_OPTIONS,
             "max_paste_size": settings.max_paste_size,
         },

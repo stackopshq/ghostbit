@@ -1453,3 +1453,9 @@ kbd {
 .btn-theme .icon-moon { display: inline-block; }
 [data-theme="dark"] .btn-theme .icon-sun  { display: inline-block; }
 [data-theme="dark"] .btn-theme .icon-moon { display: none; }
+
+/* Subtle accent ring while a file is being dragged over the editor. */
+.cm-host.drop-active {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
