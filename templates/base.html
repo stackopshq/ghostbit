@@ -1,8 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script nonce="{{ request.state.csp_nonce }}">
+    // Apply the theme as early as possible — before CSS resolves — so the
+    // page never flashes the wrong palette. Stored choice wins; otherwise
+    // follow the OS preference, falling back to dark.
+    (function(){
+      try {
+        var stored = localStorage.getItem('gb_theme');
+        var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        document.documentElement.setAttribute('data-theme', stored || (prefersLight ? 'light' : 'dark'));
+      } catch (_) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <title>{% block title %}Ghostbit — Encrypted paste, zero knowledge{% endblock %}</title>
   {% block meta %}
   <meta property="og:title" content="Ghostbit — Encrypted paste, zero knowledge">
@@ -43,6 +57,10 @@
         <span data-label>New paste</span>
       </a>
       {% endblock %}
+      <button type="button" class="btn-new btn-theme" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <a href="https://docs.ghostbit.dev" class="btn-new" target="_blank" rel="noopener" aria-label="Docs" style="opacity:0.6; display:flex; align-items:center; gap:5px;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span data-label>Docs</span>
@@ -57,6 +75,7 @@
   {% block page %}{% endblock %}
 
   {% block scripts %}{% endblock %}
+  <script src="/static/theme.js?v={{ v }}" defer></script>
   <script src="/static/footer.js?v={{ v }}" defer></script>
 </body>
 </html>

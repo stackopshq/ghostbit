@@ -31,7 +31,8 @@
 }
 
 /* ── Dark theme (Dracula) ───────────────────────────────────────────────────── */
-:root {
+:root,
+[data-theme="dark"] {
   --bg-page:      #21222c;
   --card:         #282a36;
   --card-2:       #323445;
@@ -54,6 +55,33 @@
 
   /* Cyber-Violet dark gradient */
   --bg-gradient: linear-gradient(150deg, #0D0B14 0%, #110720 45%, #080f1a 75%, #0a0810 100%);
+}
+
+/* ── Light theme ────────────────────────────────────────────────────────────── */
+/* Brand purple stays as the accent in both themes — only the surface/text/
+   border surfaces flip, so the wordmark and CTAs keep the Ghostbit identity. */
+[data-theme="light"] {
+  --bg-page:      #f6f7fb;
+  --card:         #ffffff;
+  --card-2:       #f0f1f7;
+  --code-bg:      #eceff7;
+  --border:       #d6d8e3;
+  --border-focus: #BC13FE;
+  --text:         #1c1e2a;
+  --text-muted:   #5b6480;
+  --text-sub:     #404662;
+  --accent:       #BC13FE;
+  --accent-hover: #a010d8;
+  --accent-dim:   rgba(188, 19, 254, 0.10);
+  --danger:       #c43;
+  --danger-hover: #a22;
+  --toggle-off:   #c3c9d8;
+  --toggle-on:    #BC13FE;
+  --shadow:       0 4px 24px rgba(40, 44, 60, 0.10);
+  --shadow-card:  0 4px 20px rgba(40, 44, 60, 0.08), 0 0 0 1px rgba(40, 44, 60, 0.06);
+  --header-bg:    rgba(255, 255, 255, 0.88);
+
+  --bg-gradient: linear-gradient(150deg, #f8f9fc 0%, #eef0fa 45%, #e8eef8 75%, #e3e7f1 100%);
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────────── */
@@ -1408,3 +1436,20 @@ kbd {
   text-align: center;
   color: #555;
 }
+
+/* ── Theme toggle button ───────────────────────────────────────────────── */
+.btn-theme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 0;
+  opacity: 0.6;
+}
+.btn-theme:hover { opacity: 1; }
+/* Show the icon that matches "what you switch TO" — sun in dark mode,
+   moon in light mode, following the convention used by macOS/GitHub. */
+.btn-theme .icon-sun  { display: none; }
+.btn-theme .icon-moon { display: inline-block; }
+[data-theme="dark"] .btn-theme .icon-sun  { display: inline-block; }
+[data-theme="dark"] .btn-theme .icon-moon { display: none; }
