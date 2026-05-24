@@ -71,6 +71,14 @@ quote-style = "double"
 
 [tool.pytest.ini_options]
 asyncio_mode         = "auto"
+# The HTTP client fixture is module-scoped and the Redis backend pins its
+# aioredis client to the event loop where init() ran. Default (function-
+# scoped loops) would tear that loop down between tests and every
+# subsequent Redis call would die with "Future attached to a different
+# loop". Module-scoped loops keep the fixture and its client coherent.
+# SQLite via aiosqlite is loop-agnostic, so this is a no-op for that backend.
+asyncio_default_fixture_loop_scope = "module"
+asyncio_default_test_loop_scope    = "module"
 testpaths            = ["tests"]
 filterwarnings       = [
     "ignore::DeprecationWarning:slowapi.*",
