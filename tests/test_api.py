@@ -158,6 +158,37 @@ async def test_compressed_flag_round_trips(client):
 
 
 @pytest.mark.anyio
+async def test_kdf_field_round_trips(client):
+    """The kdf hint must persist exactly as sent so the viewer can run the
+    matching KDF — derive PBKDF2 from a password meant for Argon2id and
+    you get a wrong key + AES-GCM tag failure."""
+    payload = _fake_paste(
+        kdf_salt=base64.b64encode(os.urandom(16)).decode(),
+        kdf="argon2id",
+    )
+    r = await client.post("/api/v1/pastes", json=payload)
+    assert r.status_code == 201
+    g = (await client.get(f"/api/v1/pastes/{r.json()['id']}")).json()
+    assert g["kdf"] == "argon2id"
+    assert g["has_password"] is True
+
+
+@pytest.mark.anyio
+async def test_kdf_defaults_to_pbkdf2(client):
+    r = await client.post("/api/v1/pastes", json=_fake_paste())
+    g = (await client.get(f"/api/v1/pastes/{r.json()['id']}")).json()
+    assert g["kdf"] == "pbkdf2-sha256"
+
+
+@pytest.mark.anyio
+async def test_kdf_rejects_unknown_value(client):
+    """An unknown KDF must be rejected at the validator — silently accepting
+    it would let a malformed paste reach the storage layer."""
+    r = await client.post("/api/v1/pastes", json=_fake_paste(kdf="scrypt"))
+    assert r.status_code == 422
+
+
+@pytest.mark.anyio
 async def test_compressed_flag_defaults_to_false(client):
     """Pastes created without the flag must come back with compressed=False —
     backwards compatibility for clients and existing pastes."""

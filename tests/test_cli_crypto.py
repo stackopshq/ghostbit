@@ -83,3 +83,36 @@ def test_encrypt_accepts_both_str_and_bytes():
     ct_b, n_b = _encrypt(b"hi", key)
     assert _decrypt(ct_s, n_s, key) == "hi"
     assert _decrypt(ct_b, n_b, key) == "hi"
+
+
+def test_argon2id_round_trip():
+    """Same plaintext → encrypt with argon2id-derived key → decrypt back.
+    Pins the cross-impl contract for password pastes when --kdf argon2id."""
+    from cli import derive_key_for
+
+    salt = _gen_salt()
+    key = derive_key_for("argon2id", "topsecret", salt)
+    assert len(key) == 32
+    ct, nonce = _encrypt("argon2id paste", key)
+    key2 = derive_key_for("argon2id", "topsecret", salt)
+    assert _decrypt(ct, nonce, key2) == "argon2id paste"
+
+
+def test_argon2id_different_password_fails():
+    from cryptography.exceptions import InvalidTag
+
+    from cli import derive_key_for
+
+    salt = _gen_salt()
+    key = derive_key_for("argon2id", "right", salt)
+    ct, nonce = _encrypt("secret", key)
+    wrong = derive_key_for("argon2id", "wrong", salt)
+    with pytest.raises(InvalidTag):
+        _decrypt(ct, nonce, wrong)
+
+
+def test_derive_key_for_rejects_unknown_kdf():
+    from cli import derive_key_for
+
+    with pytest.raises(ValueError, match="unsupported kdf"):
+        derive_key_for("scrypt", "x", _gen_salt())

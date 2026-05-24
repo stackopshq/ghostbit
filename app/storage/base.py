@@ -25,6 +25,10 @@ class PasteData:
     # The server only sees this as a hint to relay back so the viewer knows
     # to decompress after decryption — it never touches plaintext itself.
     compressed: bool = False
+    # Key derivation function used for password-protected pastes. The server
+    # never derives keys; it only stores this hint so the viewer knows which
+    # KDF to run client-side. Ignored when has_password is False.
+    kdf: str = "pbkdf2-sha256"  # or "argon2id"
 
     def is_expired(self, now: int | None = None) -> bool:
         if self.expires_at is None:

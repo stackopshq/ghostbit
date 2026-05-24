@@ -29,6 +29,7 @@ from ._crypto import (
     decrypt,
     decrypt_bytes,
     derive_key,
+    derive_key_for,
     encrypt,
     gen_key,
     gen_salt,
@@ -110,10 +111,12 @@ def cmd_paste(args) -> None:
 
     if password:
         kdf_salt = gen_salt()
-        key = derive_key(password, kdf_salt)
+        kdf_choice = args.kdf
+        key = derive_key_for(kdf_choice, password, kdf_salt)
     else:
         key = gen_key()
         kdf_salt = None
+        kdf_choice = "pbkdf2-sha256"  # ignored when has_password is false
 
     if args.compress:
         import gzip
@@ -132,6 +135,7 @@ def cmd_paste(args) -> None:
         "burn": args.burn,
         "max_views": args.max_views,
         "compressed": args.compress,
+        "kdf": kdf_choice,
     }
 
     result = api_create(server, payload)
@@ -270,7 +274,10 @@ def cmd_view(args) -> None:
         if not kdf_salt:
             print("Error: no KDF salt — paste is not password-protected.", file=sys.stderr)
             sys.exit(1)
-        key = derive_key(password, kdf_salt)
+        # Server tells us which KDF was used; default to legacy PBKDF2 for
+        # pastes written before the field existed.
+        kdf_choice = data.get("kdf") or "pbkdf2-sha256"
+        key = derive_key_for(kdf_choice, password, kdf_salt)
     else:
         # Restore base64 padding stripped for URL safety.
         padded = key_b64url + "=" * (-len(key_b64url) % 4)
@@ -517,6 +524,10 @@ current server: {current_server}
     parser.add_argument(
         "--compress", "-z", action="store_true",
         help="Gzip the plaintext locally BEFORE encryption (60–80%% smaller for text).",
+    )  # fmt: skip
+    parser.add_argument(
+        "--kdf", choices=("pbkdf2-sha256", "argon2id"), default="pbkdf2-sha256",
+        help="Key derivation function (used only with --password). Default: pbkdf2-sha256.",
     )  # fmt: skip
     parser.add_argument(
         "--max-views", "-m", type=int, default=None, metavar="N",

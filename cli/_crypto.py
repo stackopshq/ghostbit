@@ -21,7 +21,23 @@ try:
 except ImportError:
     _CRYPTO_OK = False
 
+try:
+    from argon2.low_level import Type as _Argon2Type
+    from argon2.low_level import hash_secret_raw as _argon2_hash
+
+    _ARGON2_OK = True
+except ImportError:
+    _ARGON2_OK = False
+
 _PBKDF2_ITERATIONS = 600_000
+
+# OWASP 2023+ minimum for Argon2id in interactive contexts (browser/CLI).
+# m = memory in KiB; t = passes; p = parallelism; hash length in bytes.
+# Anything stronger meaningfully impacts page-load time on a phone — bump
+# these together with the browser WASM lib's defaults when it lands.
+_ARGON2_MEMORY_KIB = 19_456  # 19 MiB
+_ARGON2_TIME_COST = 2
+_ARGON2_PARALLELISM = 1
 
 
 def require_crypto() -> None:
@@ -62,11 +78,42 @@ def decrypt(ciphertext_b64: str, nonce_b64: str, key: bytes) -> str:
 
 
 def derive_key(password: str, salt_b64: str) -> bytes:
+    """PBKDF2-SHA256 at 600k iterations — the historical default."""
     salt = base64.b64decode(salt_b64)
     kdf = PBKDF2HMAC(
         algorithm=_hashes.SHA256(), length=32, salt=salt, iterations=_PBKDF2_ITERATIONS
     )
     return kdf.derive(password.encode())
+
+
+def derive_key_argon2id(password: str, salt_b64: str) -> bytes:
+    """Argon2id with OWASP minimum params (m=19 MiB, t=2, p=1)."""
+    if not _ARGON2_OK:
+        print(
+            "Error: 'argon2-cffi' package required for --kdf argon2id. "
+            "Run: pip install argon2-cffi",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    salt = base64.b64decode(salt_b64)
+    return _argon2_hash(
+        secret=password.encode(),
+        salt=salt,
+        time_cost=_ARGON2_TIME_COST,
+        memory_cost=_ARGON2_MEMORY_KIB,
+        parallelism=_ARGON2_PARALLELISM,
+        hash_len=32,
+        type=_Argon2Type.ID,
+    )
+
+
+def derive_key_for(kdf: str, password: str, salt_b64: str) -> bytes:
+    """Dispatch to the right KDF based on the protocol's kdf field."""
+    if kdf == "pbkdf2-sha256":
+        return derive_key(password, salt_b64)
+    if kdf == "argon2id":
+        return derive_key_argon2id(password, salt_b64)
+    raise ValueError(f"unsupported kdf {kdf!r}")
 
 
 def key_to_fragment(key: bytes) -> str:

@@ -67,6 +67,21 @@ class PasteCreateRequest(BaseModel):
             "decide whether to gunzip after decryption."
         ),
     )
+    kdf: str = Field(
+        "pbkdf2-sha256",
+        description=(
+            "Key derivation function for password-protected pastes. The server "
+            "never derives keys; it only stores this hint so the viewer knows "
+            "which KDF to run. Ignored when kdf_salt is null."
+        ),
+    )
+
+    @field_validator("kdf")
+    @classmethod
+    def _validate_kdf(cls, v: str) -> str:
+        if v not in ("pbkdf2-sha256", "argon2id"):
+            raise ValueError(f"unsupported kdf {v!r}")
+        return v
 
     @field_validator("content")
     @classmethod
@@ -114,6 +129,7 @@ class PasteResponse(BaseModel):
     view_count: int
     has_password: bool
     compressed: bool = False
+    kdf: str = "pbkdf2-sha256"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -177,6 +193,7 @@ async def create_paste(body: PasteCreateRequest, request: Request):
         view_count=0,
         webhook_url=body.webhook_url,
         compressed=body.compressed,
+        kdf=body.kdf,
     )
 
     # Retry on paste-ID collision. token_urlsafe(6) = ~48 bits of entropy,
@@ -254,6 +271,7 @@ async def get_paste(request: Request, paste_id: str = Path(..., pattern=r"^[A-Za
         view_count=view_count,
         has_password=paste.has_password,
         compressed=paste.compressed,
+        kdf=paste.kdf,
     )
 
 

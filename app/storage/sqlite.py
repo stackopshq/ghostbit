@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS pastes (
     max_views         INTEGER,
     view_count        INTEGER NOT NULL DEFAULT 0,
     webhook_url       TEXT,
-    compressed        INTEGER NOT NULL DEFAULT 0
+    compressed        INTEGER NOT NULL DEFAULT 0,
+    kdf               TEXT NOT NULL DEFAULT 'pbkdf2-sha256'
 )
 """
 
@@ -40,6 +41,7 @@ _EXPECTED_COLUMNS = {
     "view_count": "INTEGER NOT NULL DEFAULT 0",
     "webhook_url": "TEXT",
     "compressed": "INTEGER NOT NULL DEFAULT 0",
+    "kdf": "TEXT NOT NULL DEFAULT 'pbkdf2-sha256'",
 }
 
 
@@ -132,8 +134,8 @@ class SQLiteStorage(StorageBackend):
                 "INSERT OR IGNORE INTO pastes ("
                 "id, content, nonce, kdf_salt, language, created_at, expires_at, "
                 "burn, has_password, delete_token_hash, max_views, view_count, "
-                "webhook_url, compressed"
-                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "webhook_url, compressed, kdf"
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     paste.id,
                     paste.content,
@@ -149,6 +151,7 @@ class SQLiteStorage(StorageBackend):
                     paste.view_count,
                     paste.webhook_url,
                     int(paste.compressed),
+                    paste.kdf,
                 ),
             )
             await db.commit()
@@ -173,6 +176,7 @@ class SQLiteStorage(StorageBackend):
             view_count=row["view_count"] or 0,
             webhook_url=row["webhook_url"],
             compressed=bool(row["compressed"]) if "compressed" in row.keys() else False,  # noqa: SIM118 — aiosqlite.Row needs .keys()
+            kdf=row["kdf"] if "kdf" in row.keys() else "pbkdf2-sha256",  # noqa: SIM118
         )
 
     async def get(self, paste_id: str) -> PasteData | None:

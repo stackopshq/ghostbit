@@ -95,6 +95,7 @@ class RedisStorage(StorageBackend):
                 "view_count": paste.view_count,
                 "webhook_url": paste.webhook_url,
                 "compressed": paste.compressed,
+                "kdf": paste.kdf,
             }
         )
         key = self._key(paste.id)
@@ -120,6 +121,7 @@ class RedisStorage(StorageBackend):
         d.setdefault("view_count", 0)
         d.setdefault("webhook_url", None)
         d.setdefault("compressed", False)
+        d.setdefault("kdf", "pbkdf2-sha256")
         return PasteData(**d)
 
     async def increment_and_check_burn(self, paste_id: str) -> tuple[int | None, bool]:
@@ -161,6 +163,7 @@ class RedisStorage(StorageBackend):
             d.setdefault("view_count", 0)
             d.setdefault("webhook_url", None)
             d.setdefault("compressed", False)
+            d.setdefault("kdf", "pbkdf2-sha256")
             yield PasteData(**d)
 
     async def ping(self) -> None:
