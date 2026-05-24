@@ -105,7 +105,7 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
 # Paths excluded from the latency histogram to keep /metrics from observing
 # itself (scrape storm → infinite feedback) and to keep /healthz scrapes off
 # the P99 line, since they're much more frequent than real traffic.
-_LATENCY_EXCLUDED_PATHS = {"/metrics", "/healthz"}
+_LATENCY_EXCLUDED_PATHS = {"/metrics", "/healthz", "/readyz"}
 
 
 class LatencyMiddleware(BaseHTTPMiddleware):
@@ -201,22 +201,32 @@ async def prometheus_metrics():
 _health_log = logging.getLogger("ghostbit.health")
 
 
+_HEALTH_BODY = {
+    "status": "ok",
+    "storage": settings.storage_backend,
+    "version": __version__,
+}
+
+
 @app.get("/healthz", include_in_schema=False)
-async def healthz(request: Request):
-    # Version is surfaced here so monitoring/ops can read it without parsing
-    # the full OpenAPI spec — useful when `podman inspect` labels aren't
-    # enough (e.g. confirming the running image matches what was deployed).
+async def healthz():
+    # Liveness probe: 200 as long as the process is alive. Deliberately does
+    # NOT touch the storage backend — that's /readyz. A storage outage must
+    # not trigger a container restart (it's the dependency that's unhealthy,
+    # not the app), so this endpoint never returns 503.
+    return JSONResponse(_HEALTH_BODY)
+
+
+@app.get("/readyz", include_in_schema=False)
+async def readyz(request: Request):
+    # Readiness probe: 200 only if the storage backend answers. 503 tells the
+    # ingress (K8s service, Pangolin, load balancer) to drain traffic until
+    # the dependency recovers — without restarting the process.
     try:
         await request.app.state.storage.ping()
-        return JSONResponse(
-            {
-                "status": "ok",
-                "storage": settings.storage_backend,
-                "version": __version__,
-            }
-        )
+        return JSONResponse(_HEALTH_BODY)
     except Exception:
-        _health_log.exception("storage healthcheck failed")
+        _health_log.exception("storage readiness check failed")
         return JSONResponse(
             {"status": "error", "storage": settings.storage_backend, "version": __version__},
             status_code=503,
@@ -266,12 +276,13 @@ async def robots_txt():
 
 app.include_router(api_router)
 
-# Silence uvicorn access logs for /healthz so probes don't pollute logs
+# Silence uvicorn access logs for health probes so they don't pollute logs.
+_PROBE_PATHS = ("/healthz", "/readyz")
 logging.getLogger("uvicorn.access").addFilter(
     type(
-        "_HealthzFilter",
+        "_ProbeFilter",
         (logging.Filter,),
-        {"filter": lambda self, r: "/healthz" not in r.getMessage()},
+        {"filter": lambda self, r: not any(p in r.getMessage() for p in _PROBE_PATHS)},
     )()
 )
 app.mount("/static", StaticFiles(directory=str(_ROOT / "static")), name="static")

@@ -54,6 +54,40 @@ async def test_healthz(client):
 
 
 @pytest.mark.anyio
+async def test_healthz_stays_200_when_storage_is_down(client, monkeypatch):
+    """Liveness MUST NOT depend on the storage backend — a Redis blip should
+    not cascade into a container restart loop."""
+
+    async def boom():
+        raise RuntimeError("redis is down")
+
+    monkeypatch.setattr(app.state.storage, "ping", boom)
+    r = await client.get("/healthz")
+    assert r.status_code == 200
+
+
+@pytest.mark.anyio
+async def test_readyz_200_when_storage_up(client):
+    r = await client.get("/readyz")
+    assert r.status_code == 200
+    assert r.json()["status"] == "ok"
+
+
+@pytest.mark.anyio
+async def test_readyz_503_when_storage_down(client, monkeypatch):
+    """Readiness must flip to 503 so the ingress drains traffic until the
+    backend recovers."""
+
+    async def boom():
+        raise RuntimeError("redis is down")
+
+    monkeypatch.setattr(app.state.storage, "ping", boom)
+    r = await client.get("/readyz")
+    assert r.status_code == 503
+    assert r.json()["status"] == "error"
+
+
+@pytest.mark.anyio
 async def test_csp_uses_nonce_not_unsafe_inline(client):
     """script-src must be nonce-based, not 'unsafe-inline'. A weakening
     of this header would silently re-enable XSS via any injection point."""

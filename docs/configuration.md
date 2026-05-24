@@ -123,11 +123,12 @@ A malformed value (missing `http://` / `https://` scheme) fails fast at startup.
 
 ## Observability
 
-Ghostbit exposes two unauthenticated endpoints for operators:
+Ghostbit exposes three unauthenticated endpoints for operators:
 
 | Endpoint | Format | Purpose |
 |----------|--------|---------|
-| `/healthz` | JSON (`{"status": "ok"}`) | Liveness probe. Returns 503 if the storage backend is unreachable. |
+| `/healthz` | JSON (`{"status": "ok"}`) | Liveness probe — always 200 while the process is alive. Does **not** touch the storage backend, so a Redis outage will not trigger a container restart. |
+| `/readyz` | JSON (`{"status": "ok"}` or `"error"`) | Readiness probe — pings the storage backend. Returns **503** if it doesn't answer, so the ingress / load balancer drains traffic until the dependency recovers. |
 | `/metrics` | Prometheus text | Scrape target for Prometheus/Grafana/Alertmanager. |
 
 The `/metrics` endpoint has no sensitive data (only aggregate counters and a
@@ -145,7 +146,7 @@ Exposed metrics:
 | `ghostbit_http_request_duration_seconds` | histogram | `method`, `path`, `status` |
 | `ghostbit_sqlite_pool_wait_seconds` | histogram | — |
 
-`/healthz` and `/metrics` are excluded from the HTTP latency histogram so probe
+`/healthz`, `/readyz` and `/metrics` are excluded from the HTTP latency histogram so probe
 traffic doesn't skew P99.
 
 ## .env example

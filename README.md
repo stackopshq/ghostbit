@@ -183,7 +183,7 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 
 ## API
 
-All content is encrypted **client-side** — the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc). Operators also get `/healthz` (JSON liveness probe) and `/metrics` (Prometheus exposition).
+All content is encrypted **client-side** — the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc). Operators also get `/healthz` (liveness — always 200 if the process is alive), `/readyz` (readiness — 503 if the storage backend doesn't answer) and `/metrics` (Prometheus exposition).
 
 ```bash
 # Create (content must be pre-encrypted — use the CLI or e2e.js)
