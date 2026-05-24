@@ -1,6 +1,6 @@
 # ADR 0002 — Argon2id alongside PBKDF2 for password pastes
 
-- **Status:** Accepted (server + CLI). Browser implementation deferred to a follow-up commit.
+- **Status:** Accepted — server, CLI **and** browser implementations all shipped.
 - **Date:** 2026-05-24
 - **Builds on:** [ADR 0001 — Zero-knowledge end-to-end encryption](0001-zero-knowledge-crypto.md)
 
@@ -34,15 +34,17 @@ These are the OWASP 2023 minimums for Argon2id in interactive contexts (browser/
 |---|---|---|
 | Server | n/a (just stores the hint) | ✅ |
 | CLI | `argon2-cffi` (already a top-level dep) | ✅ |
-| Browser | `hash-wasm` (`argon2id`), ~70 KB minified, lazy-loaded only on password pastes that use it | ⏳ follow-up commit |
+| Browser | `hash-wasm` argon2 bundle (29 KB UMD with the WASM inline), loaded on the homepage and on password paste pages only | ✅ |
 
-The browser implementation is split off because the WASM library adds ~70 KB to first paint on every paste page and we want to lazy-load it only when actually needed. That dynamic-load plumbing is non-trivial enough to deserve its own change.
+The browser bundle came in smaller than expected once the argon2-only build was selected (29 KB instead of the ~70 KB full hash-wasm bundle), so we ship it eagerly with `defer` rather than dynamic-loading it on demand. Non-password paste pages don't include it at all, which is the only conditional needed in practice.
+
+The CSP gains `'wasm-unsafe-eval'` in `script-src` so the bundle can `WebAssembly.instantiate()` its embedded module. This is a narrow opt-in — it does not enable JS `eval()`, only WebAssembly compilation — and is supported by Chrome 92+ / Firefox 122+ / Safari 16.4+.
 
 ## Backward compatibility
 
 - Existing pastes have `kdf=NULL` in the row → storage layer fills in `"pbkdf2-sha256"` on read (SQLite NOT NULL default, Redis `setdefault`).
 - CLI defaults `--kdf pbkdf2-sha256`. Users explicitly opt in with `gbit paste -p --kdf argon2id`.
-- Browser will refuse to attempt Argon2id until the follow-up commit ships — in the meantime, a password paste created with `--kdf argon2id` is only readable by a CLI that has `argon2-cffi`.
+- A paste created with `--kdf argon2id` (CLI) is now decryptable in any modern browser that can run WebAssembly — and conversely, a paste created with "Argon2id" picked in the browser KDF picker is readable by a CLI with `argon2-cffi`. Cross-impl round-trip verified manually.
 
 ## Consequences
 

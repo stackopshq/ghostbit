@@ -76,6 +76,32 @@ const E2E = (() => {
     );
   }
 
+  // Argon2id parameters MUST match cli/_crypto.py and the ADR 0002 table —
+  // a drift here silently fails decryption of CLI-created argon2id pastes.
+  const ARGON2_PARAMS = { parallelism: 1, iterations: 2, memorySize: 19_456, hashLength: 32 };
+
+  /** Derive an AES-256 key from a password + base64 salt via Argon2id.
+   *  Requires the hash-wasm bundle to be already loaded on the page
+   *  (templates ship it under /static/hash-wasm-argon2.umd.min.js). */
+  async function deriveKeyArgon2id(password, saltB64) {
+    if (typeof window.hashwasm === 'undefined' || !window.hashwasm.argon2id) {
+      throw new Error('Argon2id library not loaded — refresh the page.');
+    }
+    const raw = await window.hashwasm.argon2id({
+      password,
+      salt: _unb64(saltB64),
+      outputType: 'binary',
+      ...ARGON2_PARAMS,
+    });
+    return crypto.subtle.importKey('raw', raw, ALGO, false, ['encrypt', 'decrypt']);
+  }
+
+  /** Dispatch to the right KDF based on the paste's kdf hint. */
+  async function deriveKeyFor(kdf, password, saltB64) {
+    if (kdf === 'argon2id') return deriveKeyArgon2id(password, saltB64);
+    return deriveKey(password, saltB64);  // pbkdf2-sha256 (default)
+  }
+
   // ── Encoding helpers ──────────────────────────────────────────────────────
 
   function _b64(u8) {
@@ -103,7 +129,8 @@ const E2E = (() => {
 
   return {
     generateKey, encrypt, decrypt, decryptBytes,
-    exportKey, importKey, generateSalt, deriveKey,
+    exportKey, importKey, generateSalt,
+    deriveKey, deriveKeyArgon2id, deriveKeyFor,
     gzipString, gunzipToString,
   };
 })();

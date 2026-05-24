@@ -113,6 +113,13 @@
         </div>
         <input type="password" id="passwordConfirm" placeholder="Confirm password…" autocomplete="new-password" class="pw-confirm">
         <div class="pw-match" id="pwMatch" aria-live="polite"></div>
+        <div class="kdf-picker-wrap">
+          <span class="kdf-picker-label">Key derivation</span>
+          <select id="kdfChoice" class="kdf-picker">
+            <option value="pbkdf2-sha256">PBKDF2-SHA256 (600k iters)</option>
+            <option value="argon2id">Argon2id (memory-hard, recommended)</option>
+          </select>
+        </div>
       </div>
 
       <div class="option-row option-row-webhook">
@@ -156,6 +163,11 @@
 <script src="/static/cm/codemirror-core.min.js?v={{ v }}"></script>
 <script src="/static/cm/codemirror-modes.min.js?v={{ v }}"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
+<!-- Argon2id WASM lib — only used when the user picks Argon2id in the
+     KDF picker on a password paste. Loaded on every visit so the choice
+     is immediately available; 29 KB minified, defer so it never blocks
+     first paint. Drop it if your deployment disables Argon2id pastes. -->
+<script src="/static/hash-wasm-argon2.umd.min.js?v={{ v }}" integrity="{{ sri('/static/hash-wasm-argon2.umd.min.js') }}" crossorigin="anonymous" defer></script>
 <!-- Per-request bootstrap data consumed by static/index.js -->
 <script id="index-meta" type="application/json">
 {

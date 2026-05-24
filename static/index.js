@@ -304,10 +304,11 @@
         }
       }
 
-      let key, kdfSalt = null;
+      let key, kdfSalt = null, kdfChoice = 'pbkdf2-sha256';
       if (hasPassword && password) {
-        kdfSalt = E2E.generateSalt();
-        key     = await E2E.deriveKey(password, kdfSalt);
+        kdfSalt   = E2E.generateSalt();
+        kdfChoice = document.getElementById('kdfChoice').value || 'pbkdf2-sha256';
+        key       = await E2E.deriveKeyFor(kdfChoice, password, kdfSalt);
       } else {
         key = await E2E.generateKey();
       }
@@ -331,6 +332,7 @@
         max_views:   maxViews,
         webhook_url: webhookUrl,
         compressed,
+        kdf:         kdfChoice,
       };
 
       const resp = await fetch('/api/v1/pastes', {

@@ -342,7 +342,7 @@
       pwError.style.display = 'none';
 
       try {
-        const key       = await E2E.deriveKey(password, apiData.kdf_salt);
+        const key       = await E2E.deriveKeyFor(apiData.kdf || 'pbkdf2-sha256', password, apiData.kdf_salt);
         const plaintext = await decryptPaste(apiData, key);
         renderPaste(plaintext, apiData);
       } catch {

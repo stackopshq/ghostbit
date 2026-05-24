@@ -40,9 +40,14 @@ from .storage import get_storage
 #
 # api.github.com is whitelisted for the footer star counter.
 def _build_csp(nonce: str) -> str:
+    # 'wasm-unsafe-eval' lets hash-wasm instantiate its embedded Argon2id
+    # WebAssembly module. Modern (Chrome 92+, Firefox 122+) browsers honor
+    # this narrow opt-in without pulling in the full 'unsafe-eval', so we
+    # don't widen the JS attack surface to support password pastes with the
+    # stronger KDF.
     return (
         "default-src 'self'; "
-        f"script-src 'self' 'nonce-{nonce}'; "
+        f"script-src 'self' 'nonce-{nonce}' 'wasm-unsafe-eval'; "
         "style-src 'self' 'unsafe-inline'; "
         "img-src 'self' data:; "
         "font-src 'self'; "

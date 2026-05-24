@@ -190,6 +190,11 @@
 <script src="/static/cm/codemirror-core.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-core.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/cm/codemirror-modes.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-modes.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
+{% if paste.has_password %}
+<!-- Argon2id WASM lib — loaded only on password pastes (the only pastes
+     where a KDF runs in the browser). Lazy by virtue of the conditional. -->
+<script src="/static/hash-wasm-argon2.umd.min.js?v={{ v }}" integrity="{{ sri('/static/hash-wasm-argon2.umd.min.js') }}" crossorigin="anonymous"></script>
+{% endif %}
 <script src="/static/qrcode.min.js?v={{ v }}" integrity="{{ sri('/static/qrcode.min.js') }}" crossorigin="anonymous" defer></script>
 {% if paste.language == "markdown" %}
 <script src="/static/marked.min.js?v={{ v }}" integrity="{{ sri('/static/marked.min.js') }}" crossorigin="anonymous"></script>

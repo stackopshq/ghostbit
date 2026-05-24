@@ -199,6 +199,51 @@ async def test_compressed_flag_defaults_to_false(client):
 
 
 @pytest.mark.anyio
+async def test_homepage_ships_argon2_lib_with_sri(client):
+    """The homepage must serve the Argon2id WASM bundle so the KDF picker
+    can switch to argon2id without a second round-trip. SRI is mandatory
+    like the other vendored libs."""
+    import re
+
+    html = (await client.get("/")).text
+    m = re.search(
+        r'/static/hash-wasm-argon2\.umd\.min\.js[^>]+integrity="sha384-[A-Za-z0-9+/=]+"',
+        html,
+    )
+    assert m, "Argon2 WASM lib should be loaded on the homepage with SRI"
+
+
+@pytest.mark.anyio
+async def test_password_paste_includes_argon2_lib(client):
+    """A password-protected paste page must ship the Argon2 lib unconditionally
+    — the viewer doesn't know yet which KDF the paste used."""
+    payload = _fake_paste(kdf_salt=base64.b64encode(os.urandom(16)).decode())
+    pid = (await client.post("/api/v1/pastes", json=payload)).json()["id"]
+    html = (await client.get(f"/{pid}")).text
+    assert "hash-wasm-argon2" in html
+
+
+@pytest.mark.anyio
+async def test_non_password_paste_omits_argon2_lib(client):
+    """Non-password pastes never run a KDF in the browser, so the 29 KB lib
+    must not be shipped to them."""
+    pid = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
+    html = (await client.get(f"/{pid}")).text
+    assert "hash-wasm-argon2" not in html
+
+
+@pytest.mark.anyio
+async def test_csp_allows_wasm_unsafe_eval(client):
+    """script-src must include 'wasm-unsafe-eval' so hash-wasm can instantiate
+    its Argon2id WebAssembly module. Without it the lib silently fails to load
+    and password pastes with kdf=argon2id can't be unlocked."""
+    csp = (await client.get("/")).headers.get("content-security-policy", "")
+    assert "'wasm-unsafe-eval'" in csp
+    # Make sure we didn't widen to full unsafe-eval as a sloppy shortcut.
+    assert "'unsafe-eval'" not in csp.replace("'wasm-unsafe-eval'", "")
+
+
+@pytest.mark.anyio
 async def test_paste_page_ships_qr_button_modal_and_lib(client):
     """QR code is rendered client-side so the URL fragment (encryption key)
     never reaches the server. The button + modal + lib must be in the shell;
