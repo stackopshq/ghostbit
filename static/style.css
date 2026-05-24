@@ -55,6 +55,14 @@
 
   /* Cyber-Violet dark gradient */
   --bg-gradient: linear-gradient(150deg, #0D0B14 0%, #110720 45%, #080f1a 75%, #0a0810 100%);
+
+  /* Translucent overlays used for thin dividers, soft surfaces, etc. They
+     used to be hardcoded rgba(255,255,255,…) which silently broke in light
+     mode (white-on-white). Themed here so both palettes get sensible values. */
+  --border-faint:  rgba(255,255,255,0.05);  /* footer top border */
+  --border-soft:   rgba(255,255,255,0.07);  /* header bottom, editor-topbar */
+  --surface-soft:  rgba(0,0,0,0.18);        /* editor-topbar, paste-inbar */
+  --footer-text:   rgba(248,248,242,0.5);
 }
 
 /* ── Light theme ────────────────────────────────────────────────────────────── */
@@ -82,6 +90,13 @@
   --header-bg:    rgba(255, 255, 255, 0.88);
 
   --bg-gradient: linear-gradient(150deg, #f8f9fc 0%, #eef0fa 45%, #e8eef8 75%, #e3e7f1 100%);
+
+  /* Light-mode counterparts of the translucent overlays. Tinted slightly
+     toward the text color (dark) so dividers stay visible on a light page. */
+  --border-faint:  rgba(28,30,42,0.06);
+  --border-soft:   rgba(28,30,42,0.10);
+  --surface-soft:  rgba(28,30,42,0.04);
+  --footer-text:   rgba(40,44,60,0.65);
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────────── */
@@ -124,7 +139,7 @@ header {
   background: var(--header-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .logo {
@@ -340,15 +355,15 @@ header {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  background: rgba(0,0,0,0.18);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--surface-soft);
 }
 
 .editor-dots { display: flex; gap: 6px; }
 .editor-dots span {
   width: 11px; height: 11px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
+  background: var(--border);
 }
 .editor-dots span:nth-child(1) { background: #ff5f57; }
 .editor-dots span:nth-child(2) { background: #febc2e; }
@@ -1004,8 +1019,8 @@ kbd {
   gap: 6px;
   padding: 10px 20px;
   font-size: 0.72rem;
-  color: rgba(248,248,242,0.5);
-  border-top: 1px solid rgba(255,255,255,0.05);
+  color: var(--footer-text);
+  border-top: 1px solid var(--border-faint);
 }
 .site-footer a {
   color: inherit;
@@ -1438,14 +1453,10 @@ kbd {
 }
 
 /* ── Theme toggle button ───────────────────────────────────────────────── */
-.btn-theme {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  padding: 0;
-  opacity: 0.6;
-}
+/* Inherits the .btn-new look (background, border, padding, font) so it sits
+   visually flush with the GitHub/Docs buttons next to it — only the icon
+   alternates and the dimmed opacity matches the other secondary actions. */
+.btn-theme { opacity: 0.6; }
 .btn-theme:hover { opacity: 1; }
 /* Show the icon that matches "what you switch TO" — sun in dark mode,
    moon in light mode, following the convention used by macOS/GitHub. */
