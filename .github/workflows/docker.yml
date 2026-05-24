@@ -27,6 +27,20 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # ── Vulnerability + secret + misconfig scan ───────────────────────────
+      # Runs before the build so a CVE in requirements.txt or a leaked secret
+      # blocks the push entirely. `ignore-unfixed` keeps the gate actionable:
+      # only CVEs that *have* a fix available will fail the job.
+      - name: Trivy scan (filesystem)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+          scanners: vuln,secret,misconfig
+
       # ── Multi-platform builder (amd64 + arm64) ────────────────────────────
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
