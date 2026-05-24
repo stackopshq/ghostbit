@@ -36,4 +36,8 @@
          <loc>https://docs.ghostbit.dev/adr/0001-zero-knowledge-crypto/</loc>
          <lastmod>2026-05-24</lastmod>
     </url>
+    <url>
+         <loc>https://docs.ghostbit.dev/adr/0002-argon2id-kdf/</loc>
+         <lastmod>2026-05-24</lastmod>
+    </url>
 </urlset>
