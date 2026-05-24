@@ -1,0 +1,14 @@
+[Unit]
+Description=Run the encrypted Ghostbit backup once a day
+Requires=ghostbit-backup.service
+
+[Timer]
+# 03:17 UTC daily — odd minute spreads load if many timers fire at :00.
+OnCalendar=*-*-* 03:17:00
+# Catch up if the host was off when the timer fired.
+Persistent=true
+# Don't let two runs overlap if a long backup runs into the next window.
+Unit=ghostbit-backup.service
+
+[Install]
+WantedBy=timers.target

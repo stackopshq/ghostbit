@@ -162,6 +162,39 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 
 ---
 
+### Encrypted backups
+
+[`scripts/backup.sh`](scripts/backup.sh) streams `python -m app.admin export` through [age](https://age-encryption.org) and writes one timestamped `.jsonl.age` file per run. The plaintext export never touches disk — a stolen backup file is useless without the age private key.
+
+One-shot:
+
+```bash
+BACKUP_DIR=/var/backups/ghostbit \
+AGE_RECIPIENT="age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+  scripts/backup.sh
+```
+
+Recurring via systemd — copy the two unit templates and adjust paths + recipient:
+
+```bash
+sudo cp scripts/ghostbit-backup.service /etc/systemd/system/
+sudo cp scripts/ghostbit-backup.timer   /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now ghostbit-backup.timer
+sudo systemctl list-timers ghostbit-backup.timer
+```
+
+Restore:
+
+```bash
+age --decrypt -i ~/.config/age/keys.txt ghostbit-2026-05-24T03-17-00Z.jsonl.age \
+  | python -m app.admin import
+```
+
+`app.admin import --overwrite` replaces existing IDs; without it, conflicts are skipped (safe re-runs).
+
+---
+
 ### Environment variables
 
 | Variable | Default | Description |

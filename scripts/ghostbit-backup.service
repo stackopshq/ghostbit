@@ -1,0 +1,26 @@
+[Unit]
+Description=Encrypted Ghostbit backup
+After=network-online.target ghostbit.service
+Requires=ghostbit.service
+
+[Service]
+Type=oneshot
+# Adjust these paths and the recipient to match your install.
+Environment=BACKUP_DIR=/var/backups/ghostbit
+Environment=AGE_RECIPIENT=age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+WorkingDirectory=/opt/ghostbit
+ExecStart=/opt/ghostbit/scripts/backup.sh
+
+# Keep the service from holding handles to the live DB any longer than it
+# needs to: nice + IO-class low so cron-time backups don't compete with
+# request traffic.
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+# Drop everything we don't need.
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/ghostbit
+ProtectHome=true
+PrivateTmp=true
