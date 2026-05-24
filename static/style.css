@@ -263,8 +263,9 @@ header {
   line-height: 1.4;
   display: inline-flex;
   align-items: center;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 18px;
 }
@@ -276,7 +277,7 @@ header {
 }
 
 #terminalText {
-  color: #f8f8f2;
+  color: var(--text);
   min-width: 2ch;
 }
 
@@ -1529,3 +1530,59 @@ kbd {
 }
 .edit-card textarea:focus { outline: none; border-color: var(--border-focus); }
 .edit-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── CodeMirror — light-mode overrides ─────────────────────────────────── */
+/* The editor is instantiated with theme="dracula" (a dark palette) in JS.
+   Rather than juggle two CodeMirror themes from the toggle, we override
+   the dracula colors here for [data-theme="light"]. Brand purple stays
+   as the dominant accent so the look reads as "Ghostbit, but light"
+   rather than a generic GitHub clone. */
+[data-theme="light"] .cm-s-dracula.CodeMirror,
+[data-theme="light"] .cm-s-dracula .CodeMirror-gutters {
+  background-color: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border);
+}
+[data-theme="light"] .cm-s-dracula .CodeMirror-gutters    { border-right: 1px solid var(--border); }
+[data-theme="light"] .cm-s-dracula .CodeMirror-linenumber { color: var(--text-muted); }
+[data-theme="light"] .cm-s-dracula .CodeMirror-cursor     { border-left-color: var(--text); }
+[data-theme="light"] .cm-s-dracula .CodeMirror-selected,
+[data-theme="light"] .cm-s-dracula .CodeMirror-line::selection,
+[data-theme="light"] .cm-s-dracula .CodeMirror-line > span::selection,
+[data-theme="light"] .cm-s-dracula .CodeMirror-line > span > span::selection {
+  background: rgba(188,19,254,0.18) !important;
+}
+[data-theme="light"] .cm-s-dracula .CodeMirror-activeline-background { background: rgba(28,30,42,0.04); }
+
+[data-theme="light"] .cm-s-dracula span.cm-comment    { color: #7b819a; font-style: italic; }
+[data-theme="light"] .cm-s-dracula span.cm-string,
+[data-theme="light"] .cm-s-dracula span.cm-string-2   { color: #0a7d4d; }
+[data-theme="light"] .cm-s-dracula span.cm-number     { color: #8250df; }
+[data-theme="light"] .cm-s-dracula span.cm-variable,
+[data-theme="light"] .cm-s-dracula span.cm-variable-2,
+[data-theme="light"] .cm-s-dracula span.cm-meta       { color: var(--text); }
+[data-theme="light"] .cm-s-dracula span.cm-def,
+[data-theme="light"] .cm-s-dracula span.cm-attribute,
+[data-theme="light"] .cm-s-dracula span.cm-builtin    { color: #6f42c1; }
+[data-theme="light"] .cm-s-dracula span.cm-operator,
+[data-theme="light"] .cm-s-dracula span.cm-keyword    { color: #cf222e; }
+[data-theme="light"] .cm-s-dracula span.cm-atom,
+[data-theme="light"] .cm-s-dracula span.cm-property   { color: #0550ae; }
+[data-theme="light"] .cm-s-dracula span.cm-tag,
+[data-theme="light"] .cm-s-dracula span.cm-qualifier  { color: #116329; }
+[data-theme="light"] .cm-s-dracula span.cm-type,
+[data-theme="light"] .cm-s-dracula span.cm-variable-3 { color: #953800; }
+[data-theme="light"] .cm-s-dracula .CodeMirror-matchingbracket {
+  text-decoration: underline; color: var(--text) !important;
+}
+
+/* ── Logo — make the violet ghost PNG hold up in light mode ────────────── */
+/* The PNG was painted for a dark background (light violet/magenta with a
+   neon halo). On a light page the bright tones wash out. Tightening
+   brightness + saturation gives it real presence without a redraw. */
+[data-theme="light"] .logo img {
+  filter: brightness(0.72) saturate(1.45) var(--logo-img-glow);
+}
+[data-theme="light"] .logo:hover img {
+  filter: brightness(0.65) saturate(1.6) var(--logo-img-glow-hover);
+}
