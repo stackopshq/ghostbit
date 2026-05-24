@@ -60,6 +60,20 @@ class StorageBackend(ABC):
     async def delete(self, paste_id: str, delete_token: str) -> bool: ...
 
     @abstractmethod
+    async def update_ciphertext(
+        self,
+        paste_id: str,
+        content: str,
+        nonce: str,
+        compressed: bool,
+    ) -> bool:
+        """Replace the ciphertext + nonce (+ compressed flag) of an existing
+        paste. Returns False if the paste no longer exists. Auth is the
+        caller's responsibility — the storage layer does not check tokens.
+        """
+        ...
+
+    @abstractmethod
     async def force_delete(self, paste_id: str) -> None: ...
 
     @abstractmethod

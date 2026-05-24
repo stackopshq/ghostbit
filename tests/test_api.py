@@ -257,6 +257,75 @@ async def test_delete_with_invalid_token(client):
 
 
 @pytest.mark.anyio
+async def test_update_paste_replaces_ciphertext(client):
+    """The PUT endpoint lets the owner change the ciphertext while keeping
+    the same id and metadata — used by the in-place edit flow."""
+    r = await client.post("/api/v1/pastes", json=_fake_paste(language="python"))
+    data = r.json()
+    original = await client.get(f"/api/v1/pastes/{data['id']}")
+    new_payload = _fake_paste()  # fresh ciphertext + nonce
+    u = await client.put(
+        f"/api/v1/pastes/{data['id']}",
+        json={"content": new_payload["content"], "nonce": new_payload["nonce"]},
+        headers={"X-Delete-Token": data["delete_token"]},
+    )
+    assert u.status_code == 204
+    after = await client.get(f"/api/v1/pastes/{data['id']}")
+    j = after.json()
+    assert j["content"] == new_payload["content"]
+    assert j["nonce"] == new_payload["nonce"]
+    # Metadata that must NOT change on edit.
+    assert j["language"] == "python"
+    assert j["created_at"] == original.json()["created_at"]
+    assert j["has_password"] == original.json()["has_password"]
+
+
+@pytest.mark.anyio
+async def test_update_paste_invalid_token_returns_403(client):
+    r = await client.post("/api/v1/pastes", json=_fake_paste())
+    pid = r.json()["id"]
+    new_payload = _fake_paste()
+    u = await client.put(
+        f"/api/v1/pastes/{pid}",
+        json={"content": new_payload["content"], "nonce": new_payload["nonce"]},
+        headers={"X-Delete-Token": "definitely-not-it"},
+    )
+    assert u.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_update_unknown_paste_returns_403(client):
+    """Same enumeration-resistance policy as DELETE: missing-vs-wrong-token
+    must be indistinguishable to a caller."""
+    new_payload = _fake_paste()
+    u = await client.put(
+        "/api/v1/pastes/doesnotexist",
+        json={"content": new_payload["content"], "nonce": new_payload["nonce"]},
+        headers={"X-Delete-Token": "anything"},
+    )
+    assert u.status_code == 403
+
+
+@pytest.mark.anyio
+async def test_update_can_flip_compressed_flag(client):
+    """A re-encrypt path that turns compression on (or off) must be able to
+    persist the new flag — otherwise the viewer would gunzip wrong bytes."""
+    r = await client.post("/api/v1/pastes", json=_fake_paste(compressed=False))
+    data = r.json()
+    new_payload = _fake_paste()
+    await client.put(
+        f"/api/v1/pastes/{data['id']}",
+        json={
+            "content": new_payload["content"],
+            "nonce": new_payload["nonce"],
+            "compressed": True,
+        },
+        headers={"X-Delete-Token": data["delete_token"]},
+    )
+    assert (await client.get(f"/api/v1/pastes/{data['id']}")).json()["compressed"] is True
+
+
+@pytest.mark.anyio
 async def test_delete_of_unknown_paste_also_returns_403(client):
     """The API must not distinguish 'paste exists with wrong token' from
     'paste does not exist' — otherwise an attacker can enumerate IDs by

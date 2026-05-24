@@ -42,6 +42,25 @@ redis.call('DEL', KEYS[1])
 return 1
 """
 
+# Replace ciphertext + nonce + compressed flag while preserving the rest of
+# the metadata AND the existing TTL. Auth is the caller's responsibility.
+_LUA_UPDATE_CIPHERTEXT = """
+local data = redis.call('GET', KEYS[1])
+if not data then return 0 end
+local d = cjson.decode(data)
+d['content'] = ARGV[1]
+d['nonce'] = ARGV[2]
+d['compressed'] = (ARGV[3] == '1')
+local new_data = cjson.encode(d)
+local ttl = redis.call('TTL', KEYS[1])
+if ttl > 0 then
+    redis.call('SETEX', KEYS[1], ttl, new_data)
+else
+    redis.call('SET', KEYS[1], new_data)
+end
+return 1
+"""
+
 
 class RedisStorage(StorageBackend):
     def __init__(self, url: str) -> None:
@@ -54,6 +73,7 @@ class RedisStorage(StorageBackend):
             _LUA_INCREMENT_AND_CHECK_BURN
         )
         self._delete_script = self._client.register_script(_LUA_DELETE)
+        self._update_ciphertext_script = self._client.register_script(_LUA_UPDATE_CIPHERTEXT)
 
     def _key(self, paste_id: str) -> str:
         return f"paste:{paste_id}"
@@ -112,6 +132,19 @@ class RedisStorage(StorageBackend):
     async def delete(self, paste_id: str, delete_token: str) -> bool:
         token_hash = hashlib.sha256(delete_token.encode()).hexdigest()
         result = await self._delete_script(keys=[self._key(paste_id)], args=[token_hash])
+        return bool(result)
+
+    async def update_ciphertext(
+        self,
+        paste_id: str,
+        content: str,
+        nonce: str,
+        compressed: bool,
+    ) -> bool:
+        result = await self._update_ciphertext_script(
+            keys=[self._key(paste_id)],
+            args=[content, nonce, "1" if compressed else "0"],
+        )
         return bool(result)
 
     async def force_delete(self, paste_id: str) -> None:

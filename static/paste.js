@@ -16,6 +16,12 @@
   const IS_MD    = meta.is_markdown;
 
   let cm = null; // lazy — only instantiate after decryption
+  // Captured at decryption time so the edit flow can re-encrypt without
+  // re-deriving (especially important for password pastes, where deriveKey
+  // takes 600k PBKDF2 iterations).
+  let currentKey = null;
+  let currentPlaintext = '';
+  let currentCompressed = false;
 
   // ── Fragment parsing ─────────────────────────────────────────────────────
   // Format: KEY_B64URL~DELETE_TOKEN  (non-password)
@@ -91,6 +97,7 @@
       const notice = document.getElementById('ownerNotice');
       notice.style.display = '';
       document.getElementById('deleteForm').style.display  = '';
+      document.getElementById('editBtn').style.display     = '';
       document.getElementById('deleteKey').value = deleteToken;
 
       // Fresh from the editor → green "created" treatment so the Copy URL
@@ -192,6 +199,59 @@
     if (!confirm('Delete this paste?')) e.preventDefault();
   });
 
+  // ── Edit flow (owner only) ─────────────────────────────────────────────
+  // Re-encrypts the new plaintext with the same key (already loaded into
+  // currentKey by decryptPaste) and PUTs it. The key never re-derives —
+  // even for password pastes — so save is instant after the initial unlock.
+  (function setupEdit() {
+    const btn = document.getElementById('editBtn');
+    const overlay = document.getElementById('editOverlay');
+    if (!btn || !overlay) return;
+    const ta = document.getElementById('editTextarea');
+    const err = document.getElementById('editError');
+    const saveBtn = document.getElementById('editSaveBtn');
+
+    function open() {
+      ta.value = currentPlaintext;
+      err.style.display = 'none';
+      overlay.hidden = false;
+      ta.focus();
+    }
+    function close() { overlay.hidden = true; }
+    function showErr(msg) { err.textContent = msg; err.style.display = ''; }
+
+    async function save() {
+      if (!currentKey) return showErr('No key in memory — reload the page and try again.');
+      saveBtn.disabled = true;
+      try {
+        const newText = ta.value;
+        const input = currentCompressed ? await E2E.gzipString(newText) : newText;
+        const { ciphertext, nonce } = await E2E.encrypt(input, currentKey);
+        const resp = await fetch(`/api/v1/pastes/${meta.id}`, {
+          method:  'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Delete-Token': deleteToken },
+          body:    JSON.stringify({ content: ciphertext, nonce, compressed: currentCompressed }),
+        });
+        if (resp.status === 204) {
+          // Re-load so the view re-fetches, re-decrypts and re-renders fresh.
+          location.reload();
+          return;
+        }
+        const body = await resp.json().catch(() => ({}));
+        showErr(body.detail || `Save failed (HTTP ${resp.status}).`);
+        saveBtn.disabled = false;
+      } catch (e) {
+        showErr('Encryption error: ' + (e.message || e));
+        saveBtn.disabled = false;
+      }
+    }
+
+    btn.addEventListener('click', open);
+    document.getElementById('editClose').addEventListener('click', close);
+    document.getElementById('editCancelBtn').addEventListener('click', close);
+    saveBtn.addEventListener('click', save);
+  })();
+
   // ── QR code modal ──────────────────────────────────────────────────────
   // The URL fragment (decryption key) stays in window.location.href on the
   // client — the QR is rendered locally, the server never sees the key.
@@ -231,11 +291,13 @@
 
   // Decryption that transparently handles the opt-in compressed flag.
   async function decryptPaste(apiData, key) {
-    if (apiData.compressed) {
-      const bytes = await E2E.decryptBytes(apiData.content, apiData.nonce, key);
-      return E2E.gunzipToString(bytes);
-    }
-    return E2E.decrypt(apiData.content, apiData.nonce, key);
+    currentKey = key;
+    currentCompressed = !!apiData.compressed;
+    const plaintext = apiData.compressed
+      ? await E2E.gunzipToString(await E2E.decryptBytes(apiData.content, apiData.nonce, key))
+      : await E2E.decrypt(apiData.content, apiData.nonce, key);
+    currentPlaintext = plaintext;
+    return plaintext;
   }
 
   // ── Main decryption flow ─────────────────────────────────────────────────

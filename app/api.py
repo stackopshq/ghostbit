@@ -14,6 +14,7 @@ Endpoints:
 import base64
 import binascii
 import hashlib
+import hmac
 import secrets
 import time
 
@@ -278,6 +279,72 @@ class DetectResponse(BaseModel):
 @limiter.limit(lambda: settings.rate_limit_view)
 async def detect(body: DetectRequest, request: Request):
     return DetectResponse(language=detect_language(body.content))
+
+
+class PasteUpdateRequest(BaseModel):
+    content: str = Field(..., min_length=1, description="New Base64 AES-256-GCM ciphertext.")
+    nonce: str = Field(..., description="New Base64 12-byte GCM nonce.")
+    compressed: bool = Field(
+        False,
+        description="Whether the new plaintext was gzipped before encryption.",
+    )
+
+    @field_validator("content")
+    @classmethod
+    def _validate_content(cls, v: str) -> str:
+        raw = _decode_b64(v)
+        if len(raw) < 16:
+            raise ValueError("ciphertext too short to be AES-GCM output")
+        return v
+
+    @field_validator("nonce")
+    @classmethod
+    def _validate_nonce(cls, v: str) -> str:
+        _decode_b64(v, expected_len=12)
+        return v
+
+
+@router.put(
+    "/pastes/{paste_id}",
+    status_code=204,
+    summary="Edit a paste (owner only)",
+    description=(
+        "Replace the ciphertext + nonce of an existing paste.\n\n"
+        "Requires the same `X-Delete-Token` header used by DELETE. The encryption "
+        "key (URL `#fragment`) is unchanged — re-encrypt client-side with the "
+        "existing key and a fresh nonce. The server preserves id, created_at, "
+        "expires_at, kdf_salt, language, burn, has_password, max_views, view_count "
+        "and webhook_url. The compressed flag may change.\n\n"
+        "Returns 403 whether the paste is missing, expired, or the token is wrong "
+        "(same enumeration-resistance policy as DELETE)."
+    ),
+    responses={
+        400: {"description": "Content too large or invalid base64."},
+        403: {"description": "Invalid delete token, or paste does not exist."},
+    },
+)
+async def update_paste(
+    body: PasteUpdateRequest,
+    request: Request,
+    paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
+    x_delete_token: str = Header(..., description="Delete token returned at paste creation."),
+):
+    max_b64 = int(settings.max_paste_size * 1.4)
+    if len(body.content) > max_b64:
+        raise HTTPException(400, f"Content too large (max {settings.max_paste_size // 1024} KB).")
+
+    storage = _storage(request)
+    paste = await storage.get(paste_id)
+    expected_hash = hashlib.sha256(x_delete_token.encode()).hexdigest()
+    # Constant-time compare. Both branches reach the same 403, so a timing
+    # observer can't distinguish "not found" from "wrong token".
+    if paste is None or not hmac.compare_digest(paste.delete_token_hash, expected_hash):
+        raise HTTPException(403, "Invalid delete token.")
+
+    if not await storage.update_ciphertext(paste_id, body.content, body.nonce, body.compressed):
+        # Race: paste vanished between our get() and update(). Treat as 403
+        # for the same enumeration-resistance reason.
+        raise HTTPException(403, "Invalid delete token.")
 
 
 @router.delete(

@@ -206,6 +206,21 @@ class SQLiteStorage(StorageBackend):
             await db.commit()
             return view_count, should_burn
 
+    async def update_ciphertext(
+        self,
+        paste_id: str,
+        content: str,
+        nonce: str,
+        compressed: bool,
+    ) -> bool:
+        async with self._acquire() as db:
+            cursor = await db.execute(
+                "UPDATE pastes SET content = ?, nonce = ?, compressed = ? WHERE id = ?",
+                (content, nonce, int(compressed), paste_id),
+            )
+            await db.commit()
+            return cursor.rowcount > 0
+
     async def delete(self, paste_id: str, delete_token: str) -> bool:
         token_hash = hashlib.sha256(delete_token.encode()).hexdigest()
         async with self._acquire() as db:

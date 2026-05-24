@@ -109,6 +109,10 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>Download</span>
             </button>
+            <button type="button" class="btn-action btn-action-edit" id="editBtn" style="display:none" title="Edit this paste (owner only)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Edit</span>
+            </button>
             <form method="post" action="/{{ paste.id }}/delete" id="deleteForm" style="display:none">
               <input type="hidden" name="key" id="deleteKey">
               <button type="submit" class="btn-action btn-action-delete">
@@ -132,6 +136,22 @@
       {% endif %}
 
     </div><!-- /statePaste -->
+
+    <!-- ── Edit overlay (owner only) ───────────────────────────────────── -->
+    <div id="editOverlay" class="edit-overlay" hidden>
+      <div class="edit-card" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <div class="edit-header">
+          <h3 id="editTitle">Edit paste</h3>
+          <button type="button" class="edit-close" id="editClose" aria-label="Close">&times;</button>
+        </div>
+        <textarea id="editTextarea" spellcheck="false"></textarea>
+        <div id="editError" class="notice notice-error" style="display:none"></div>
+        <div class="edit-actions">
+          <button type="button" class="btn" id="editCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-primary" id="editSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ── QR code modal ───────────────────────────────────────────────── -->
     <div id="qrModal" class="qr-modal" hidden>
