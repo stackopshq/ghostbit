@@ -192,6 +192,43 @@
     if (!confirm('Delete this paste?')) e.preventDefault();
   });
 
+  // ── QR code modal ──────────────────────────────────────────────────────
+  // The URL fragment (decryption key) stays in window.location.href on the
+  // client — the QR is rendered locally, the server never sees the key.
+  (function setupQr() {
+    const btn = document.getElementById('qrBtn');
+    const modal = document.getElementById('qrModal');
+    if (!btn || !modal) return;
+    const target = document.getElementById('qrTarget');
+    const closeBtn = document.getElementById('qrModalClose');
+    const backdrop = document.getElementById('qrModalBackdrop');
+    let rendered = false;
+
+    function render() {
+      if (rendered || typeof window.qrcode !== 'function') return;
+      // typeNumber 0 = auto-pick smallest fit; 'M' = ~15% error correction.
+      const qr = window.qrcode(0, 'M');
+      qr.addData(window.location.href);
+      qr.make();
+      target.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 4, scalable: true });
+      rendered = true;
+    }
+    function open() {
+      render();
+      modal.hidden = false;
+      document.addEventListener('keydown', escClose);
+    }
+    function close() {
+      modal.hidden = true;
+      document.removeEventListener('keydown', escClose);
+    }
+    function escClose(e) { if (e.key === 'Escape') close(); }
+
+    btn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+  })();
+
   // ── Main decryption flow ─────────────────────────────────────────────────
   if (!meta.has_password) {
     if (!keyPart) {

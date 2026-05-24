@@ -97,6 +97,10 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <span>Copy content</span>
             </button>
+            <button type="button" class="btn-action btn-action-qr" id="qrBtn" title="Show QR code for this link">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM14 19h3M18 14v3M18 18v3h3M19 18h2"/></svg>
+              <span>QR</span>
+            </button>
             <button type="button" class="btn-action btn-action-raw" id="rawBtn" style="display:none;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               <span>Raw</span>
@@ -129,6 +133,17 @@
 
     </div><!-- /statePaste -->
 
+    <!-- ── QR code modal ───────────────────────────────────────────────── -->
+    <div id="qrModal" class="qr-modal" hidden>
+      <div class="qr-modal-backdrop" id="qrModalBackdrop"></div>
+      <div class="qr-modal-card" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+        <button type="button" class="qr-modal-close" id="qrModalClose" aria-label="Close">&times;</button>
+        <h3 id="qrModalTitle">Scan to open</h3>
+        <div id="qrTarget" class="qr-target"></div>
+        <p class="qr-modal-hint">Each scan counts as a view — burn-after-read pastes self-destruct on the first scan.</p>
+      </div>
+    </div>
+
   </div>
   <footer class="site-footer">
     Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a> — Enjoying Ghostbit? We have <a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ <span id="footerStarCount">0</span> stars on GitHub</a> — yours would mean a lot!
@@ -155,6 +170,7 @@
 <script src="/static/cm/codemirror-core.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-core.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/cm/codemirror-modes.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-modes.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/e2e.js?v={{ v }}"></script>
+<script src="/static/qrcode.min.js?v={{ v }}" integrity="{{ sri('/static/qrcode.min.js') }}" crossorigin="anonymous" defer></script>
 {% if paste.language == "markdown" %}
 <script src="/static/marked.min.js?v={{ v }}" integrity="{{ sri('/static/marked.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/purify.min.js?v={{ v }}" integrity="{{ sri('/static/purify.min.js') }}" crossorigin="anonymous"></script>

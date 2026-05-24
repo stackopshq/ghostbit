@@ -146,6 +146,21 @@ async def test_paste_page_emits_sri_for_third_party_libs(client):
     assert 'crossorigin="anonymous"' in html
 
 
+@pytest.mark.anyio
+async def test_paste_page_ships_qr_button_modal_and_lib(client):
+    """QR code is rendered client-side so the URL fragment (encryption key)
+    never reaches the server. The button + modal + lib must be in the shell;
+    the lib must carry SRI like the other third-party scripts."""
+    import re
+
+    pid = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
+    html = (await client.get(f"/{pid}")).text
+    assert 'id="qrBtn"' in html
+    assert 'id="qrModal"' in html
+    m = re.search(r'/static/qrcode\.min\.js[^>]+integrity="sha384-[A-Za-z0-9+/=]+"', html)
+    assert m, "qrcode.min.js should ship with SRI"
+
+
 def test_abs_url_prefers_configured_base_url(monkeypatch):
     """BASE_URL, when set, overrides the request-derived origin — the escape
     hatch for TLS-terminating proxies that would otherwise emit http:// URLs."""
