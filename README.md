@@ -228,6 +228,17 @@ pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
+### Pre-commit hooks
+
+Install once per clone to run ruff, gitleaks and a few hygiene checks on every commit:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+The same checks run in CI — installing the hook just gives you the feedback locally before the push.
+
 ---
 
 ## Security
