@@ -63,6 +63,16 @@
   --border-soft:   rgba(255,255,255,0.07);  /* header bottom, editor-topbar */
   --surface-soft:  rgba(0,0,0,0.18);        /* editor-topbar, paste-inbar */
   --footer-text:   rgba(248,248,242,0.5);
+
+  /* Logo gradient finishes near-white on dark so it pops against the
+     navy-purple gradient background. On a light page the same gradient
+     vanishes into the background — themed below. The glow is the neon
+     trail you'd want on dark, replaced by a crisper shadow on light. */
+  --logo-text-gradient: linear-gradient(135deg, #BC13FE 0%, #D067FF 60%, #F3E5FF 100%);
+  --logo-glow:     drop-shadow(0 0 6px rgba(188, 19, 254, 0.7)) drop-shadow(0 0 14px rgba(188, 19, 254, 0.4));
+  --logo-glow-hover: drop-shadow(0 0 10px rgba(188, 19, 254, 0.9)) drop-shadow(0 0 22px rgba(188, 19, 254, 0.55));
+  --logo-img-glow: drop-shadow(0 0 8px rgba(188, 19, 254, 0.7)) drop-shadow(0 0 18px rgba(188, 19, 254, 0.4));
+  --logo-img-glow-hover: drop-shadow(0 0 12px rgba(188, 19, 254, 0.9)) drop-shadow(0 0 24px rgba(188, 19, 254, 0.55));
 }
 
 /* ── Light theme ────────────────────────────────────────────────────────────── */
@@ -97,6 +107,16 @@
   --border-soft:   rgba(28,30,42,0.10);
   --surface-soft:  rgba(28,30,42,0.04);
   --footer-text:   rgba(40,44,60,0.65);
+
+  /* Light-mode logo: keep the gradient strictly inside the purple range
+     so the wordmark never fades into the page. The glow becomes a tight,
+     deeper-purple shadow that gives the mark presence without the neon
+     halo that only reads on a dark background. */
+  --logo-text-gradient: linear-gradient(135deg, #6A12D8 0%, #9020F0 60%, #BC13FE 100%);
+  --logo-glow:     drop-shadow(0 1px 1px rgba(106, 18, 216, 0.25));
+  --logo-glow-hover: drop-shadow(0 2px 3px rgba(106, 18, 216, 0.4));
+  --logo-img-glow: drop-shadow(0 2px 3px rgba(106, 18, 216, 0.30));
+  --logo-img-glow-hover: drop-shadow(0 3px 5px rgba(106, 18, 216, 0.45));
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────────── */
@@ -152,29 +172,25 @@ header {
   align-items: center;
   gap: 12px;
 
-  /* Gradient text */
-  background: linear-gradient(135deg, #BC13FE 0%, #D067FF 60%, #F3E5FF 100%);
+  /* Gradient text — themed (see --logo-text-gradient). */
+  background: var(--logo-text-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 
-  /* Neon glow on the text */
-  filter: drop-shadow(0 0 6px rgba(188, 19, 254, 0.7)) drop-shadow(0 0 14px rgba(188, 19, 254, 0.4));
+  /* Neon glow on dark, tight purple shadow on light (see --logo-glow). */
+  filter: var(--logo-glow);
   transition: filter var(--transition);
 }
 .logo span { -webkit-text-fill-color: transparent; }
 .logo img {
   height: 44px;
   width: auto;
-  filter: drop-shadow(0 0 8px rgba(188, 19, 254, 0.7)) drop-shadow(0 0 18px rgba(188, 19, 254, 0.4));
+  filter: var(--logo-img-glow);
   transition: filter var(--transition);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 10px rgba(188, 19, 254, 0.9)) drop-shadow(0 0 22px rgba(188, 19, 254, 0.55));
-}
-.logo:hover img {
-  filter: drop-shadow(0 0 12px rgba(188, 19, 254, 0.9)) drop-shadow(0 0 24px rgba(188, 19, 254, 0.55));
-}
+.logo:hover     { filter: var(--logo-glow-hover); }
+.logo:hover img { filter: var(--logo-img-glow-hover); }
 
 .header-actions { display: flex; align-items: center; gap: 8px; }
 
