@@ -21,6 +21,10 @@ class PasteData:
     max_views: int | None = None  # None = unlimited
     view_count: int = 0
     webhook_url: str | None = None
+    # When True, the plaintext was gzipped by the client BEFORE encryption.
+    # The server only sees this as a hint to relay back so the viewer knows
+    # to decompress after decryption — it never touches plaintext itself.
+    compressed: bool = False
 
     def is_expired(self, now: int | None = None) -> bool:
         if self.expires_at is None:

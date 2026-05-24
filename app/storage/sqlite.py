@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS pastes (
     delete_token_hash TEXT NOT NULL,
     max_views         INTEGER,
     view_count        INTEGER NOT NULL DEFAULT 0,
-    webhook_url       TEXT
+    webhook_url       TEXT,
+    compressed        INTEGER NOT NULL DEFAULT 0
 )
 """
 
@@ -38,6 +39,7 @@ _EXPECTED_COLUMNS = {
     "max_views": "INTEGER",
     "view_count": "INTEGER NOT NULL DEFAULT 0",
     "webhook_url": "TEXT",
+    "compressed": "INTEGER NOT NULL DEFAULT 0",
 }
 
 
@@ -124,8 +126,14 @@ class SQLiteStorage(StorageBackend):
 
     async def save(self, paste: PasteData) -> bool:
         async with self._acquire() as db:
+            # Explicit column list keeps INSERT working as new columns are
+            # added via the auto-migration path (cf. _EXPECTED_COLUMNS).
             cursor = await db.execute(
-                "INSERT OR IGNORE INTO pastes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT OR IGNORE INTO pastes ("
+                "id, content, nonce, kdf_salt, language, created_at, expires_at, "
+                "burn, has_password, delete_token_hash, max_views, view_count, "
+                "webhook_url, compressed"
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     paste.id,
                     paste.content,
@@ -140,6 +148,7 @@ class SQLiteStorage(StorageBackend):
                     paste.max_views,
                     paste.view_count,
                     paste.webhook_url,
+                    int(paste.compressed),
                 ),
             )
             await db.commit()
@@ -147,6 +156,8 @@ class SQLiteStorage(StorageBackend):
 
     @staticmethod
     def _row_to_paste(row: aiosqlite.Row) -> PasteData:
+        # `compressed` was added later — fall back to False on rows persisted
+        # before the auto-migration ran on this DB file.
         return PasteData(
             id=row["id"],
             content=row["content"],
@@ -161,6 +172,7 @@ class SQLiteStorage(StorageBackend):
             max_views=row["max_views"],
             view_count=row["view_count"] or 0,
             webhook_url=row["webhook_url"],
+            compressed=bool(row["compressed"]) if "compressed" in row.keys() else False,  # noqa: SIM118 — aiosqlite.Row needs .keys()
         )
 
     async def get(self, paste_id: str) -> PasteData | None:

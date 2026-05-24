@@ -263,7 +263,10 @@
         key = await E2E.generateKey();
       }
 
-      const { ciphertext, nonce } = await E2E.encrypt(content, key);
+      const compressToggle = document.getElementById('compressToggle');
+      const compressed = !!(compressToggle && compressToggle.checked);
+      const payloadInput = compressed ? await E2E.gzipString(content) : content;
+      const { ciphertext, nonce } = await E2E.encrypt(payloadInput, key);
 
       const expiresIn  = parseInt(document.getElementById('expires_in').value) || null;
       const maxViews   = parseInt(document.getElementById('max_views').value)  || null;
@@ -278,6 +281,7 @@
         burn:        document.getElementById('burnToggle').checked,
         max_views:   maxViews,
         webhook_url: webhookUrl,
+        compressed,
       };
 
       const resp = await fetch('/api/v1/pastes', {

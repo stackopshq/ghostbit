@@ -58,6 +58,14 @@ class PasteCreateRequest(BaseModel):
     burn: bool = False
     max_views: int | None = Field(None, ge=1, description="Delete after N views.")
     webhook_url: str | None = Field(None, description="URL to POST when the paste is read.")
+    compressed: bool = Field(
+        False,
+        description=(
+            "Whether the plaintext was gzipped by the client BEFORE encryption. "
+            "Server-side this is a transparent flag — the viewer reads it to "
+            "decide whether to gunzip after decryption."
+        ),
+    )
 
     @field_validator("content")
     @classmethod
@@ -104,6 +112,7 @@ class PasteResponse(BaseModel):
     max_views: int | None
     view_count: int
     has_password: bool
+    compressed: bool = False
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -166,6 +175,7 @@ async def create_paste(body: PasteCreateRequest, request: Request):
         max_views=body.max_views,
         view_count=0,
         webhook_url=body.webhook_url,
+        compressed=body.compressed,
     )
 
     # Retry on paste-ID collision. token_urlsafe(6) = ~48 bits of entropy,
@@ -242,6 +252,7 @@ async def get_paste(request: Request, paste_id: str = Path(..., pattern=r"^[A-Za
         max_views=paste.max_views,
         view_count=view_count,
         has_password=paste.has_password,
+        compressed=paste.compressed,
     )
 
 

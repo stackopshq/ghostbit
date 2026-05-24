@@ -27,6 +27,7 @@ from ._completion import cmd_completion as _cmd_completion_raw
 from ._config import DEFAULT_SERVER, cmd_config, load_config
 from ._crypto import (
     decrypt,
+    decrypt_bytes,
     derive_key,
     encrypt,
     gen_key,
@@ -114,7 +115,13 @@ def cmd_paste(args) -> None:
         key = gen_key()
         kdf_salt = None
 
-    ciphertext, nonce = encrypt(content, key)
+    if args.compress:
+        import gzip
+
+        payload_input: str | bytes = gzip.compress(content.encode())
+    else:
+        payload_input = content
+    ciphertext, nonce = encrypt(payload_input, key)
 
     payload = {
         "content": ciphertext,
@@ -124,6 +131,7 @@ def cmd_paste(args) -> None:
         "expires_in": args.expires,
         "burn": args.burn,
         "max_views": args.max_views,
+        "compressed": args.compress,
     }
 
     result = api_create(server, payload)
@@ -269,7 +277,12 @@ def cmd_view(args) -> None:
         key = base64.urlsafe_b64decode(padded)
 
     try:
-        plaintext = decrypt(data["content"], data["nonce"], key)
+        if data.get("compressed"):
+            import gzip
+
+            plaintext = gzip.decompress(decrypt_bytes(data["content"], data["nonce"], key)).decode()
+        else:
+            plaintext = decrypt(data["content"], data["nonce"], key)
     except Exception:  # noqa: BLE001
         print("Error: decryption failed — wrong key or corrupted paste.", file=sys.stderr)
         sys.exit(1)
@@ -500,6 +513,10 @@ current server: {current_server}
     parser.add_argument(
         "--burn", "-b", action="store_true",
         help="Delete after the first view.",
+    )  # fmt: skip
+    parser.add_argument(
+        "--compress", "-z", action="store_true",
+        help="Gzip the plaintext locally BEFORE encryption (60–80%% smaller for text).",
     )  # fmt: skip
     parser.add_argument(
         "--max-views", "-m", type=int, default=None, metavar="N",

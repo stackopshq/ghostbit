@@ -229,6 +229,15 @@
     backdrop.addEventListener('click', close);
   })();
 
+  // Decryption that transparently handles the opt-in compressed flag.
+  async function decryptPaste(apiData, key) {
+    if (apiData.compressed) {
+      const bytes = await E2E.decryptBytes(apiData.content, apiData.nonce, key);
+      return E2E.gunzipToString(bytes);
+    }
+    return E2E.decrypt(apiData.content, apiData.nonce, key);
+  }
+
   // ── Main decryption flow ─────────────────────────────────────────────────
   if (!meta.has_password) {
     if (!keyPart) {
@@ -240,7 +249,7 @@
         E2E.importKey(keyPart),
         fetchCiphertext(),
       ]);
-      const plaintext = await E2E.decrypt(apiData.content, apiData.nonce, key);
+      const plaintext = await decryptPaste(apiData, key);
       renderPaste(plaintext, apiData);
     } catch (err) {
       showError(err.message || 'Decryption failed. The URL may be incomplete or the paste may have been tampered with.');
@@ -272,7 +281,7 @@
 
       try {
         const key       = await E2E.deriveKey(password, apiData.kdf_salt);
-        const plaintext = await E2E.decrypt(apiData.content, apiData.nonce, key);
+        const plaintext = await decryptPaste(apiData, key);
         renderPaste(plaintext, apiData);
       } catch {
         pwError.style.display = '';

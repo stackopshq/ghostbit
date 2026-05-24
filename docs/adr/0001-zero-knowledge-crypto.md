@@ -65,7 +65,7 @@ Any change to one must change the other two in the same PR.
 ## Future considerations
 
 - **Argon2id** (PHC winner, memory-hard) would be a stronger KDF than PBKDF2-SHA256. A future ADR may introduce it alongside PBKDF2 with a wire-format `kdf` field so both can coexist during migration. Browser support would require a WASM build of an Argon2 implementation (~50 KB).
-- **Compression before encryption** (opt-in, opt-out via a `compressed` flag) would cut payload sizes 60–80% on text/JSON without weakening the crypto, but adds one more parameter to keep aligned across the three impls.
+- ~~Compression before encryption~~ — **implemented as opt-in** via a `compressed` boolean on the paste metadata. When set, the client gzips the plaintext before AES-GCM; the viewer reads the flag back from the API response and gunzips after decryption. The server never sees plaintext either way. Cuts payload sizes 60–80% on text/JSON/code. Implemented in [static/e2e.js](../../static/e2e.js) (`gzipString`/`gunzipToString` via the browser's CompressionStream), [cli/_crypto.py](../../cli/_crypto.py) (`encrypt` polymorphic on str/bytes, plus `decrypt_bytes`), and persisted as a column/JSON field by the two storage backends.
 
 ## References
 

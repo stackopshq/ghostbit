@@ -147,6 +147,27 @@ async def test_paste_page_emits_sri_for_third_party_libs(client):
 
 
 @pytest.mark.anyio
+async def test_compressed_flag_round_trips(client):
+    """compressed is a server-transparent metadata flag — it must persist
+    through save/load exactly as the client sent it, with no coercion."""
+    r = await client.post("/api/v1/pastes", json=_fake_paste(compressed=True))
+    assert r.status_code == 201
+    pid = r.json()["id"]
+    g = await client.get(f"/api/v1/pastes/{pid}")
+    assert g.json()["compressed"] is True
+
+
+@pytest.mark.anyio
+async def test_compressed_flag_defaults_to_false(client):
+    """Pastes created without the flag must come back with compressed=False —
+    backwards compatibility for clients and existing pastes."""
+    r = await client.post("/api/v1/pastes", json=_fake_paste())
+    pid = r.json()["id"]
+    g = await client.get(f"/api/v1/pastes/{pid}")
+    assert g.json()["compressed"] is False
+
+
+@pytest.mark.anyio
 async def test_paste_page_ships_qr_button_modal_and_lib(client):
     """QR code is rendered client-side so the URL fragment (encryption key)
     never reaches the server. The button + modal + lib must be in the shell;

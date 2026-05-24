@@ -57,3 +57,29 @@ def test_different_keys_produce_different_ciphertexts():
     ct1, _ = _encrypt("same plaintext", key1)
     ct2, _ = _encrypt("same plaintext", key2)
     assert ct1 != ct2
+
+
+def test_compressed_paste_round_trips():
+    """The CLI compression path: gzip → encrypt → decrypt → gunzip → original.
+    Mirrors the browser's gzipString/gunzipToString flow in static/e2e.js."""
+    import gzip
+
+    from cli import decrypt_bytes
+
+    plaintext = "long text " * 500
+    key = _gen_key()
+    compressed = gzip.compress(plaintext.encode())
+    assert len(compressed) < len(plaintext)  # sanity: gzip actually saved bytes
+    ct, nonce = _encrypt(compressed, key)
+    raw = decrypt_bytes(ct, nonce, key)
+    assert gzip.decompress(raw).decode() == plaintext
+
+
+def test_encrypt_accepts_both_str_and_bytes():
+    """encrypt() must be polymorphic so the compression caller doesn't have
+    to .decode() bytes back to str just to please the type signature."""
+    key = _gen_key()
+    ct_s, n_s = _encrypt("hi", key)
+    ct_b, n_b = _encrypt(b"hi", key)
+    assert _decrypt(ct_s, n_s, key) == "hi"
+    assert _decrypt(ct_b, n_b, key) == "hi"

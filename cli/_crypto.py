@@ -42,17 +42,23 @@ def gen_salt() -> str:
     return base64.b64encode(os.urandom(16)).decode()
 
 
-def encrypt(plaintext: str, key: bytes) -> tuple[str, str]:
+def encrypt(plaintext: str | bytes, key: bytes) -> tuple[str, str]:
+    """Encrypt a string or raw bytes with AES-256-GCM. Returns (ct_b64, nonce_b64)."""
     nonce = os.urandom(12)
-    ct = AESGCM(key).encrypt(nonce, plaintext.encode(), None)
+    data = plaintext.encode() if isinstance(plaintext, str) else plaintext
+    ct = AESGCM(key).encrypt(nonce, data, None)
     return base64.b64encode(ct).decode(), base64.b64encode(nonce).decode()
 
 
-def decrypt(ciphertext_b64: str, nonce_b64: str, key: bytes) -> str:
+def decrypt_bytes(ciphertext_b64: str, nonce_b64: str, key: bytes) -> bytes:
+    """Decrypt returning raw bytes — used by the compressed-paste path."""
     ct = base64.b64decode(ciphertext_b64)
     nonce = base64.b64decode(nonce_b64)
-    pt = AESGCM(key).decrypt(nonce, ct, None)
-    return pt.decode()
+    return AESGCM(key).decrypt(nonce, ct, None)
+
+
+def decrypt(ciphertext_b64: str, nonce_b64: str, key: bytes) -> str:
+    return decrypt_bytes(ciphertext_b64, nonce_b64, key).decode()
 
 
 def derive_key(password: str, salt_b64: str) -> bytes:

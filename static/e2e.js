@@ -16,25 +16,37 @@ const E2E = (() => {
     return crypto.subtle.generateKey(ALGO, true, ['encrypt', 'decrypt']);
   }
 
-  /** Encrypt a plaintext string. Returns { ciphertext: base64, nonce: base64 }. */
-  async function encrypt(plaintext, key) {
+  /** Encrypt a plaintext string OR raw bytes. Returns { ciphertext, nonce } (both base64). */
+  async function encrypt(input, key) {
     const nonce = crypto.getRandomValues(new Uint8Array(12));
-    const ct = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv: nonce },
-      key,
-      new TextEncoder().encode(plaintext)
-    );
+    const data  = typeof input === 'string' ? new TextEncoder().encode(input) : input;
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, key, data);
     return { ciphertext: _b64(new Uint8Array(ct)), nonce: _b64(nonce) };
   }
 
-  /** Decrypt base64 ciphertext+nonce. Throws DOMException on wrong key/tampered data. */
-  async function decrypt(ciphertextB64, nonceB64, key) {
+  /** Decrypt base64 ciphertext+nonce, returning raw bytes. */
+  async function decryptBytes(ciphertextB64, nonceB64, key) {
     const pt = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: _unb64(nonceB64) },
-      key,
-      _unb64(ciphertextB64)
+      { name: 'AES-GCM', iv: _unb64(nonceB64) }, key, _unb64(ciphertextB64)
     );
-    return new TextDecoder().decode(pt);
+    return new Uint8Array(pt);
+  }
+
+  /** Decrypt base64 ciphertext+nonce as a UTF-8 string. */
+  async function decrypt(ciphertextB64, nonceB64, key) {
+    return new TextDecoder().decode(await decryptBytes(ciphertextB64, nonceB64, key));
+  }
+
+  /** Gzip a string into raw bytes, using the browser's CompressionStream. */
+  async function gzipString(plaintext) {
+    const stream = new Blob([plaintext]).stream().pipeThrough(new CompressionStream('gzip'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+
+  /** Gunzip raw bytes back into a UTF-8 string. */
+  async function gunzipToString(bytes) {
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return await new Response(stream).text();
   }
 
   /** Export a CryptoKey to a base64url string safe for URL fragments. */
@@ -89,5 +101,9 @@ const E2E = (() => {
     return _unb64(b64 + '='.repeat(pad));
   }
 
-  return { generateKey, encrypt, decrypt, exportKey, importKey, generateSalt, deriveKey };
+  return {
+    generateKey, encrypt, decrypt, decryptBytes,
+    exportKey, importKey, generateSalt, deriveKey,
+    gzipString, gunzipToString,
+  };
 })();
