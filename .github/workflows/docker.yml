@@ -11,6 +11,7 @@ on:
       - "static/**"
       - "templates/**"
       - "app/**"
+      - "pyproject.toml"
       - ".github/workflows/docker.yml"
     tags:
       - "v*.*.*"
