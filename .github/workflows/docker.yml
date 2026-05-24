@@ -32,7 +32,7 @@ jobs:
       # blocks the push entirely. `ignore-unfixed` keeps the gate actionable:
       # only CVEs that *have* a fix available will fail the job.
       - name: Trivy scan (filesystem)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
