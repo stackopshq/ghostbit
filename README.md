@@ -32,6 +32,29 @@
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/paste-view.png" alt="Decrypted paste view — content is decrypted in the browser, with copy, QR, raw, download, edit and delete actions" width="800">
+</p>
+
+<p align="center">
+  <em>A paste after client-side decryption — the server only ever stored ciphertext.</em>
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/create-dark.png" alt="Create paste — dark theme, with expiration, max views, burn-after-read, compression, password and webhook options"></td>
+    <td width="50%"><img src="docs/screenshots/create-light.png" alt="Create paste — light theme"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Create a paste — dark</em></td>
+    <td align="center"><em>Create a paste — light</em></td>
+  </tr>
+</table>
+
+---
+
 ## How it works
 
 Ghostbit encrypts your content **in the browser** using the Web Crypto API before sending anything to the server. The decryption key lives exclusively in the URL fragment — it is never transmitted over the network.
