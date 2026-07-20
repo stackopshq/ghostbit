@@ -34,6 +34,12 @@ class Settings(BaseSettings):
     # a TLS-terminating proxy would otherwise leave the app advertising http://.
     base_url: str = ""
 
+    # Repo whose stargazer count the footer shows, fetched server-side once an
+    # hour. Set to "" to disable the outbound call entirely — the footer then
+    # omits the number. Never fetched from the visitor's browser: that would
+    # disclose every visitor's IP to GitHub, paste readers included.
+    github_repo: str = "stackopshq/ghostbit"
+
     # Ignore extra env vars (e.g. a stale ENCRYPTION_KEY from pre-E2E setups)
     # instead of failing at startup.
     model_config = {"env_file": ".env", "extra": "ignore"}

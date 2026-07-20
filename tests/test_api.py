@@ -509,6 +509,39 @@ async def test_security_headers_present(client):
     assert "default-src 'self'" in r.headers.get("content-security-policy", "")
 
 
+async def test_footer_does_not_call_github_from_the_browser(client):
+    """The star count is fetched server-side. A browser-side call would disclose
+    every visitor's IP to GitHub — including someone opening a secret paste."""
+    html = (await client.get("/")).text
+    assert "api.github.com" not in html
+    assert "footer.js" not in html
+
+    pid = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
+    paste_html = (await client.get(f"/{pid}")).text
+    assert "api.github.com" not in paste_html
+
+
+async def test_csp_forbids_third_party_connections(client):
+    """connect-src must stay 'self'-only now that nothing calls out."""
+    csp = (await client.get("/")).headers["content-security-policy"]
+    connect = next(d for d in csp.split(";") if d.strip().startswith("connect-src"))
+    assert connect.strip() == "connect-src 'self'"
+
+
+async def test_footer_degrades_when_star_count_unavailable(client, monkeypatch):
+    """No count yet (no egress, disabled, or GitHub down) must not break the
+    footer — it falls back to a plain call to action, never a misleading 0."""
+    from app import stars
+
+    monkeypatch.setattr(stars, "_count", None)
+    html = (await client.get("/")).text
+    assert "Star us on GitHub" in html
+
+    monkeypatch.setattr(stars, "_count", 1234)
+    html = (await client.get("/")).text
+    assert "1234 stars on GitHub" in html
+
+
 async def test_plaintext_paste_skips_the_codemirror_mode_bundle(client):
     """A paste with no language has no mode to apply, so the ~190 KB bundle is
     pure waste on it. Languages that map to a real mode still get it."""

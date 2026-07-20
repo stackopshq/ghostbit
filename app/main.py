@@ -23,7 +23,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from . import __version__, metrics
+from . import __version__, metrics, stars
 from .api import router as api_router
 from .config import settings
 from .languages import codemirror_mode_map, extension_map, slugs
@@ -45,7 +45,9 @@ from .storage import get_storage
 # practical impact is limited (no script execution via CSS in current
 # browsers, modulo already-broken setups).
 #
-# api.github.com is whitelisted for the footer star counter.
+# connect-src is 'self' only: nothing on these pages talks to a third party.
+# The footer star count is fetched server-side (app/stars.py) precisely so the
+# visitor's browser never contacts GitHub.
 def _build_csp(nonce: str) -> str:
     # 'wasm-unsafe-eval' lets hash-wasm instantiate its embedded Argon2id
     # WebAssembly module. Modern (Chrome 92+, Firefox 122+) browsers honor
@@ -58,7 +60,7 @@ def _build_csp(nonce: str) -> str:
         "style-src 'self' 'unsafe-inline'; "
         "img-src 'self' data:; "
         "font-src 'self'; "
-        "connect-src 'self' https://api.github.com; "
+        "connect-src 'self'; "
         "frame-ancestors 'none'; "
         "base-uri 'self'; "
         "form-action 'self'; "
@@ -167,7 +169,11 @@ EXTENSION_MAP = extension_map()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.storage = await get_storage()
+    app.state.background_tasks = []
+    stars.start(app.state.background_tasks)
     yield
+    for task in app.state.background_tasks:
+        task.cancel()
     await app.state.storage.close()
 
 
@@ -343,6 +349,7 @@ def _sri(path: str) -> str:
 
 
 templates.env.globals["sri"] = _sri
+templates.env.globals["star_count"] = stars.get_count
 
 
 def _abs_url(request: Request, path: str) -> str:
