@@ -550,3 +550,20 @@ async def test_plaintext_paste_skips_the_codemirror_mode_bundle(client):
 
     py = (await client.post("/api/v1/pastes", json=_fake_paste(language="python"))).json()["id"]
     assert "codemirror-modes.min.js" in (await client.get(f"/{py}")).text
+
+
+def test_css_defines_every_custom_property_it_uses():
+    """An undefined var() is invalid at computed-value time, so the declaration
+    is dropped and the element silently inherits its parent's value instead.
+    That is how `.owner-notice-sub` ended up rendering in Dracula cyan for
+    months: it asked for var(--muted), which never existed."""
+    import re
+    from pathlib import Path
+
+    css = (Path(__file__).resolve().parent.parent / "static" / "style.css").read_text()
+    defined = set(re.findall(r"(--[\w-]+)\s*:", css))
+    # var(--x, fallback) is legitimate even when --x is undefined; only bare
+    # references are a bug.
+    used = set(re.findall(r"var\(\s*(--[\w-]+)\s*\)", css))
+    missing = sorted(used - defined)
+    assert not missing, f"style.css uses undefined custom properties: {missing}"

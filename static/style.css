@@ -21,6 +21,17 @@
   --drac-yellow:    #f1fa8c;
   --drac-orange:    #ffb86c;
 
+  /* Action-chip text. The raw Dracula hues are built for dark backgrounds; on
+     a light chip they fall to ~1.1:1, which is invisible rather than merely
+     low-contrast. The light theme overrides them with darkened equivalents
+     that keep each action's hue identity and clear AA (all >= 5.4:1). */
+  --action-copy:     var(--drac-green);
+  --action-raw:      var(--drac-orange);
+  --action-download: var(--drac-yellow);
+  --paste-id-fg:     var(--text-muted);
+  --notice-info-fg:    var(--drac-cyan);
+  --notice-success-fg: var(--drac-green);
+
   /* Ghostbit brand — Cyber-Violet */
   --brand-primary:  #BC13FE;
   --brand-light:    #D067FF;
@@ -93,6 +104,12 @@
   --accent-dim:   rgba(188, 19, 254, 0.10);
   --danger:       #c43;
   --danger-hover: #a22;
+  --action-copy:     #0a5f2a;  /* 5.5:1 on the light copy chip */
+  --action-raw:      #7d3f00;  /* 5.7:1 on the light raw chip */
+  --action-download: #5f5300;  /* 5.6:1 on the light download chip */
+  --paste-id-fg:     #4a5169;  /* 5.6:1, replaces a 2.5:1 blend */
+  --notice-info-fg:    #0b4d5c;  /* 9.1:1, was 1.3:1 */
+  --notice-success-fg: #0a5f2a;  /* 7.6:1, was 1.3:1 */
   --toggle-off:   #c3c9d8;
   --toggle-on:    #BC13FE;
   --shadow:       0 4px 24px rgba(40, 44, 60, 0.10);
@@ -131,6 +148,16 @@ body {
   background: var(--bg-page);
   display: flex;
   flex-direction: column;
+}
+
+/* The <main> landmark wraps the page block. body is a flex column and
+   .page-bg/.page-plain claim `flex: 1` as its children, so main forwards both
+   the growth and the axis — it exists for assistive tech, not for layout. */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* ── Page backgrounds ───────────────────────────────────────────────────────── */
@@ -605,7 +632,7 @@ select:focus { border-color: var(--border-focus); }
   margin-top: 8px;
   font-size: 0.72rem;
   font-family: var(--font-ui);
-  color: var(--muted);
+  color: var(--text-muted);
 }
 .pw-strength-bar {
   flex: 1;
@@ -782,19 +809,19 @@ kbd {
 }
 .notice svg { flex-shrink: 0; margin-top: 1px; }
 .notice-warning { background: rgba(241,250,140,0.07); border-color: rgba(241,250,140,0.3);  color: var(--drac-yellow); }
-.notice-info    { background: rgba(139,233,253,0.07); border-color: rgba(139,233,253,0.25); color: var(--drac-cyan); }
+.notice-info    { background: rgba(139,233,253,0.07); border-color: rgba(139,233,253,0.25); color: var(--notice-info-fg); }
 .notice-error   { background: rgba(255,85,85,0.08);   border-color: rgba(255,85,85,0.3);   color: #ff6e6e; }
 
 .owner-notice { align-items: center; gap: 14px; }
 .owner-notice .owner-notice-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .owner-notice .owner-notice-text strong { color: var(--text); font-weight: 600; }
-.owner-notice .owner-notice-sub { color: var(--muted); font-size: 0.8rem; }
+.owner-notice .owner-notice-sub { color: var(--text-muted); font-size: 0.8rem; }
 .owner-notice.just-created {
   background: rgba(80,250,123,0.08);
   border-color: rgba(80,250,123,0.35);
-  color: var(--drac-green);
+  color: var(--notice-success-fg);
 }
-.owner-notice.just-created .owner-notice-text strong { color: var(--drac-green); }
+.owner-notice.just-created .owner-notice-text strong { color: var(--notice-success-fg); }
 .btn-owner-copy { flex-shrink: 0; padding: 8px 14px; font-size: 0.8rem; }
 @media (max-width: 560px) {
   .owner-notice { flex-wrap: wrap; }
@@ -883,7 +910,7 @@ kbd {
 .paste-id {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--paste-id-fg);
   padding-right: 10px;
   border-right: 1px solid var(--border);
   margin-right: 2px;
@@ -935,13 +962,13 @@ kbd {
 .btn-action-copy {
   background: rgba(80, 250, 123, 0.1);
   border-color: rgba(80, 250, 123, 0.3);
-  color: var(--drac-green);
+  color: var(--action-copy);
 }
 .btn-action-copy:hover { background: rgba(80, 250, 123, 0.2); }
 .btn-action-raw {
   background: rgba(255, 184, 108, 0.1);
   border-color: rgba(255, 184, 108, 0.3);
-  color: var(--drac-orange);
+  color: var(--action-raw);
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -950,7 +977,7 @@ kbd {
 .btn-action-download {
   background: rgba(241, 250, 140, 0.1);
   border-color: rgba(241, 250, 140, 0.3);
-  color: var(--drac-yellow);
+  color: var(--action-download);
 }
 .btn-action-download:hover { background: rgba(241, 250, 140, 0.2); }
 .btn-action-delete {
@@ -1586,3 +1613,8 @@ kbd {
 [data-theme="light"] .logo:hover img {
   filter: brightness(0.65) saturate(1.6) var(--logo-img-glow-hover);
 }
+
+/* --text-muted at 0.7 opacity blends to 2.5:1 against the light inbar. The
+   light theme carries its own already-muted tone, so the opacity is dropped
+   there rather than stacking two forms of dimming. */
+[data-theme="light"] .paste-id { opacity: 1; }
