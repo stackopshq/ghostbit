@@ -2,6 +2,16 @@
 
 {% block title %}{{ paste.id }} — Ghostbit{% endblock %}
 
+{% block seo %}
+{# A paste URL is a capability: whoever holds it can fetch the ciphertext, and
+   the decryption key lives in the fragment. Letting one into a search index
+   leaks the capability to everyone, so paste pages are noindex and carry no
+   canonical. Link-preview unfurls (block meta) still work — those bots read the
+   page directly rather than going through the index. #}
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="An end-to-end encrypted Ghostbit paste. Decryption happens in your browser.">
+{% endblock %}
+
 {% block meta %}
 {# Paste pages deliberately omit og:image. An encrypted paste has nothing to
    preview, so link unfurls (iMessage, Slack, …) fall back to the compact card
