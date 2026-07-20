@@ -2,6 +2,12 @@
 
 {% block title %}{{ code }} — Ghostbit{% endblock %}
 
+{% block seo %}
+{# Error pages carry no canonical: they are served under whatever path failed,
+   including expired paste IDs, and none of that belongs in an index. #}
+<meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
 {% block header_actions %}{% endblock %}
 
 {% block page %}

@@ -450,6 +450,44 @@ async def test_security_txt(client):
 
 
 @pytest.mark.anyio
+async def test_robots_txt_points_at_sitemap(client):
+    r = await client.get("/robots.txt")
+    assert r.status_code == 200
+    # The Sitemap directive must be an absolute URL per the robots.txt spec.
+    assert "Sitemap: http" in r.text
+    assert "/sitemap.xml" in r.text
+
+
+@pytest.mark.anyio
+async def test_sitemap_lists_only_the_landing_page(client):
+    r = await client.get("/sitemap.xml")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/xml")
+    # Exactly one entry: listing paste URLs would leak capability URLs.
+    assert r.text.count("<loc>") == 1
+
+
+@pytest.mark.anyio
+async def test_paste_page_is_noindex(client):
+    created = await client.post("/api/v1/pastes", json=_fake_paste())
+    assert created.status_code == 201
+    r = await client.get(f"/{created.json()['id']}")
+    assert r.status_code == 200
+    assert 'name="robots" content="noindex, nofollow"' in r.text
+    # A noindex page must not also advertise itself as canonical.
+    assert 'rel="canonical"' not in r.text
+
+
+@pytest.mark.anyio
+async def test_landing_page_has_description_and_canonical(client):
+    r = await client.get("/")
+    assert r.status_code == 200
+    assert 'name="description"' in r.text
+    assert 'rel="canonical"' in r.text
+    assert "noindex" not in r.text
+
+
+@pytest.mark.anyio
 async def test_id_collision_retry(client, monkeypatch):
     """When the random ID generator collides, create_paste should retry
     up to 8 times before giving up — it must never overwrite an existing paste."""

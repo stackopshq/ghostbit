@@ -6,10 +6,17 @@ import secrets
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi import Path as PathParam
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+    Response,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from slowapi import _rate_limit_exceeded_handler
@@ -275,8 +282,26 @@ _ROBOTS_TXT = "User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc
 
 
 @app.get("/robots.txt", include_in_schema=False)
-async def robots_txt():
-    return PlainTextResponse(_ROBOTS_TXT)
+async def robots_txt(request: Request):
+    # Sitemap must be an absolute URL (robots.txt spec) and is emitted per
+    # request so self-hosters on any domain get a correct one without config.
+    return PlainTextResponse(f"{_ROBOTS_TXT}\nSitemap: {_abs_url(request, '/sitemap.xml')}\n")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml(request: Request):
+    # The landing page is the only indexable URL this app serves. Paste pages
+    # are unguessable capability URLs (see the noindex in paste.html) and would
+    # be a privacy leak if listed, so the sitemap is deliberately a single
+    # entry rather than a crawl of storage.
+    url = escape(_abs_url(request, "/"))
+    body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"  <url><loc>{url}</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>\n"
+        "</urlset>\n"
+    )
+    return Response(content=body, media_type="application/xml")
 
 
 app.include_router(api_router)
