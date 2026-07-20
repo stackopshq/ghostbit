@@ -7,8 +7,6 @@ behaviours that are easy to get wrong (e.g. the already-expired save path).
 
 from unittest.mock import AsyncMock
 
-import pytest
-
 from app.storage.base import PasteData
 from app.storage.redis_backend import RedisStorage
 
@@ -30,7 +28,6 @@ def _paste(**overrides) -> PasteData:
     return PasteData(**base)
 
 
-@pytest.mark.anyio
 async def test_save_rejects_already_expired_paste():
     """`save()` on a paste whose expires_at is in the past must return False
     and MUST NOT call redis.set. Previously returned True, making the admin
@@ -43,7 +40,6 @@ async def test_save_rejects_already_expired_paste():
     storage._client.set.assert_not_called()
 
 
-@pytest.mark.anyio
 async def test_save_persists_paste_with_future_ttl():
     """Sanity check that the TTL path still writes with the expected args."""
     import time

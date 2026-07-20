@@ -4,7 +4,6 @@ import base64
 import os
 import tempfile
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
@@ -40,7 +39,6 @@ def _fake_paste(**kwargs):
     }
 
 
-@pytest.mark.anyio
 async def test_healthz(client):
     from app import __version__
 
@@ -53,7 +51,6 @@ async def test_healthz(client):
     assert body["version"] == __version__
 
 
-@pytest.mark.anyio
 async def test_healthz_stays_200_when_storage_is_down(client, monkeypatch):
     """Liveness MUST NOT depend on the storage backend — a Redis blip should
     not cascade into a container restart loop."""
@@ -66,14 +63,12 @@ async def test_healthz_stays_200_when_storage_is_down(client, monkeypatch):
     assert r.status_code == 200
 
 
-@pytest.mark.anyio
 async def test_readyz_200_when_storage_up(client):
     r = await client.get("/readyz")
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
 
 
-@pytest.mark.anyio
 async def test_readyz_503_when_storage_down(client, monkeypatch):
     """Readiness must flip to 503 so the ingress drains traffic until the
     backend recovers."""
@@ -87,7 +82,6 @@ async def test_readyz_503_when_storage_down(client, monkeypatch):
     assert r.json()["status"] == "error"
 
 
-@pytest.mark.anyio
 async def test_csp_uses_nonce_not_unsafe_inline(client):
     """script-src must be nonce-based, not 'unsafe-inline'. A weakening
     of this header would silently re-enable XSS via any injection point."""
@@ -100,7 +94,6 @@ async def test_csp_uses_nonce_not_unsafe_inline(client):
     assert "'unsafe-inline'" not in script_src
 
 
-@pytest.mark.anyio
 async def test_csp_nonce_is_per_request(client):
     """Nonces must be unique per response — reuse would let an attacker
     who saw one nonce reuse it on later injections."""
@@ -116,7 +109,6 @@ async def test_csp_nonce_is_per_request(client):
     assert f'nonce="{n1}"' in r1.text
 
 
-@pytest.mark.anyio
 async def test_homepage_og_image_is_absolute_banner(client):
     """Link unfurls need an absolute og:image. A relative URL (or the portrait
     logo) is what made iMessage render a huge blown-up icon."""
@@ -125,7 +117,6 @@ async def test_homepage_og_image_is_absolute_banner(client):
     assert 'name="twitter:card" content="summary_large_image"' in html
 
 
-@pytest.mark.anyio
 async def test_paste_page_omits_og_image(client):
     """Paste pages carry no og:image on purpose, so unfurls fall back to the
     compact card instead of stretching an image into the hero slot."""
@@ -135,7 +126,6 @@ async def test_paste_page_omits_og_image(client):
     assert 'name="twitter:card" content="summary"' in html
 
 
-@pytest.mark.anyio
 async def test_paste_page_emits_sri_for_third_party_libs(client):
     """Third-party scripts on the paste page carry SRI hashes so a tampered
     file in /static/ (or a compromised CDN if we ever front it) fails to load
@@ -146,7 +136,6 @@ async def test_paste_page_emits_sri_for_third_party_libs(client):
     assert 'crossorigin="anonymous"' in html
 
 
-@pytest.mark.anyio
 async def test_compressed_flag_round_trips(client):
     """compressed is a server-transparent metadata flag — it must persist
     through save/load exactly as the client sent it, with no coercion."""
@@ -157,7 +146,6 @@ async def test_compressed_flag_round_trips(client):
     assert g.json()["compressed"] is True
 
 
-@pytest.mark.anyio
 async def test_kdf_field_round_trips(client):
     """The kdf hint must persist exactly as sent so the viewer can run the
     matching KDF — derive PBKDF2 from a password meant for Argon2id and
@@ -173,14 +161,12 @@ async def test_kdf_field_round_trips(client):
     assert g["has_password"] is True
 
 
-@pytest.mark.anyio
 async def test_kdf_defaults_to_pbkdf2(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     g = (await client.get(f"/api/v1/pastes/{r.json()['id']}")).json()
     assert g["kdf"] == "pbkdf2-sha256"
 
 
-@pytest.mark.anyio
 async def test_kdf_rejects_unknown_value(client):
     """An unknown KDF must be rejected at the validator — silently accepting
     it would let a malformed paste reach the storage layer."""
@@ -188,7 +174,6 @@ async def test_kdf_rejects_unknown_value(client):
     assert r.status_code == 422
 
 
-@pytest.mark.anyio
 async def test_compressed_flag_defaults_to_false(client):
     """Pastes created without the flag must come back with compressed=False —
     backwards compatibility for clients and existing pastes."""
@@ -198,7 +183,6 @@ async def test_compressed_flag_defaults_to_false(client):
     assert g.json()["compressed"] is False
 
 
-@pytest.mark.anyio
 async def test_homepage_ships_argon2_lib_with_sri(client):
     """The homepage must serve the Argon2id WASM bundle so the KDF picker
     can switch to argon2id without a second round-trip. SRI is mandatory
@@ -213,7 +197,6 @@ async def test_homepage_ships_argon2_lib_with_sri(client):
     assert m, "Argon2 WASM lib should be loaded on the homepage with SRI"
 
 
-@pytest.mark.anyio
 async def test_password_paste_includes_argon2_lib(client):
     """A password-protected paste page must ship the Argon2 lib unconditionally
     — the viewer doesn't know yet which KDF the paste used."""
@@ -223,7 +206,6 @@ async def test_password_paste_includes_argon2_lib(client):
     assert "hash-wasm-argon2" in html
 
 
-@pytest.mark.anyio
 async def test_non_password_paste_omits_argon2_lib(client):
     """Non-password pastes never run a KDF in the browser, so the 29 KB lib
     must not be shipped to them."""
@@ -232,7 +214,6 @@ async def test_non_password_paste_omits_argon2_lib(client):
     assert "hash-wasm-argon2" not in html
 
 
-@pytest.mark.anyio
 async def test_csp_allows_wasm_unsafe_eval(client):
     """script-src must include 'wasm-unsafe-eval' so hash-wasm can instantiate
     its Argon2id WebAssembly module. Without it the lib silently fails to load
@@ -243,7 +224,6 @@ async def test_csp_allows_wasm_unsafe_eval(client):
     assert "'unsafe-eval'" not in csp.replace("'wasm-unsafe-eval'", "")
 
 
-@pytest.mark.anyio
 async def test_paste_page_ships_qr_button_modal_and_lib(client):
     """QR code is rendered client-side so the URL fragment (encryption key)
     never reaches the server. The button + modal + lib must be in the shell;
@@ -278,7 +258,6 @@ def test_abs_url_prefers_configured_base_url(monkeypatch):
     )
 
 
-@pytest.mark.anyio
 async def test_create_and_get_paste(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     assert r.status_code == 201
@@ -291,7 +270,6 @@ async def test_create_and_get_paste(client):
     assert r2.json()["id"] == data["id"]
 
 
-@pytest.mark.anyio
 async def test_burn_after_read(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste(burn=True))
     paste_id = r.json()["id"]
@@ -300,7 +278,6 @@ async def test_burn_after_read(client):
     assert (await client.get(f"/api/v1/pastes/{paste_id}")).status_code == 404
 
 
-@pytest.mark.anyio
 async def test_max_views(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste(max_views=2))
     paste_id = r.json()["id"]
@@ -310,7 +287,6 @@ async def test_max_views(client):
     assert (await client.get(f"/api/v1/pastes/{paste_id}")).status_code == 404
 
 
-@pytest.mark.anyio
 async def test_delete_with_valid_token(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     data = r.json()
@@ -322,7 +298,6 @@ async def test_delete_with_valid_token(client):
     assert (await client.get(f"/api/v1/pastes/{data['id']}")).status_code == 404
 
 
-@pytest.mark.anyio
 async def test_delete_with_invalid_token(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     r2 = await client.delete(
@@ -332,7 +307,6 @@ async def test_delete_with_invalid_token(client):
     assert r2.status_code == 403
 
 
-@pytest.mark.anyio
 async def test_update_paste_replaces_ciphertext(client):
     """The PUT endpoint lets the owner change the ciphertext while keeping
     the same id and metadata — used by the in-place edit flow."""
@@ -356,7 +330,6 @@ async def test_update_paste_replaces_ciphertext(client):
     assert j["has_password"] == original.json()["has_password"]
 
 
-@pytest.mark.anyio
 async def test_update_paste_invalid_token_returns_403(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     pid = r.json()["id"]
@@ -369,7 +342,6 @@ async def test_update_paste_invalid_token_returns_403(client):
     assert u.status_code == 403
 
 
-@pytest.mark.anyio
 async def test_update_unknown_paste_returns_403(client):
     """Same enumeration-resistance policy as DELETE: missing-vs-wrong-token
     must be indistinguishable to a caller."""
@@ -382,7 +354,6 @@ async def test_update_unknown_paste_returns_403(client):
     assert u.status_code == 403
 
 
-@pytest.mark.anyio
 async def test_update_can_flip_compressed_flag(client):
     """A re-encrypt path that turns compression on (or off) must be able to
     persist the new flag — otherwise the viewer would gunzip wrong bytes."""
@@ -401,7 +372,6 @@ async def test_update_can_flip_compressed_flag(client):
     assert (await client.get(f"/api/v1/pastes/{data['id']}")).json()["compressed"] is True
 
 
-@pytest.mark.anyio
 async def test_delete_of_unknown_paste_also_returns_403(client):
     """The API must not distinguish 'paste exists with wrong token' from
     'paste does not exist' — otherwise an attacker can enumerate IDs by
@@ -413,7 +383,6 @@ async def test_delete_of_unknown_paste_also_returns_403(client):
     assert r.status_code == 403
 
 
-@pytest.mark.anyio
 async def test_form_delete_of_unknown_paste_also_returns_403(client):
     """Same policy for the HTML form endpoint — the form is the legitimate
     owner path, but we still avoid leaking existence to anyone who can POST."""
@@ -424,13 +393,11 @@ async def test_form_delete_of_unknown_paste_also_returns_403(client):
     assert r.status_code == 403
 
 
-@pytest.mark.anyio
 async def test_ssrf_webhook_blocked(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste(webhook_url="http://192.168.1.1/hook"))
     assert r.status_code == 400
 
 
-@pytest.mark.anyio
 async def test_content_too_large(client):
     payload = {
         "content": "A" * (1024 * 1024),
@@ -442,14 +409,12 @@ async def test_content_too_large(client):
     assert r.status_code in (400, 413)
 
 
-@pytest.mark.anyio
 async def test_security_txt(client):
     r = await client.get("/.well-known/security.txt")
     assert r.status_code == 200
     assert "Contact:" in r.text
 
 
-@pytest.mark.anyio
 async def test_robots_txt_points_at_sitemap(client):
     r = await client.get("/robots.txt")
     assert r.status_code == 200
@@ -458,7 +423,6 @@ async def test_robots_txt_points_at_sitemap(client):
     assert "/sitemap.xml" in r.text
 
 
-@pytest.mark.anyio
 async def test_sitemap_lists_only_the_landing_page(client):
     r = await client.get("/sitemap.xml")
     assert r.status_code == 200
@@ -467,7 +431,6 @@ async def test_sitemap_lists_only_the_landing_page(client):
     assert r.text.count("<loc>") == 1
 
 
-@pytest.mark.anyio
 async def test_paste_page_is_noindex(client):
     created = await client.post("/api/v1/pastes", json=_fake_paste())
     assert created.status_code == 201
@@ -478,7 +441,6 @@ async def test_paste_page_is_noindex(client):
     assert 'rel="canonical"' not in r.text
 
 
-@pytest.mark.anyio
 async def test_landing_page_has_description_and_canonical(client):
     r = await client.get("/")
     assert r.status_code == 200
@@ -487,7 +449,6 @@ async def test_landing_page_has_description_and_canonical(client):
     assert "noindex" not in r.text
 
 
-@pytest.mark.anyio
 async def test_id_collision_retry(client, monkeypatch):
     """When the random ID generator collides, create_paste should retry
     up to 8 times before giving up — it must never overwrite an existing paste."""
@@ -518,7 +479,6 @@ async def test_id_collision_retry(client, monkeypatch):
     assert calls["n"] == 2  # proves we actually retried past the collisions
 
 
-@pytest.mark.anyio
 async def test_security_headers_present(client):
     r = await client.get("/")
     assert r.headers.get("x-content-type-options") == "nosniff"
