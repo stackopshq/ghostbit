@@ -160,9 +160,12 @@
 
 {% block scripts %}
 <link rel="stylesheet" href="/static/cm/codemirror.min.css?v={{ v }}">
-<script src="/static/cm/codemirror-core.min.js?v={{ v }}"></script>
-<script src="/static/cm/codemirror-modes.min.js?v={{ v }}"></script>
-<script src="/static/e2e.js?v={{ v }}"></script>
+<script src="/static/cm/codemirror-core.min.js?v={{ v }}" defer></script>
+<script src="/static/e2e.js?v={{ v }}" defer></script>
+<!-- codemirror-modes.min.js is NOT loaded here. It bundles every language mode
+     (~190 KB) but the editor opens in plain-text mode, so it is only needed
+     once a language is detected or picked. static/index.js injects it on first
+     use; keeping it off the critical path is what unblocks LCP. -->
 <!-- Argon2id WASM lib — only used when the user picks Argon2id in the
      KDF picker on a password paste. Loaded on every visit so the choice
      is immediately available; 29 KB minified, defer so it never blocks
@@ -173,7 +176,9 @@
 {
   "max_paste_size": {{ max_paste_size | tojson }},
   "cm_mode_map":    {{ cm_mode_map | tojson }},
-  "extension_map":  {{ extension_map | tojson }}
+  "extension_map":  {{ extension_map | tojson }},
+  "cm_modes_url":   "/static/cm/codemirror-modes.min.js?v={{ v }}",
+  "cm_modes_sri":   "{{ sri('/static/cm/codemirror-modes.min.js') }}"
 }
 </script>
 <script src="/static/index.js?v={{ v }}" defer></script>

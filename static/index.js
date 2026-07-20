@@ -109,9 +109,41 @@
   let detectTimer  = null;
   let justPasted   = false;
 
+  // CodeMirror ships every language mode in one ~190 KB bundle. The editor
+  // opens in plain-text mode, so that bundle is dead weight until a language is
+  // actually detected or picked — and on mobile it was competing for bandwidth
+  // with the element that decides LCP. Fetch it on first use instead.
+  //
+  // No nonce needed: script-src allows 'self' and carries no 'strict-dynamic',
+  // so a same-origin <script src> injected at runtime is permitted.
+  let modesPromise = null;
+  function loadCmModes() {
+    if (!modesPromise) {
+      modesPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = META.cm_modes_url;
+        // Same SRI guarantee the paste page gives this bundle: a tampered file
+        // in /static/ fails to load rather than executing silently.
+        s.integrity = META.cm_modes_sri;
+        s.crossOrigin = 'anonymous';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    return modesPromise;
+  }
+
   function setCmMode(lang) {
     const mode = CM_MODE[lang] ?? null;
-    cm.setOption('mode', mode);
+    // Plain text needs no mode file — never pay for the bundle just to clear.
+    if (!mode) {
+      cm.setOption('mode', null);
+      return;
+    }
+    // On failure the editor stays in plain text: highlighting is cosmetic and
+    // must never block writing or submitting a paste.
+    loadCmModes().then(() => cm.setOption('mode', mode)).catch(() => {});
   }
 
   function runDetect() {
