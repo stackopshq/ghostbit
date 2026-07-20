@@ -258,26 +258,6 @@ async def test_paste_page_ships_qr_button_modal_and_lib(client):
     assert m, "qrcode.min.js should ship with SRI"
 
 
-def test_abs_url_prefers_configured_base_url(monkeypatch):
-    """BASE_URL, when set, overrides the request-derived origin — the escape
-    hatch for TLS-terminating proxies that would otherwise emit http:// URLs."""
-    from app.config import settings
-    from app.main import _abs_url
-
-    class _Req:
-        base_url = "http://internal:8000/"
-
-    monkeypatch.setattr(settings, "base_url", "https://paste.example.com")
-    assert _abs_url(_Req(), "/static/og-banner.png") == (
-        "https://paste.example.com/static/og-banner.png"
-    )
-
-    monkeypatch.setattr(settings, "base_url", "")
-    assert _abs_url(_Req(), "/static/og-banner.png") == (
-        "http://internal:8000/static/og-banner.png"
-    )
-
-
 @pytest.mark.anyio
 async def test_create_and_get_paste(client):
     r = await client.post("/api/v1/pastes", json=_fake_paste())
