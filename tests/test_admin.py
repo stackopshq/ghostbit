@@ -5,8 +5,6 @@ import io
 import os
 import tempfile
 
-import pytest
-
 os.environ.setdefault("STORAGE_BACKEND", "sqlite")
 with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as _tmp_db:
     os.environ["SQLITE_PATH"] = _tmp_db.name
@@ -66,7 +64,6 @@ async def _load_all():
         await storage.close()
 
 
-@pytest.mark.anyio
 async def test_export_import_roundtrip():
     await _wipe()
     originals = [
@@ -94,7 +91,6 @@ async def test_export_import_roundtrip():
     assert restored == expected
 
 
-@pytest.mark.anyio
 async def test_import_skips_existing_without_overwrite():
     await _wipe()
     original = _make_paste("dup", language="go", view_count=5)
@@ -122,7 +118,6 @@ async def test_import_skips_existing_without_overwrite():
         await storage.close()
 
 
-@pytest.mark.anyio
 async def test_import_overwrite_replaces_existing():
     await _wipe()
     original = _make_paste("ow", language="go", view_count=5)
@@ -148,7 +143,6 @@ async def test_import_overwrite_replaces_existing():
         await storage.close()
 
 
-@pytest.mark.anyio
 async def test_import_ignores_blank_lines():
     await _wipe()
     p = _make_paste("blank")
@@ -160,7 +154,6 @@ async def test_import_ignores_blank_lines():
     assert skipped == 0
 
 
-@pytest.mark.anyio
 async def test_import_tolerates_unknown_fields():
     """A JSONL export from a future version that adds a column must still
     import cleanly on an older server — unknown fields are dropped with a

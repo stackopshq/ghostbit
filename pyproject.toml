@@ -77,6 +77,14 @@ asyncio_mode         = "auto"
 # subsequent Redis call would die with "Future attached to a different
 # loop". Module-scoped loops keep the fixture and its client coherent.
 # SQLite via aiosqlite is loop-agnostic, so this is a no-op for that backend.
+#
+# For the same reason, pytest-asyncio must be the ONLY async plugin driving
+# these tests: do not add @pytest.mark.anyio. anyio's plugin parametrizes marked
+# tests ("[asyncio]") and runs them in loops it manages itself, while the
+# module-scoped fixtures stay on pytest-asyncio's loop. The Redis pool then ends
+# up holding connections opened on loops that are already closed, and the module
+# teardown dies with "RuntimeError: Event loop is closed" — reproducible only in
+# CI. asyncio_mode = "auto" already handles every async test without a marker.
 asyncio_default_fixture_loop_scope = "module"
 asyncio_default_test_loop_scope    = "module"
 testpaths            = ["tests"]

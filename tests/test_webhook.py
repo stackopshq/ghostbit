@@ -108,7 +108,6 @@ def test_resolve_public_ip_raises_on_nxdomain():
 # ── Fire-and-forget task lifecycle ───────────────────────────────────────────
 
 
-@pytest.mark.anyio
 async def test_fire_keeps_strong_reference_to_delivery_task():
     """`fire()` must keep a strong reference to the created task so the event
     loop doesn't garbage-collect it mid-delivery. Without it, a delivery
