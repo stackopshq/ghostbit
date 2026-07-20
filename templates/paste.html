@@ -197,15 +197,31 @@
 
 {% block scripts %}
 <link rel="stylesheet" href="/static/cm/codemirror.min.css?v={{ v }}" integrity="{{ sri('/static/cm/codemirror.min.css') }}" crossorigin="anonymous">
-<script src="/static/cm/codemirror-core.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-core.min.js') }}" crossorigin="anonymous"></script>
-<script src="/static/cm/codemirror-modes.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-modes.min.js') }}" crossorigin="anonymous"></script>
-<script src="/static/e2e.js?v={{ v }}"></script>
+<script src="/static/cm/codemirror-core.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-core.min.js') }}" crossorigin="anonymous" defer></script>
+{# The ~190 KB mode bundle is only worth fetching when this paste actually has
+   a mode to apply. Plain-text pastes — and languages with no CodeMirror mode,
+   e.g. makefile — render identically without it. Deferring is safe for the
+   rest: the content is decrypted client-side after load, so no mode is needed
+   at parse time. #}
+{% set cm_mode = cm_mode_map.get(paste.language) %}
+{% if cm_mode %}
+<script src="/static/cm/codemirror-modes.min.js?v={{ v }}" integrity="{{ sri('/static/cm/codemirror-modes.min.js') }}" crossorigin="anonymous" defer></script>
+{% endif %}
+<script src="/static/e2e.js?v={{ v }}" defer></script>
 {% if paste.has_password %}
 <!-- Argon2id WASM lib — loaded only on password pastes (the only pastes
      where a KDF runs in the browser). Lazy by virtue of the conditional. -->
 <script src="/static/hash-wasm-argon2.umd.min.js?v={{ v }}" integrity="{{ sri('/static/hash-wasm-argon2.umd.min.js') }}" crossorigin="anonymous"></script>
 {% endif %}
-<script src="/static/qrcode.min.js?v={{ v }}" integrity="{{ sri('/static/qrcode.min.js') }}" crossorigin="anonymous" defer></script>
+<!-- qrcode.min.js is fetched by static/paste.js the first time the QR button is
+     clicked. Most readers never open the modal, so it stays off the initial
+     load entirely. -->
+<script id="qr-meta" type="application/json">
+{
+  "qr_url": "/static/qrcode.min.js?v={{ v }}",
+  "qr_sri": "{{ sri('/static/qrcode.min.js') }}"
+}
+</script>
 {% if paste.language == "markdown" %}
 <script src="/static/marked.min.js?v={{ v }}" integrity="{{ sri('/static/marked.min.js') }}" crossorigin="anonymous"></script>
 <script src="/static/purify.min.js?v={{ v }}" integrity="{{ sri('/static/purify.min.js') }}" crossorigin="anonymous"></script>

@@ -264,6 +264,25 @@
     const backdrop = document.getElementById('qrModalBackdrop');
     let rendered = false;
 
+    // The QR library is fetched on first open rather than on page load: most
+    // readers never open the modal. Same SRI guarantee as a static tag.
+    const qrMeta = JSON.parse(document.getElementById('qr-meta').textContent);
+    let qrPromise = null;
+    function loadQrLib() {
+      if (!qrPromise) {
+        qrPromise = new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = qrMeta.qr_url;
+          s.integrity = qrMeta.qr_sri;
+          s.crossOrigin = 'anonymous';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      return qrPromise;
+    }
+
     function render() {
       if (rendered || typeof window.qrcode !== 'function') return;
       // typeNumber 0 = auto-pick smallest fit; 'M' = ~15% error correction.
@@ -274,9 +293,11 @@
       rendered = true;
     }
     function open() {
-      render();
+      // Show the modal immediately; the code fills in once the lib lands. On
+      // failure the modal stays empty rather than blocking the reader.
       modal.hidden = false;
       document.addEventListener('keydown', escClose);
+      loadQrLib().then(render).catch(() => {});
     }
     function close() {
       modal.hidden = true;

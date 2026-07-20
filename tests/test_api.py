@@ -243,16 +243,21 @@ async def test_csp_allows_wasm_unsafe_eval(client):
 
 async def test_paste_page_ships_qr_button_modal_and_lib(client):
     """QR code is rendered client-side so the URL fragment (encryption key)
-    never reaches the server. The button + modal + lib must be in the shell;
-    the lib must carry SRI like the other third-party scripts."""
+    never reaches the server. The button + modal must be in the shell. The lib
+    itself is fetched on first open — most readers never touch the modal — but
+    it still has to carry SRI like every other vendored script."""
     import re
 
     pid = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
     html = (await client.get(f"/{pid}")).text
     assert 'id="qrBtn"' in html
     assert 'id="qrModal"' in html
-    m = re.search(r'/static/qrcode\.min\.js[^>]+integrity="sha384-[A-Za-z0-9+/=]+"', html)
-    assert m, "qrcode.min.js should ship with SRI"
+    assert not re.search(r"<script[^>]+src=[^>]*qrcode\.min\.js", html), (
+        "qrcode.min.js must not be loaded eagerly — paste.js injects it on first open"
+    )
+    assert re.search(r'"qr_sri":\s*"sha384-[A-Za-z0-9+/=]+"', html), (
+        "the lazily injected QR lib must still carry an SRI hash"
+    )
 
 
 def test_abs_url_prefers_configured_base_url(monkeypatch):
@@ -502,3 +507,13 @@ async def test_security_headers_present(client):
     assert r.headers.get("x-frame-options") == "DENY"
     assert r.headers.get("referrer-policy") == "no-referrer"
     assert "default-src 'self'" in r.headers.get("content-security-policy", "")
+
+
+async def test_plaintext_paste_skips_the_codemirror_mode_bundle(client):
+    """A paste with no language has no mode to apply, so the ~190 KB bundle is
+    pure waste on it. Languages that map to a real mode still get it."""
+    plain = (await client.post("/api/v1/pastes", json=_fake_paste())).json()["id"]
+    assert "codemirror-modes.min.js" not in (await client.get(f"/{plain}")).text
+
+    py = (await client.post("/api/v1/pastes", json=_fake_paste(language="python"))).json()["id"]
+    assert "codemirror-modes.min.js" in (await client.get(f"/{py}")).text
