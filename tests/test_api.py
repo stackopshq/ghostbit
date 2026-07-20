@@ -197,6 +197,23 @@ async def test_homepage_ships_argon2_lib_with_sri(client):
     assert m, "Argon2 WASM lib should be loaded on the homepage with SRI"
 
 
+async def test_homepage_does_not_ship_codemirror_modes_eagerly(client):
+    """The ~190 KB mode bundle must stay off the critical path. The editor opens
+    in plain text and static/index.js injects it on first language pick; loading
+    it with a <script> tag again would put LCP back over 6 s on mobile."""
+    import re
+
+    html = (await client.get("/")).text
+    assert not re.search(r"<script[^>]+codemirror-modes\.min\.js", html), (
+        "codemirror-modes must not be loaded via a script tag on the homepage"
+    )
+    # It still has to be reachable, with the SRI hash the injector applies.
+    assert "codemirror-modes.min.js" in html, "the lazy-load URL should be in index-meta"
+    assert re.search(r'"cm_modes_sri":\s*"sha384-[A-Za-z0-9+/=]+"', html), (
+        "the injected mode bundle must carry an SRI hash like every other vendored lib"
+    )
+
+
 async def test_password_paste_includes_argon2_lib(client):
     """A password-protected paste page must ship the Argon2 lib unconditionally
     — the viewer doesn't know yet which KDF the paste used."""
