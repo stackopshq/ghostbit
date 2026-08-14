@@ -39,7 +39,15 @@
   <meta name="twitter:description" content="Self-hosted, end-to-end encrypted paste service.">
   <meta name="twitter:image" content="{{ abs_url(request, '/static/og-banner.png') }}">
   {% endblock %}
-  <link rel="icon" type="image/png" href="/static/icon.png?v={{ v }}">
+  <!-- Deux fichiers, deux usages, et ce n'est pas un oubli.
+       `icon.png` est le LOGO : fantôme au trait lumineux, halo circulaire. Il
+       tient à 192 px, et c'est celui qu'on garde partout où on le voit en grand
+       — signet d'écran d'accueil compris.
+       `favicon.svg` est fait pour 16 px. Mesuré sur le logo : à 32 le trait
+       tient encore, à 16 il ne reste qu'une tache violette et les chevrons ont
+       disparu. Même identité, construction qui survit. -->
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v={{ v }}">
+  <link rel="icon" type="image/png" href="/static/favicon.png?v={{ v }}">
   <link rel="apple-touch-icon" href="/static/icon.png?v={{ v }}">
   <link rel="stylesheet" href="/static/style.css?v={{ v }}">
   <script nonce="{{ request.state.csp_nonce }}">
