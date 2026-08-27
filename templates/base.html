@@ -25,11 +25,12 @@
   <link rel="canonical" href="{{ abs_url(request, request.url.path) }}">
   {% endblock %}
   {% block meta %}
+  <meta property="og:site_name" content="Ghost Suite">
   <meta property="og:title" content="Ghostbit — Encrypted paste, zero knowledge">
   <meta property="og:description" content="Self-hosted, end-to-end encrypted paste service. Your data never touches the server in plaintext.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ abs_url(request, request.url.path) }}">
-  <meta property="og:image" content="{{ abs_url(request, '/static/og-banner.png') }}">
+  <meta property="og:image" content="{{ abs_url(request, '/static/og-image.png') }}">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -37,18 +38,26 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Ghostbit — Encrypted paste, zero knowledge">
   <meta name="twitter:description" content="Self-hosted, end-to-end encrypted paste service.">
-  <meta name="twitter:image" content="{{ abs_url(request, '/static/og-banner.png') }}">
+  <meta name="twitter:image" content="{{ abs_url(request, '/static/og-image.png') }}">
   {% endblock %}
-  <!-- Deux fichiers, deux usages, et ce n'est pas un oubli.
-       `icon.png` est le LOGO : fantôme au trait lumineux, halo circulaire. Il
-       tient à 192 px, et c'est celui qu'on garde partout où on le voit en grand
-       — signet d'écran d'accueil compris.
-       `favicon.svg` est fait pour 16 px. Mesuré sur le logo : à 32 le trait
-       tient encore, à 16 il ne reste qu'une tache violette et les chevrons ont
-       disparu. Même identité, construction qui survit. -->
+  {# Trois déclarations, trois lecteurs, et aucune n'est en trop.
+     `rel=icon` en SVG sert le signet et l'onglet : c'est la silhouette pleine,
+     construite pour tenir à 16 px là où le logo au trait se réduit à une tache.
+     `rel=icon` en PNG 192 couvre les navigateurs qui ignorent encore le SVG.
+     `rel=apple-touch-icon` n'est PAS un doublon : Safari sur iOS ne lit que
+     cette balise pour la feuille de partage et pour « sur l'écran d'accueil ».
+     Sans elle, l'entrée reçoit la boussole générique, quoi que dise le SVG.
+     C'est aussi pour ça que sa source est aplatie sur blanc : iOS ne gère pas
+     la transparence et la remplirait de noir. #}
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg?v={{ v }}">
-  <link rel="icon" type="image/png" href="/static/favicon.png?v={{ v }}">
-  <link rel="apple-touch-icon" href="/static/icon.png?v={{ v }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png?v={{ v }}">
+  <link rel="apple-touch-icon" sizes="512x512" href="/static/apple-touch-icon.png?v={{ v }}">
+  {# Teinte primaire de ghostbit à la charte de la suite. #}
+  <meta name="theme-color" content="#A93BFF">
+
+  {# ghost-fonts.css livre les woff2 qu'il déclare : rien ne sort de l'origine.
+     Chargé avant style.css, qui consomme --font-sans / --font-mono / --font-ui. #}
+  <link rel="stylesheet" href="/static/ghost-fonts.css?v={{ v }}">
   <link rel="stylesheet" href="/static/style.css?v={{ v }}">
   <script nonce="{{ request.state.csp_nonce }}">
     // crypto.subtle requires a Secure Context. Browsers grant it to 'localhost'
@@ -61,7 +70,7 @@
 <body class="fade-in">
   <header>
     <a href="/" class="logo">
-      <img src="/static/logo.png?v={{ v }}" alt="Ghostbit">
+      <img src="/static/logo.svg?v={{ v }}" alt="Ghostbit">
       ghostbit
     </a>
     <div class="header-actions">

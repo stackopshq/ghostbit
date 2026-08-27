@@ -281,7 +281,7 @@ async def security_txt():
 @app.get("/apple-touch-icon.png", include_in_schema=False)
 @app.get("/apple-touch-icon-precomposed.png", include_in_schema=False)
 async def _browser_icon_redirect():
-    return RedirectResponse("/static/icon.png", status_code=301)
+    return RedirectResponse("/static/apple-touch-icon.png", status_code=301)
 
 
 _ROBOTS_TXT = "User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc\n"

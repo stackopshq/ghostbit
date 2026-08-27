@@ -67,11 +67,16 @@ jobs:
       fail-fast: false
       matrix:
         backend: [sqlite, redis]
+    # Pas de `ports:` ici, et ce n'est pas un oubli. Sur GitHub chaque job a sa
+    # propre machine, donc publier 6379 sur l'hôte est sans conséquence. Sur
+    # `core-run-01`, que les huit produits se partagent, un seul job de toute la
+    # forge peut tenir ce port : les autres meurent à la création du conteneur,
+    # avant même `actions/checkout`, sur `bind: address already in use`. Les deux
+    # jambes de cette matrice se percutaient déjà entre elles.
+    # Un conteneur de service reste joignable par son NOM sur le réseau du job.
     services:
       redis:
         image: redis:7-alpine
-        ports:
-          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 5s
@@ -79,7 +84,12 @@ jobs:
           --health-retries 10
     env:
       STORAGE_BACKEND: ${{ matrix.backend }}
-      REDIS_URL: redis://localhost:6379
+      # `redis`, pas `localhost` : les étapes tournent DANS le conteneur de job,
+      # donc `localhost` y désigne ce conteneur et jamais le service. La jambe
+      # `redis` de la matrice ouvre une vraie connexion (voir la note pytest de
+      # `pyproject.toml` sur la boucle d'événements) : cette valeur porte donc
+      # le fonctionnement des tests, elle n'est pas décorative.
+      REDIS_URL: redis://redis:6379
     steps:
       - uses: actions/checkout@v6
 

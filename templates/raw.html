@@ -5,13 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>{{ paste.id }} — raw</title>
+  {# Cette page ne charge pas style.css : sans ghost-fonts.css ici,
+     --font-mono ne serait défini nulle part et le bloc retomberait sur la
+     police à chasse fixe du système. #}
+  <link rel="stylesheet" href="/static/ghost-fonts.css?v={{ v }}">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       background: #282a36;
       color: #f8f8f2;
-      font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+      font-family: var(--font-mono);
       font-size: 0.875rem;
       line-height: 1.7;
       padding: 20px;

@@ -113,7 +113,7 @@ async def test_homepage_og_image_is_absolute_banner(client):
     """Link unfurls need an absolute og:image. A relative URL (or the portrait
     logo) is what made iMessage render a huge blown-up icon."""
     html = (await client.get("/")).text
-    assert 'property="og:image" content="http://test/static/og-banner.png"' in html
+    assert 'property="og:image" content="http://test/static/og-image.png"' in html
     assert 'name="twitter:card" content="summary_large_image"' in html
 
 
@@ -270,14 +270,12 @@ def test_abs_url_prefers_configured_base_url(monkeypatch):
         base_url = "http://internal:8000/"
 
     monkeypatch.setattr(settings, "base_url", "https://paste.example.com")
-    assert _abs_url(_Req(), "/static/og-banner.png") == (
-        "https://paste.example.com/static/og-banner.png"
+    assert _abs_url(_Req(), "/static/og-image.png") == (
+        "https://paste.example.com/static/og-image.png"
     )
 
     monkeypatch.setattr(settings, "base_url", "")
-    assert _abs_url(_Req(), "/static/og-banner.png") == (
-        "http://internal:8000/static/og-banner.png"
-    )
+    assert _abs_url(_Req(), "/static/og-image.png") == ("http://internal:8000/static/og-image.png")
 
 
 async def test_create_and_get_paste(client):
@@ -552,6 +550,61 @@ async def test_plaintext_paste_skips_the_codemirror_mode_bundle(client):
     assert "codemirror-modes.min.js" in (await client.get(f"/{py}")).text
 
 
+def test_declared_fonts_are_actually_shipped():
+    """Nommer une police ne la livre pas. La pile déclarait JetBrains Mono sans
+    embarquer un seul woff2, donc tout ce qui demandait `--font-mono` rendait en
+    Consolas depuis le premier jour, sans que rien ne le signale. Ce contrôle
+    exige que chaque @font-face pointe sur un fichier présent, et qu'aucune
+    famille nommée ne soit déclarée en dehors de celles qu'on livre."""
+    import re
+    from pathlib import Path
+
+    static = Path(__file__).resolve().parent.parent / "static"
+    fonts_css = (static / "ghost-fonts.css").read_text()
+
+    # 1. Chaque source déclarée existe sur le disque, et n'est pas vide.
+    sources = re.findall(r'url\("([^"]+)"\)', fonts_css)
+    assert sources, "ghost-fonts.css declares no font source at all"
+    for src in sources:
+        assert src.startswith("/static/"), f"font source is not origin-local: {src}"
+        on_disk = static / src[len("/static/") :]
+        assert on_disk.is_file(), f"declared font is missing from static/: {src}"
+        assert on_disk.stat().st_size > 0, f"declared font is empty: {src}"
+
+    # 2. Aucune famille nommée hors de celles qu'on embarque. Les mots-clés
+    #    génériques et les piles système sont du repli, pas une police à livrer.
+    shipped = set(re.findall(r'font-family:\s*"([^"]+)"', fonts_css))
+    assert shipped == {"Hanken Grotesk", "JetBrains Mono"}, shipped
+
+    generic = {
+        "ui-sans-serif",
+        "ui-monospace",
+        "system-ui",
+        "-apple-system",
+        "BlinkMacSystemFont",
+        "sans-serif",
+        "serif",
+        "monospace",
+        "cursive",
+        "fantasy",
+        "inherit",
+        "initial",
+        "unset",
+        "SF Mono",
+        "Menlo",
+        "Segoe UI",
+    }
+    for sheet in ("ghost-fonts.css", "style.css"):
+        for decl in re.findall(r"font-family:([^;}]+)", (static / sheet).read_text()):
+            for family in decl.split(","):
+                family = family.strip().strip("\"'")
+                if not family or family.startswith("var("):
+                    continue
+                assert family in shipped or family in generic, (
+                    f"{sheet} names {family!r}, which nothing in static/ ships"
+                )
+
+
 def test_css_defines_every_custom_property_it_uses():
     """An undefined var() is invalid at computed-value time, so the declaration
     is dropped and the element silently inherits its parent's value instead.
@@ -560,10 +613,14 @@ def test_css_defines_every_custom_property_it_uses():
     import re
     from pathlib import Path
 
-    css = (Path(__file__).resolve().parent.parent / "static" / "style.css").read_text()
-    defined = set(re.findall(r"(--[\w-]+)\s*:", css))
+    static = Path(__file__).resolve().parent.parent / "static"
+    # Les deux feuilles chargées par base.html, dans l'ordre où le navigateur
+    # les voit : ghost-fonts.css pose --font-sans / --font-mono / --font-ui,
+    # style.css pose le reste et les consomme.
+    sheets = {name: (static / name).read_text() for name in ("ghost-fonts.css", "style.css")}
+    defined = {prop for css in sheets.values() for prop in re.findall(r"(--[\w-]+)\s*:", css)}
     # var(--x, fallback) is legitimate even when --x is undefined; only bare
     # references are a bug.
-    used = set(re.findall(r"var\(\s*(--[\w-]+)\s*\)", css))
+    used = {prop for css in sheets.values() for prop in re.findall(r"var\(\s*(--[\w-]+)\s*\)", css)}
     missing = sorted(used - defined)
-    assert not missing, f"style.css uses undefined custom properties: {missing}"
+    assert not missing, f"stylesheets use undefined custom properties: {missing}"

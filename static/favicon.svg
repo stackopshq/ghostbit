@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-63.5 0 548 548" fill="none">
-  <!-- Généré par tools/brand/ghost_suite.py — ne pas éditer à la main.
-       Ce n'est pas le logo réduit : c'est sa silhouette, remplie. Le trait du
-       logo fait 4 % de la hauteur et disparaît à 16 px ; la silhouette, elle,
-       tient. Les tirets détachés sont abandonnés pour la même raison. -->
+  <!-- Charte ghost-suite, variante icône — produit par tools/brand/ghost_suite.py.
+       La silhouette pleine, sans les tirets détachés : ils deviendraient des salissures
+       à 16 px, alors que la silhouette, elle, tient. Ne pas retoucher : régénérer. -->
   <defs>
     <linearGradient id="g" x1="421" y1="0" x2="0" y2="548" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#F050FF"/>
