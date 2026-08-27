@@ -237,7 +237,7 @@
     if (classes >= 3) score++;
     return Math.min(4, score);
   }
-  const STRENGTH_LABELS = ['—', 'Weak', 'Fair', 'Good', 'Strong'];
+  const STRENGTH_LABELS = ['None', 'Weak', 'Fair', 'Good', 'Strong'];
 
   function updatePwStrength() {
     const level = scorePassword(pwInput.value);
@@ -314,7 +314,7 @@
       showFormError(
         `Encryption requires a Secure Context. ` +
         `<a href="${localhostUrl}" style="color:inherit;text-decoration:underline">` +
-        `Click here to switch to localhost</a> — or use HTTPS in production.`
+        `Click here to switch to localhost</a>, or use HTTPS in production.`
       );
       return;
     }

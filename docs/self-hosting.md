@@ -44,13 +44,13 @@ Redis data is persisted via AOF + RDB snapshots on a named Docker volume.
 
 Ghostbit uses the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) for all client-side encryption. Browsers only expose this API in a **Secure Context**, which means:
 
-- `https://` — always secure ✓
-- `http://localhost` or `http://127.0.0.1` — granted by the browser for local development ✓
-- `http://` on any other host — **not** a Secure Context, encryption is blocked ✗
+- `https://`: always secure ✓
+- `http://localhost` or `http://127.0.0.1`: granted by the browser for local development ✓
+- `http://` on any other host: **not** a Secure Context, encryption is blocked ✗
 
 ### Reverse proxy with HTTPS termination
 
-The most common production setup — HTTPS on the proxy, plain HTTP internally — works perfectly:
+The most common production setup (HTTPS on the proxy, plain HTTP internally) works perfectly:
 
 ```
 Browser ──HTTPS──▶ Nginx / Caddy ──HTTP──▶ Ghostbit :8000
@@ -151,6 +151,6 @@ docker compose up -d --build
 ## Privacy
 
 - No IP addresses or User-Agent strings are ever logged
-- Paste IDs are `secrets.token_urlsafe(6)` — random, non-sequential
+- Paste IDs are `secrets.token_urlsafe(6)`: random, non-sequential
 - Burn-after-read fires only on API reads, not on HTML page loads
 - The server never sees plaintext or passwords

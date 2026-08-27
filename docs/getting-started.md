@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Docker + Docker Compose — recommended
+- Docker + Docker Compose (recommended)
 - Or Python 3.10+ for a manual install
 
 ---
@@ -22,7 +22,7 @@ cd ghostbit
 cp .env.example .env
 ```
 
-No server-side encryption key needed — all encryption happens in the client.
+No server-side encryption key needed, since all encryption happens in the client.
 
 ```bash
 # Start with SQLite (default)

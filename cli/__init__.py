@@ -188,7 +188,7 @@ def cmd_paste(args) -> None:
                 print("  " + "  ·  ".join(parts), file=sys.stderr)
             if not password:
                 print(
-                    "  Share the full URL — the decryption key is in the #fragment.",
+                    "  Share the full URL: the decryption key is in the #fragment.",
                     file=sys.stderr,
                 )
 
@@ -272,7 +272,7 @@ def cmd_view(args) -> None:
         password = getpass.getpass("Password: ")
         kdf_salt = data.get("kdf_salt")
         if not kdf_salt:
-            print("Error: no KDF salt — paste is not password-protected.", file=sys.stderr)
+            print("Error: no KDF salt, paste is not password-protected.", file=sys.stderr)
             sys.exit(1)
         # Server tells us which KDF was used; default to legacy PBKDF2 for
         # pastes written before the field existed.
@@ -291,7 +291,7 @@ def cmd_view(args) -> None:
         else:
             plaintext = decrypt(data["content"], data["nonce"], key)
     except Exception:  # noqa: BLE001
-        print("Error: decryption failed — wrong key or corrupted paste.", file=sys.stderr)
+        print("Error: decryption failed, wrong key or corrupted paste.", file=sys.stderr)
         sys.exit(1)
 
     # Warn if this view just burned the paste.
@@ -484,7 +484,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(
         prog="gbit",
-        description="Ghostbit CLI — create encrypted pastes from the terminal.",
+        description="Ghostbit CLI, create encrypted pastes from the terminal.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 examples:

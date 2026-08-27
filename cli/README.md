@@ -1,6 +1,6 @@
 # Ghostbit CLI
 
-Command-line tool for [Ghostbit](https://github.com/stackopshq/ghostbit) — a self-hosted, end-to-end encrypted paste service.
+Command-line tool for [Ghostbit](https://github.com/stackopshq/ghostbit), a self-hosted, end-to-end encrypted paste service.
 
 All content is encrypted **in the client** before being sent to the server. The server never sees your plaintext.
 

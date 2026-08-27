@@ -1,7 +1,7 @@
 #Requires -Version 7.0
 <#
 .SYNOPSIS
-  Ghostbit PowerShell module — create and view encrypted pastes from the terminal.
+  Ghostbit PowerShell module, create and view encrypted pastes from the terminal.
 
 .DESCRIPTION
   Mirrors the Python CLI (gbit). All encryption is done client-side with AES-256-GCM
@@ -171,7 +171,7 @@ function New-GhostbitPaste {
 
     .DESCRIPTION
       Encrypts content client-side with AES-256-GCM before sending it to the
-      server. The decryption key never leaves the client — it is embedded in
+      server. The decryption key never leaves the client: it is embedded in
       the URL fragment returned by this command.
 
     .PARAMETER InputObject
@@ -345,7 +345,7 @@ function New-GhostbitPaste {
                 Write-Host "  $($parts -join '  ·  ')" -ForegroundColor DarkGray
             }
             if (-not $Password) {
-                Write-Host '  Share the full URL — the decryption key is in the #fragment.' -ForegroundColor DarkGray
+                Write-Host '  Share the full URL: the decryption key is in the #fragment.' -ForegroundColor DarkGray
             }
         }
     }
@@ -420,7 +420,7 @@ function Get-GhostbitPaste {
     try {
         $plaintext = Invoke-AesGcmDecrypt -CiphertextB64 $data.content -NonceB64 $data.nonce -Key $key
     } catch {
-        Write-Error 'Decryption failed — wrong key or password, or corrupted paste.'
+        Write-Error 'Decryption failed: wrong key or password, or corrupted paste.'
         return
     }
 
@@ -555,7 +555,7 @@ function Get-GhostbitHistory {
         Windows : %LOCALAPPDATA%\ghostbit\history.jsonl
         macOS/Linux : ~/.local/share/ghostbit/history.jsonl
 
-      Nothing is sent to the server — this file stays on your machine only.
+      Nothing is sent to the server: this file stays on your machine only.
 
     .PARAMETER Clear
       Wipe the local history file.

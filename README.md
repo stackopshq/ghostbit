@@ -6,7 +6,7 @@
 
 <p align="center">
   Self-hosted, end-to-end encrypted paste service.<br>
-  The server stores ciphertext only — it can <strong>never</strong> read your content.
+  The server stores ciphertext only: it can <strong>never</strong> read your content.
 </p>
 
 <p align="center">
@@ -35,21 +35,21 @@
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/paste-view.png" alt="Decrypted paste view — content is decrypted in the browser, with copy, QR, raw, download, edit and delete actions" width="800">
+  <img src="docs/screenshots/paste-view.png" alt="Decrypted paste view: content is decrypted in the browser, with copy, QR, raw, download, edit and delete actions" width="800">
 </p>
 
 <p align="center">
-  <em>A paste after client-side decryption — the server only ever stored ciphertext.</em>
+  <em>A paste after client-side decryption: the server only ever stored ciphertext.</em>
 </p>
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/create-dark.png" alt="Create paste — dark theme, with expiration, max views, burn-after-read, compression, password and webhook options"></td>
-    <td width="50%"><img src="docs/screenshots/create-light.png" alt="Create paste — light theme"></td>
+    <td width="50%"><img src="docs/screenshots/create-dark.png" alt="Create paste, dark theme, with expiration, max views, burn-after-read, compression, password and webhook options"></td>
+    <td width="50%"><img src="docs/screenshots/create-light.png" alt="Create paste, light theme"></td>
   </tr>
   <tr>
-    <td align="center"><em>Create a paste — dark</em></td>
-    <td align="center"><em>Create a paste — light</em></td>
+    <td align="center"><em>Create a paste (dark)</em></td>
+    <td align="center"><em>Create a paste (light)</em></td>
   </tr>
 </table>
 
@@ -57,7 +57,7 @@
 
 ## How it works
 
-Ghostbit encrypts your content **in the browser** using the Web Crypto API before sending anything to the server. The decryption key lives exclusively in the URL fragment — it is never transmitted over the network.
+Ghostbit encrypts your content **in the browser** using the Web Crypto API before sending anything to the server. The decryption key lives exclusively in the URL fragment: it is never transmitted over the network.
 
 ```
 https://paste.example.com/aB3kZx9m#KEY~DELETE_TOKEN
@@ -74,17 +74,17 @@ https://paste.example.com/aB3kZx9m#KEY~DELETE_TOKEN
 
 ## Features
 
-- **True E2E encryption** — AES-256-GCM, server sees ciphertext only
-- **Burn after read** — deleted permanently after the first view
-- **Max views** — auto-deleted after N reads
-- **Expiration** — from 5 minutes to 1 year
-- **Password protection** — client-side key derivation, password never leaves the browser
-- **Webhook** — POST notification on each read
-- **Language detection** — auto-detected from content or file extension
-- **Markdown preview** — rendered in-browser
-- **CLI** — `gbit` command, pipe anything from your terminal
-- **REST API** — full API for automation and integrations
-- **SQLite / Redis** — swap storage backends with a single env var
+- **True E2E encryption**: AES-256-GCM, server sees ciphertext only
+- **Burn after read**: deleted permanently after the first view
+- **Max views**: auto-deleted after N reads
+- **Expiration**: from 5 minutes to 1 year
+- **Password protection**: client-side key derivation, password never leaves the browser
+- **Webhook**: POST notification on each read
+- **Language detection**: auto-detected from content or file extension
+- **Markdown preview**: rendered in-browser
+- **CLI**: `gbit` command, pipe anything from your terminal
+- **REST API**: full API for automation and integrations
+- **SQLite / Redis**: swap storage backends with a single env var
 
 ---
 
@@ -187,7 +187,7 @@ For Redis, add a `ghostbit-redis.container` alongside and use `After=ghostbit-re
 
 ### Encrypted backups
 
-[`scripts/backup.sh`](scripts/backup.sh) streams `python -m app.admin export` through [age](https://age-encryption.org) and writes one timestamped `.jsonl.age` file per run. The plaintext export never touches disk — a stolen backup file is useless without the age private key.
+[`scripts/backup.sh`](scripts/backup.sh) streams `python -m app.admin export` through [age](https://age-encryption.org) and writes one timestamped `.jsonl.age` file per run. The plaintext export never touches disk, so a stolen backup file is useless without the age private key.
 
 One-shot:
 
@@ -197,7 +197,7 @@ AGE_RECIPIENT="age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
   scripts/backup.sh
 ```
 
-Recurring via systemd — copy the two unit templates and adjust paths + recipient:
+Recurring via systemd: copy the two unit templates and adjust paths + recipient:
 
 ```bash
 sudo cp scripts/ghostbit-backup.service /etc/systemd/system/
@@ -226,28 +226,28 @@ age --decrypt -i ~/.config/age/keys.txt ghostbit-2026-05-24T03-17-00Z.jsonl.age 
 | `SQLITE_PATH` | `./ghostbit.db` | SQLite file path (Docker overrides to `/data/ghostbit.db`) |
 | `SQLITE_POOL_SIZE` | `5` | Pooled SQLite connections (WAL enables parallel readers) |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
-| `REDIS_PASSWORD` | — | Redis password (injected into `REDIS_URL` automatically) |
+| `REDIS_PASSWORD` | _none_ | Redis password (injected into `REDIS_URL` automatically) |
 | `MAX_PASTE_SIZE` | `524288` | Max paste size in bytes (512 KB) |
 | `PORT` | `8000` | Server port |
 | `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation |
 | `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste viewing |
 | `TRUST_PROXY_HEADERS` | `false` | Use rightmost `X-Forwarded-For` for rate limiting (enable only behind a trusted proxy) |
-| `BASE_URL` | — | Public base URL (e.g. `https://paste.example.com`) for the absolute links in social-preview meta tags. Derived from the request when unset. |
-| `WEBHOOK_SECRET` | — | HMAC-SHA256 secret for signing webhook payloads |
+| `BASE_URL` | _none_ | Public base URL (e.g. `https://paste.example.com`) for the absolute links in social-preview meta tags. Derived from the request when unset. |
+| `WEBHOOK_SECRET` | _none_ | HMAC-SHA256 secret for signing webhook payloads |
 
 ---
 
 ## API
 
-All content is encrypted **client-side** — the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc). Operators also get `/healthz` (liveness — always 200 if the process is alive), `/readyz` (readiness — 503 if the storage backend doesn't answer) and `/metrics` (Prometheus exposition).
+All content is encrypted **client-side**: the API only handles ciphertext. Interactive docs are available at `/docs` (Swagger UI) and `/redoc` (ReDoc). Operators also get `/healthz` (liveness, always 200 if the process is alive), `/readyz` (readiness, 503 if the storage backend doesn't answer) and `/metrics` (Prometheus exposition).
 
 ```bash
-# Create (content must be pre-encrypted — use the CLI or e2e.js)
+# Create (content must be pre-encrypted, use the CLI or e2e.js)
 curl -X POST https://paste.example.com/api/v1/pastes \
   -H "Content-Type: application/json" \
   -d '{"content":"<base64 ciphertext>","nonce":"<base64 nonce>","language":"python"}'
 
-# Retrieve (returns ciphertext — client decrypts)
+# Retrieve (returns ciphertext, client decrypts)
 curl https://paste.example.com/api/v1/pastes/{id}
 
 # Delete
@@ -260,7 +260,7 @@ curl -X POST https://paste.example.com/api/v1/detect \
   -d '{"content":"def hello():\n    print(42)"}'
 ```
 
-Interactive Swagger UI: `/docs` — ReDoc: `/redoc`.
+Interactive Swagger UI: `/docs`. ReDoc: `/redoc`.
 
 ---
 
@@ -293,7 +293,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-The same checks run in CI — installing the hook just gives you the feedback locally before the push.
+The same checks run in CI: installing the hook just gives you the feedback locally before the push.
 
 ---
 
@@ -304,13 +304,13 @@ Ghostbit follows a **zero-knowledge** architecture:
 | | Server sees | Server **cannot** see |
 |---|---|---|
 | Paste content | AES-256-GCM ciphertext | Plaintext |
-| Encryption key | Never (stays in URL `#fragment`) | — |
-| Password | Never (PBKDF2 runs in browser/CLI) | — |
+| Encryption key | Never (stays in URL `#fragment`) | n/a |
+| Password | Never (PBKDF2 runs in browser/CLI) | n/a |
 | Delete token | SHA-256 hash only | Plaintext token |
-| Metadata | Language, timestamps, view count | — |
+| Metadata | Language, timestamps, view count | n/a |
 
 - The URL `#fragment` is **never sent** to the server by any browser.
-- A compromised server cannot decrypt any paste — past or future.
+- A compromised server cannot decrypt any paste, past or future.
 - SSRF protection blocks webhooks to private/internal networks.
 - Rate limiting protects against abuse on all endpoints.
 

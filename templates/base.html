@@ -17,16 +17,16 @@
       }
     })();
   </script>
-  <title>{% block title %}Ghostbit — Encrypted paste, zero knowledge{% endblock %}</title>
+  <title>{% block title %}Ghostbit · Encrypted paste, zero knowledge{% endblock %}</title>
   {# Indexing directives live in their own block so paste and error pages can
      opt out of the index without having to restate every og:/twitter: tag. #}
   {% block seo %}
-  <meta name="description" content="Ghostbit is a self-hosted, end-to-end encrypted paste service. Text is encrypted in your browser before upload — the server only ever stores ciphertext.">
+  <meta name="description" content="Ghostbit is a self-hosted, end-to-end encrypted paste service. Text is encrypted in your browser before upload: the server only ever stores ciphertext.">
   <link rel="canonical" href="{{ abs_url(request, request.url.path) }}">
   {% endblock %}
   {% block meta %}
   <meta property="og:site_name" content="Ghost Suite">
-  <meta property="og:title" content="Ghostbit — Encrypted paste, zero knowledge">
+  <meta property="og:title" content="Ghostbit · Encrypted paste, zero knowledge">
   <meta property="og:description" content="Self-hosted, end-to-end encrypted paste service. Your data never touches the server in plaintext.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ abs_url(request, request.url.path) }}">
@@ -34,9 +34,9 @@
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Ghostbit — end-to-end encrypted pastes">
+  <meta property="og:image:alt" content="Ghostbit, end-to-end encrypted pastes">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Ghostbit — Encrypted paste, zero knowledge">
+  <meta name="twitter:title" content="Ghostbit · Encrypted paste, zero knowledge">
   <meta name="twitter:description" content="Self-hosted, end-to-end encrypted paste service.">
   <meta name="twitter:image" content="{{ abs_url(request, '/static/og-image.png') }}">
   {% endblock %}
