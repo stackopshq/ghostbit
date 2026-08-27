@@ -963,12 +963,12 @@
 <h2 id="https-and-web-crypto">HTTPS and Web Crypto<a class="headerlink" href="#https-and-web-crypto" title="Permanent link">&para;</a></h2>
 <p>Ghostbit uses the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API">Web Crypto API</a> for all client-side encryption. Browsers only expose this API in a <strong>Secure Context</strong>, which means:</p>
 <ul>
-<li><code>https://</code> — always secure ✓</li>
-<li><code>http://localhost</code> or <code>http://127.0.0.1</code> — granted by the browser for local development ✓</li>
-<li><code>http://</code> on any other host — <strong>not</strong> a Secure Context, encryption is blocked ✗</li>
+<li><code>https://</code>: always secure ✓</li>
+<li><code>http://localhost</code> or <code>http://127.0.0.1</code>: granted by the browser for local development ✓</li>
+<li><code>http://</code> on any other host: <strong>not</strong> a Secure Context, encryption is blocked ✗</li>
 </ul>
 <h3 id="reverse-proxy-with-https-termination">Reverse proxy with HTTPS termination<a class="headerlink" href="#reverse-proxy-with-https-termination" title="Permanent link">&para;</a></h3>
-<p>The most common production setup — HTTPS on the proxy, plain HTTP internally — works perfectly:</p>
+<p>The most common production setup (HTTPS on the proxy, plain HTTP internally) works perfectly:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>Browser ──HTTPS──▶ Nginx / Caddy ──HTTP──▶ Ghostbit :8000
 </span></code></pre></div></td></tr></table></div>
 <p>The browser sees <code>https://paste.example.com</code> → Secure Context → Web Crypto works.
@@ -1036,11 +1036,11 @@ Without HTTPS, the browser will refuse to encrypt pastes.</p>
 </div>
 <hr />
 <h2 id="caddy-reverse-proxy">Caddy reverse proxy<a class="headerlink" href="#caddy-reverse-proxy" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
+<div class="language-caddy highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
 <span class="normal"><a href="#__codelineno-5-2">2</a></span>
-<span class="normal"><a href="#__codelineno-5-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>paste.example.com {
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>    reverse_proxy localhost:8000
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a>}
+<span class="normal"><a href="#__codelineno-5-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>paste.example.com<span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">    </span><span class="k">reverse_proxy</span><span class="w"> </span>localhost:8000
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Caddy handles HTTPS automatically via Let's Encrypt.</p>
 <hr />
@@ -1065,7 +1065,7 @@ Without HTTPS, the browser will refuse to encrypt pastes.</p>
 </table>
 <h3 id="backup-sqlite">Backup SQLite<a class="headerlink" href="#backup-sqlite" title="Permanent link">&para;</a></h3>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
-<span class="normal"><a href="#__codelineno-6-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ghostbit<span class="w"> </span>sqlite3<span class="w"> </span>/data/ghostbit.db<span class="w"> </span><span class="s2">&quot;.backup /data/ghostbit.db.bak&quot;</span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ghostbit<span class="w"> </span>sqlite3<span class="w"> </span>/data/ghostbit.db<span class="w"> </span><span class="s2">".backup /data/ghostbit.db.bak"</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>cp<span class="w"> </span>ghostbit:/data/ghostbit.db.bak<span class="w"> </span>./backup.db
 </span></code></pre></div></td></tr></table></div>
 <h3 id="backup-redis">Backup Redis<a class="headerlink" href="#backup-redis" title="Permanent link">&para;</a></h3>
@@ -1076,7 +1076,7 @@ Without HTTPS, the browser will refuse to encrypt pastes.</p>
 <span class="normal"><a href="#__codelineno-7-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="c1"># Without password</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>redis<span class="w"> </span>redis-cli<span class="w"> </span>BGSAVE
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="c1"># With password</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>redis<span class="w"> </span>redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REDIS_PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span>BGSAVE
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>redis<span class="w"> </span>redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="s2">"</span><span class="nv">$REDIS_PASSWORD</span><span class="s2">"</span><span class="w"> </span>BGSAVE
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>cp<span class="w"> </span>redis:/data/dump.rdb<span class="w"> </span>./dump.rdb
 </span></code></pre></div></td></tr></table></div>
 <hr />
@@ -1089,7 +1089,7 @@ Without HTTPS, the browser will refuse to encrypt pastes.</p>
 <h2 id="privacy">Privacy<a class="headerlink" href="#privacy" title="Permanent link">&para;</a></h2>
 <ul>
 <li>No IP addresses or User-Agent strings are ever logged</li>
-<li>Paste IDs are <code>secrets.token_urlsafe(6)</code> — random, non-sequential</li>
+<li>Paste IDs are <code>secrets.token_urlsafe(6)</code>: random, non-sequential</li>
 <li>Burn-after-read fires only on API reads, not on HTML page loads</li>
 <li>The server never sees plaintext or passwords</li>
 </ul>

@@ -778,7 +778,7 @@
 <p>The key is <strong>never sent to the server</strong>. It lives exclusively in the URL fragment:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>https://your-instance.com/aB3kZx9m#KEY_B64URL~DELETE_TOKEN
 </span></code></pre></div></td></tr></table></div>
-<p>The <code>#fragment</code> is never transmitted in HTTP requests — it stays in the browser.</p>
+<p>The <code>#fragment</code> is never transmitted in HTTP requests: it stays in the browser.</p>
 </div>
 <div class="tabbed-block">
 <p>The key is derived from the user's password using PBKDF2-SHA256 (600 000 iterations).
@@ -797,8 +797,8 @@ A random 16-byte salt is generated per paste and stored server-side (it is not s
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>~DELETE_TOKEN               ← password-protected
 </span></code></pre></div></td></tr></table></div>
 <ul>
-<li><code>KEY_B64URL</code> — base64url-encoded AES-256-GCM key (no padding)</li>
-<li><code>DELETE_TOKEN</code> — raw delete token (shown once, used to enable the delete button)</li>
+<li><code>KEY_B64URL</code>: base64url-encoded AES-256-GCM key (no padding)</li>
+<li><code>DELETE_TOKEN</code>: raw delete token (shown once, used to enable the delete button)</li>
 </ul>
 <p>The server stores a <strong>SHA-256 hash</strong> of the delete token, never the raw value.</p>
 <hr />
@@ -813,23 +813,23 @@ A random 16-byte salt is generated per paste and stored server-side (it is not s
 <tbody>
 <tr>
 <td>Server compromise</td>
-<td>Yes — server only has ciphertext</td>
+<td>Yes, server only has ciphertext</td>
 </tr>
 <tr>
 <td>Database leak</td>
-<td>Yes — ciphertext without the key is useless</td>
+<td>Yes, ciphertext without the key is useless</td>
 </tr>
 <tr>
 <td>Network interception (HTTPS)</td>
-<td>Yes — key is in fragment, never transmitted</td>
+<td>Yes, key is in fragment, never transmitted</td>
 </tr>
 <tr>
 <td>Malicious server operator</td>
-<td>Yes — server can't decrypt</td>
+<td>Yes, server can't decrypt</td>
 </tr>
 <tr>
 <td>URL shared with wrong person</td>
-<td>No — the key is in the URL</td>
+<td>No, the key is in the URL</td>
 </tr>
 <tr>
 <td>Weak password</td>
@@ -850,7 +850,7 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <li><code>PBKDF2HMAC</code> with SHA-256 for password derivation</li>
 <li><code>os.urandom</code> for key and nonce generation</li>
 </ul>
-<p>The ciphertext format is identical — pastes created by the CLI can be decrypted in the browser and vice versa.</p>
+<p>The ciphertext format is identical: pastes created by the CLI can be decrypted in the browser and vice versa.</p>
 <hr />
 <h2 id="webhook-signatures">Webhook signatures<a class="headerlink" href="#webhook-signatures" title="Permanent link">&para;</a></h2>
 <p>When <code>WEBHOOK_SECRET</code> is configured, every webhook delivery is signed with <strong>HMAC-SHA256</strong> and carries a timestamp header:</p>
@@ -858,7 +858,7 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <span class="normal"><a href="#__codelineno-3-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>X-Ghostbit-Signature: sha256=&lt;hex&gt;
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>X-Ghostbit-Webhook-Timestamp: &lt;unix-seconds&gt;
 </span></code></pre></div></td></tr></table></div>
-<p>The signature is computed over the raw JSON request body. The timestamp header is <strong>always present</strong> (even without <code>WEBHOOK_SECRET</code>) and mirrors <code>payload.timestamp</code> — verifiers can use it for replay protection without having to parse the body first. A typical receiver rejects deliveries older than 5 minutes.</p>
+<p>The signature is computed over the raw JSON request body. The timestamp header is <strong>always present</strong> (even without <code>WEBHOOK_SECRET</code>) and mirrors <code>payload.timestamp</code>, so verifiers can use it for replay protection without having to parse the body first. A typical receiver rejects deliveries older than 5 minutes.</p>
 <p>To verify on the receiving end:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Python</label><label for="__tabbed_2_2">Node.js</label></div>
 <div class="tabbed-content">
@@ -872,7 +872,7 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <span class="normal"><a href="#__codelineno-4-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">hmac</span><span class="o">,</span><span class="w"> </span><span class="nn">hashlib</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span><span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a>    <span class="n">expected</span> <span class="o">=</span> <span class="s2">&quot;sha256=&quot;</span> <span class="o">+</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a>    <span class="n">expected</span> <span class="o">=</span> <span class="s2">"sha256="</span> <span class="o">+</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a>        <span class="n">secret</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">body</span><span class="p">,</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a>    <span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a>    <span class="k">return</span> <span class="n">hmac</span><span class="o">.</span><span class="n">compare_digest</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
@@ -890,13 +890,13 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-5-10">10</a></span>
 <span class="normal"><a href="#__codelineno-5-11">11</a></span>
-<span class="normal"><a href="#__codelineno-5-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">crypto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;crypto&quot;</span><span class="p">);</span>
+<span class="normal"><a href="#__codelineno-5-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kd">const</span><span class="w"> </span><span class="nx">crypto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"crypto"</span><span class="p">);</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="kd">function</span><span class="w"> </span><span class="nx">verify</span><span class="p">(</span><span class="nx">secret</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="p">,</span><span class="w"> </span><span class="nx">header</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sha256=&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">crypto</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="p">.</span><span class="nx">createHmac</span><span class="p">(</span><span class="s2">&quot;sha256&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">secret</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sha256="</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">crypto</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">    </span><span class="p">.</span><span class="nx">createHmac</span><span class="p">(</span><span class="s2">"sha256"</span><span class="p">,</span><span class="w"> </span><span class="nx">secret</span><span class="p">)</span>
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">    </span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">body</span><span class="p">)</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">    </span><span class="p">.</span><span class="nx">digest</span><span class="p">(</span><span class="s2">&quot;hex&quot;</span><span class="p">);</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">    </span><span class="p">.</span><span class="nx">digest</span><span class="p">(</span><span class="s2">"hex"</span><span class="p">);</span>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">crypto</span><span class="p">.</span><span class="nx">timingSafeEqual</span><span class="p">(</span>
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="w">    </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">expected</span><span class="p">),</span>
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="w">    </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">header</span><span class="p">)</span>
@@ -917,9 +917,9 @@ Ghostbit automatically redirects <code>127.0.0.1</code> → <code>localhost</cod
 <span class="normal"><a href="#__codelineno-6-2">2</a></span>
 <span class="normal"><a href="#__codelineno-6-3">3</a></span>
 <span class="normal"><a href="#__codelineno-6-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">drift</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;X-Ghostbit-Webhook-Timestamp&quot;</span><span class="p">]))</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="n">drift</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">headers</span><span class="p">[</span><span class="s2">"X-Ghostbit-Webhook-Timestamp"</span><span class="p">]))</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="k">if</span> <span class="n">drift</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stale delivery — refusing&quot;</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"stale delivery, refusing"</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 

@@ -665,7 +665,7 @@
 
 <h1 id="ghostbit">Ghostbit<a class="headerlink" href="#ghostbit" title="Permanent link">&para;</a></h1>
 <p><strong>Self-hosted, end-to-end encrypted paste service.</strong></p>
-<p>All content is encrypted in your browser before being sent to the server. The server stores ciphertext only — it can never read your pastes.</p>
+<p>All content is encrypted in your browser before being sent to the server. The server stores ciphertext only: it can never read your pastes.</p>
 <h2 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
 <span class="normal"><a href="#__codelineno-0-2">2</a></span>
@@ -677,7 +677,7 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1"># Open http://localhost:8000</span>
 </span></code></pre></div></td></tr></table></div>
-<p>No server-side key needed — all encryption happens in the browser.</p>
+<p>No server-side key needed, since all encryption happens in the browser.</p>
 <h2 id="install-the-cli">Install the CLI<a class="headerlink" href="#install-the-cli" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ghostbit-cli
 </span></code></pre></div></td></tr></table></div>
@@ -685,7 +685,7 @@
 <span class="normal"><a href="#__codelineno-2-2">2</a></span>
 <span class="normal"><a href="#__codelineno-2-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a>gbit<span class="w"> </span>secrets.env<span class="w"> </span>--burn<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>-p
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"hello"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>-p
 </span></code></pre></div></td></tr></table></div>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <table>
@@ -698,7 +698,7 @@
 <tbody>
 <tr>
 <td><strong>True E2E encryption</strong></td>
-<td>AES-256-GCM, key lives in URL fragment — never sent to server</td>
+<td>AES-256-GCM, key lives in URL fragment, never sent to server</td>
 </tr>
 <tr>
 <td><strong>Password protection</strong></td>
@@ -730,7 +730,7 @@
 </tr>
 <tr>
 <td><strong>CLI</strong></td>
-<td><code>gbit</code> command — pipe anything, works with scripts</td>
+<td><code>gbit</code> command: pipe anything, works with scripts</td>
 </tr>
 <tr>
 <td><strong>REST API</strong></td>

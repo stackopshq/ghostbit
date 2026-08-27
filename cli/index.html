@@ -963,9 +963,9 @@
 <p>With optional extras for terminal rendering:</p>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
 <span class="normal"><a href="#__codelineno-1-2">2</a></span>
-<span class="normal"><a href="#__codelineno-1-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[all]&quot;</span><span class="w">       </span><span class="c1"># pygments + rich (recommended)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[color]&quot;</span><span class="w">     </span><span class="c1"># pygments — syntax highlighting</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ghostbit-cli[markdown]&quot;</span><span class="w">  </span><span class="c1"># rich — Markdown rendering</span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"ghostbit-cli[all]"</span><span class="w">       </span><span class="c1"># pygments + rich (recommended)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"ghostbit-cli[color]"</span><span class="w">     </span><span class="c1"># pygments, syntax highlighting</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"ghostbit-cli[markdown]"</span><span class="w">  </span><span class="c1"># rich, Markdown rendering</span>
 </span></code></pre></div></td></tr></table></div>
 <hr />
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
@@ -992,7 +992,7 @@
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
 <span class="normal"><a href="#__codelineno-3-2">2</a></span>
 <span class="normal"><a href="#__codelineno-3-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>cat<span class="w"> </span>main.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;hello world&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"hello world"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a>git<span class="w"> </span>diff<span class="w"> </span>HEAD~1<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit
 </span></code></pre></div></td></tr></table></div>
 <h3 id="from-a-file">From a file<a class="headerlink" href="#from-a-file" title="Permanent link">&para;</a></h3>
@@ -1068,11 +1068,11 @@
 <h2 id="delete-a-paste">Delete a paste<a class="headerlink" href="#delete-a-paste" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>gbit<span class="w"> </span>delete<span class="w"> </span>https://paste.example.com/abc123#KEY~TOKEN
 </span></code></pre></div></td></tr></table></div>
-<p>The delete token is read from the URL fragment (after <code>~</code>). No server-side secret needed — the token was generated at creation time and embedded in the URL.</p>
+<p>The delete token is read from the URL fragment (after <code>~</code>). No server-side secret needed: the token was generated at creation time and embedded in the URL.</p>
 <hr />
 <h2 id="paste-history">Paste history<a class="headerlink" href="#paste-history" title="Permanent link">&para;</a></h2>
 <p>All created pastes are saved locally to <code>~/.local/share/ghostbit/history.jsonl</code>.<br />
-Nothing is sent to the server — this file stays on your machine only.</p>
+Nothing is sent to the server: this file stays on your machine only.</p>
 <div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
 <span class="normal"><a href="#__codelineno-6-2">2</a></span>
 <span class="normal"><a href="#__codelineno-6-3">3</a></span>
@@ -1147,7 +1147,7 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>gbit<span class="w"> </span>config.yml<span class="w"> </span>--expires<span class="w"> </span><span class="m">3600</span><span class="w"> </span>--max-views<span class="w"> </span><span class="m">3</span>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a>
 </span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="c1"># Password protected (secure prompt)</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;db_password=s3cr3t&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>-p
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"db_password=s3cr3t"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>-p
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a>
 </span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="c1"># Password inline (visible in process list)</span>
 </span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a>gbit<span class="w"> </span>file.py<span class="w"> </span>--password<span class="w"> </span>mysecret
@@ -1157,7 +1157,7 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 </span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a>
 </span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="c1"># Scripting: URL only</span>
 </span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="nv">URL</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>file.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--quiet<span class="k">)</span>
-</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Paste created: </span><span class="nv">$URL</span><span class="s2">&quot;</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"Paste created: </span><span class="nv">$URL</span><span class="s2">"</span>
 </span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19"></a>
 </span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20"></a><span class="c1"># Skip local history for sensitive pastes</span>
 </span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21"></a>cat<span class="w"> </span>secrets.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>gbit<span class="w"> </span>--burn<span class="w"> </span>--no-history
@@ -1174,10 +1174,10 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-10-3">3</a></span>
 <span class="normal"><a href="#__codelineno-10-4">4</a></span>
 <span class="normal"><a href="#__codelineno-10-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="c1"># Activate for the current session</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gbit<span class="w"> </span>completion<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>gbit<span class="w"> </span>completion<span class="w"> </span>bash<span class="k">)</span><span class="s2">"</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a>
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="c1"># Make it permanent</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;eval &quot;$(gbit completion bash)&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">'eval "$(gbit completion bash)"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
 </span></code></pre></div></td></tr></table></div>
 <h3 id="zsh">Zsh<a class="headerlink" href="#zsh" title="Permanent link">&para;</a></h3>
 <div class="language-zsh highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1">1</a></span>
@@ -1185,10 +1185,10 @@ Nothing is sent to the server — this file stays on your machine only.</p>
 <span class="normal"><a href="#__codelineno-11-3">3</a></span>
 <span class="normal"><a href="#__codelineno-11-4">4</a></span>
 <span class="normal"><a href="#__codelineno-11-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="c1"># Activate for the current session</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>gbit<span class="w"> </span>completion<span class="w"> </span>zsh<span class="k">)</span><span class="s2">&quot;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="nb">eval</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>gbit<span class="w"> </span>completion<span class="w"> </span>zsh<span class="k">)</span><span class="s2">"</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="c1"># Make it permanent</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;eval &quot;$(gbit completion zsh)&quot;&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">'eval "$(gbit completion zsh)"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc
 </span></code></pre></div></td></tr></table></div>
 <h3 id="fish">Fish<a class="headerlink" href="#fish" title="Permanent link">&para;</a></h3>
 <div class="language-fish highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
