@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ paste.id }} — Ghostbit{% endblock %}
+{% block title %}{{ paste.id }} · Ghostbit{% endblock %}
 
 {% block seo %}
 {# A paste URL is a capability: whoever holds it can fetch the ciphertext, and
@@ -16,12 +16,12 @@
 {# Paste pages deliberately omit og:image. An encrypted paste has nothing to
    preview, so link unfurls (iMessage, Slack, …) fall back to the compact card
    with the square favicon instead of blowing up a logo into a hero image. #}
-<meta property="og:title" content="{{ paste.id }} — Ghostbit">
-<meta property="og:description" content="End-to-end encrypted paste. Decryption happens in your browser — the server never sees your data.">
+<meta property="og:title" content="{{ paste.id }} · Ghostbit">
+<meta property="og:description" content="End-to-end encrypted paste. Decryption happens in your browser: the server never sees your data.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ abs_url(request, request.url.path) }}">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="{{ paste.id }} — Ghostbit">
+<meta name="twitter:title" content="{{ paste.id }} · Ghostbit">
 <meta name="twitter:description" content="End-to-end encrypted paste. Decryption happens in your browser.">
 {% endblock %}
 
@@ -75,7 +75,7 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         <div class="owner-notice-text">
           <strong id="ownerNoticeTitle">You own this paste.</strong>
-          <div class="owner-notice-sub">Save this link — it's the only way to delete it.</div>
+          <div class="owner-notice-sub">Save this link: it's the only way to delete it.</div>
         </div>
         <button type="button" class="btn btn-primary btn-owner-copy" id="ownerCopyBtn">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -170,13 +170,13 @@
         <button type="button" class="qr-modal-close" id="qrModalClose" aria-label="Close">&times;</button>
         <h3 id="qrModalTitle">Scan to open</h3>
         <div id="qrTarget" class="qr-target"></div>
-        <p class="qr-modal-hint">Each scan counts as a view — burn-after-read pastes self-destruct on the first scan.</p>
+        <p class="qr-modal-hint">Each scan counts as a view: burn-after-read pastes self-destruct on the first scan.</p>
       </div>
     </div>
 
   </div>
   <footer class="site-footer">
-    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a> — Enjoying Ghostbit? {% set stars = star_count() %}<a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ {% if stars is not none %}{{ stars }} stars on GitHub{% else %}Star us on GitHub{% endif %}</a> — yours would mean a lot!
+    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a>. Enjoying Ghostbit? {% set stars = star_count() %}<a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ {% if stars is not none %}{{ stars }} stars on GitHub{% else %}Star us on GitHub{% endif %}</a>, yours would mean a lot!
   </footer>
 </div>
 

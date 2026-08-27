@@ -10,17 +10,17 @@ All configuration is done via environment variables (or a `.env` file at the pro
 | `SQLITE_PATH` | `./ghostbit.db` | Path to the SQLite database file (Docker overrides to `/data/ghostbit.db`) |
 | `SQLITE_POOL_SIZE` | `5` | Number of pooled SQLite connections. WAL enables parallel readers; raise if `ghostbit_sqlite_pool_wait_seconds` shows contention. |
 | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL |
-| `REDIS_PASSWORD` | — | Redis password. Injected into `REDIS_URL` automatically. Ignored if the URL already contains credentials. |
+| `REDIS_PASSWORD` | _none_ | Redis password. Injected into `REDIS_URL` automatically. Ignored if the URL already contains credentials. |
 | `MAX_PASTE_SIZE` | `524288` | Maximum paste size in bytes (default: 512 KB) |
 | `PORT` | `8000` | HTTP port the server listens on |
-| `WEBHOOK_SECRET` | — | If set, signs webhook deliveries with HMAC-SHA256 (`X-Ghostbit-Signature`) |
+| `WEBHOOK_SECRET` | _none_ | If set, signs webhook deliveries with HMAC-SHA256 (`X-Ghostbit-Signature`) |
 | `RATE_LIMIT_CREATE` | `30/minute` | Rate limit for paste creation per IP (`POST /api/v1/pastes`) |
 | `RATE_LIMIT_VIEW` | `120/minute` | Rate limit for paste reads per IP (`GET /api/v1/pastes/{id}`) |
 | `TRUST_PROXY_HEADERS` | `false` | Read client IP from `X-Forwarded-For` for rate-limiting. See the [Reverse proxy](#reverse-proxy) note below before enabling. |
-| `BASE_URL` | — | Public base URL (e.g. `https://paste.example.com`). Builds the absolute URLs in social-preview meta tags (`og:image`, `og:url`). Derived from the request when unset — see [Reverse proxy](#reverse-proxy). |
+| `BASE_URL` | _none_ | Public base URL (e.g. `https://paste.example.com`). Builds the absolute URLs in social-preview meta tags (`og:image`, `og:url`). Derived from the request when unset; see [Reverse proxy](#reverse-proxy). |
 
 !!! info "No server-side encryption key"
-    All encryption is performed client-side (AES-256-GCM in the browser or CLI). The server never sees plaintext — no `ENCRYPTION_KEY` is needed.
+    All encryption is performed client-side (AES-256-GCM in the browser or CLI). The server never sees plaintext, so no `ENCRYPTION_KEY` is needed.
 
 ## Storage backends
 
@@ -48,7 +48,7 @@ All configuration is done via environment variables (or a `.env` file at the pro
     STORAGE_BACKEND=redis docker compose --profile redis up -d
     ```
 
-    **With a password** — two equivalent approaches:
+    **With a password**, two equivalent approaches:
 
     ```bash
     # Recommended: separate variable (password injected into URL automatically)
@@ -82,7 +82,7 @@ When a limit is exceeded the API returns `429 Too Many Requests`.
 ## Reverse proxy
 
 When Ghostbit sits behind a reverse proxy (Nginx, Caddy, Traefik, Cloudflare…),
-the direct peer address is the proxy's, not the client's — so per-IP rate limits
+the direct peer address is the proxy's, not the client's, so per-IP rate limits
 would apply globally. Enable `TRUST_PROXY_HEADERS=true` to key limits on
 `X-Forwarded-For` instead.
 
@@ -101,7 +101,7 @@ yourself (`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
 ### Absolute URLs for link previews
 
 Ghostbit puts absolute URLs in its social-preview `<meta>` tags (`og:image`,
-`og:url`) so link-unfurl bots — iMessage, Slack, Discord… — can fetch the
+`og:url`) so link-unfurl bots (iMessage, Slack, Discord…) can fetch the
 preview banner. They are derived from the incoming request by default, which
 is correct for direct exposure and for proxies that forward the scheme and
 `Host` header. If a TLS-terminating proxy would otherwise make the app emit
@@ -127,8 +127,8 @@ Ghostbit exposes three unauthenticated endpoints for operators:
 
 | Endpoint | Format | Purpose |
 |----------|--------|---------|
-| `/healthz` | JSON (`{"status": "ok"}`) | Liveness probe — always 200 while the process is alive. Does **not** touch the storage backend, so a Redis outage will not trigger a container restart. |
-| `/readyz` | JSON (`{"status": "ok"}` or `"error"`) | Readiness probe — pings the storage backend. Returns **503** if it doesn't answer, so the ingress / load balancer drains traffic until the dependency recovers. |
+| `/healthz` | JSON (`{"status": "ok"}`) | Liveness probe: always 200 while the process is alive. Does **not** touch the storage backend, so a Redis outage will not trigger a container restart. |
+| `/readyz` | JSON (`{"status": "ok"}` or `"error"`) | Readiness probe: pings the storage backend. Returns **503** if it doesn't answer, so the ingress / load balancer drains traffic until the dependency recovers. |
 | `/metrics` | Prometheus text | Scrape target for Prometheus/Grafana/Alertmanager. |
 
 The `/metrics` endpoint has no sensitive data (only aggregate counters and a
@@ -141,10 +141,10 @@ Exposed metrics:
 |--------|------|--------|
 | `ghostbit_pastes_created_total` | counter | `has_password` |
 | `ghostbit_pastes_viewed_total` | counter | `burned` |
-| `ghostbit_pastes_deleted_total` | counter | — |
+| `ghostbit_pastes_deleted_total` | counter | n/a |
 | `ghostbit_webhook_deliveries_total` | counter | `outcome` (`ok` \| `timeout` \| `error` \| `ssrf_blocked`) |
 | `ghostbit_http_request_duration_seconds` | histogram | `method`, `path`, `status` |
-| `ghostbit_sqlite_pool_wait_seconds` | histogram | — |
+| `ghostbit_sqlite_pool_wait_seconds` | histogram | n/a |
 
 `/healthz`, `/readyz` and `/metrics` are excluded from the HTTP latency histogram so probe
 traffic doesn't skew P99.
@@ -164,7 +164,7 @@ PORT=8000
 # RATE_LIMIT_CREATE=30/minute
 # RATE_LIMIT_VIEW=120/minute
 
-# Enable when behind a reverse proxy — rightmost X-Forwarded-For entry
+# Enable when behind a reverse proxy: rightmost X-Forwarded-For entry
 # is used as the rate-limit key. See the Reverse proxy section above.
 # TRUST_PROXY_HEADERS=true
 

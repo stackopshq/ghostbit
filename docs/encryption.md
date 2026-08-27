@@ -29,7 +29,7 @@ Ghostbit uses **true end-to-end encryption**: all encryption and decryption happ
     https://your-instance.com/aB3kZx9m#KEY_B64URL~DELETE_TOKEN
     ```
 
-    The `#fragment` is never transmitted in HTTP requests — it stays in the browser.
+    The `#fragment` is never transmitted in HTTP requests: it stays in the browser.
 
 === "With password"
 
@@ -53,8 +53,8 @@ KEY_B64URL~DELETE_TOKEN     ← no password
 ~DELETE_TOKEN               ← password-protected
 ```
 
-- `KEY_B64URL` — base64url-encoded AES-256-GCM key (no padding)
-- `DELETE_TOKEN` — raw delete token (shown once, used to enable the delete button)
+- `KEY_B64URL`: base64url-encoded AES-256-GCM key (no padding)
+- `DELETE_TOKEN`: raw delete token (shown once, used to enable the delete button)
 
 The server stores a **SHA-256 hash** of the delete token, never the raw value.
 
@@ -64,11 +64,11 @@ The server stores a **SHA-256 hash** of the delete token, never the raw value.
 
 | Threat | Protected? |
 |--------|-----------|
-| Server compromise | Yes — server only has ciphertext |
-| Database leak | Yes — ciphertext without the key is useless |
-| Network interception (HTTPS) | Yes — key is in fragment, never transmitted |
-| Malicious server operator | Yes — server can't decrypt |
-| URL shared with wrong person | No — the key is in the URL |
+| Server compromise | Yes, server only has ciphertext |
+| Database leak | Yes, ciphertext without the key is useless |
+| Network interception (HTTPS) | Yes, key is in fragment, never transmitted |
+| Malicious server operator | Yes, server can't decrypt |
+| URL shared with wrong person | No, the key is in the URL |
 | Weak password | Depends on the user |
 
 !!! info "Secure Context"
@@ -85,7 +85,7 @@ The CLI (`gbit`) mirrors the browser encryption using Python's `cryptography` li
 - `PBKDF2HMAC` with SHA-256 for password derivation
 - `os.urandom` for key and nonce generation
 
-The ciphertext format is identical — pastes created by the CLI can be decrypted in the browser and vice versa.
+The ciphertext format is identical: pastes created by the CLI can be decrypted in the browser and vice versa.
 
 ---
 
@@ -98,7 +98,7 @@ X-Ghostbit-Signature: sha256=<hex>
 X-Ghostbit-Webhook-Timestamp: <unix-seconds>
 ```
 
-The signature is computed over the raw JSON request body. The timestamp header is **always present** (even without `WEBHOOK_SECRET`) and mirrors `payload.timestamp` — verifiers can use it for replay protection without having to parse the body first. A typical receiver rejects deliveries older than 5 minutes.
+The signature is computed over the raw JSON request body. The timestamp header is **always present** (even without `WEBHOOK_SECRET`) and mirrors `payload.timestamp`, so verifiers can use it for replay protection without having to parse the body first. A typical receiver rejects deliveries older than 5 minutes.
 
 To verify on the receiving end:
 
@@ -141,5 +141,5 @@ To verify on the receiving end:
     import time
     drift = abs(int(time.time()) - int(headers["X-Ghostbit-Webhook-Timestamp"]))
     if drift > 300:
-        raise ValueError("stale delivery — refusing")
+        raise ValueError("stale delivery, refusing")
     ```

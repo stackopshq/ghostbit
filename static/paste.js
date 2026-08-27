@@ -221,7 +221,7 @@
     function showErr(msg) { err.textContent = msg; err.style.display = ''; }
 
     async function save() {
-      if (!currentKey) return showErr('No key in memory — reload the page and try again.');
+      if (!currentKey) return showErr('No key in memory. Reload the page and try again.');
       saveBtn.disabled = true;
       try {
         const newText = ta.value;

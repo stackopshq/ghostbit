@@ -12,8 +12,8 @@ With optional extras for terminal rendering:
 
 ```bash
 pip install "ghostbit-cli[all]"       # pygments + rich (recommended)
-pip install "ghostbit-cli[color]"     # pygments — syntax highlighting
-pip install "ghostbit-cli[markdown]"  # rich — Markdown rendering
+pip install "ghostbit-cli[color]"     # pygments, syntax highlighting
+pip install "ghostbit-cli[markdown]"  # rich, Markdown rendering
 ```
 
 ---
@@ -79,14 +79,14 @@ Language is auto-detected from the file extension.
 gbit delete https://paste.example.com/abc123#KEY~TOKEN
 ```
 
-The delete token is read from the URL fragment (after `~`). No server-side secret needed — the token was generated at creation time and embedded in the URL.
+The delete token is read from the URL fragment (after `~`). No server-side secret needed: the token was generated at creation time and embedded in the URL.
 
 ---
 
 ## Paste history
 
 All created pastes are saved locally to `~/.local/share/ghostbit/history.jsonl`.  
-Nothing is sent to the server — this file stays on your machine only.
+Nothing is sent to the server: this file stays on your machine only.
 
 ```bash
 # List recent pastes

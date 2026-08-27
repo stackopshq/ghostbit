@@ -1,7 +1,7 @@
 # PowerShell CLI
 
 A native PowerShell module that mirrors the Python `gbit` CLI.  
-All encryption is done client-side using the built-in .NET cryptography APIs — no external dependencies.
+All encryption is done client-side using the built-in .NET cryptography APIs, with no external dependencies.
 
 **Requirements:** PowerShell 7.0+ (Windows, macOS, or Linux)
 
@@ -9,7 +9,7 @@ All encryption is done client-side using the built-in .NET cryptography APIs —
 
 ## Install
 
-### Option 1 — copy to your module path
+### Option 1: copy to your module path
 
 ```powershell
 $dest = "$($env:PSModulePath.Split([IO.Path]::PathSeparator)[0])\Ghostbit"
@@ -17,7 +17,7 @@ New-Item -ItemType Directory -Path $dest -Force
 Copy-Item cli/powershell/Ghostbit.* $dest
 ```
 
-### Option 2 — import directly
+### Option 2: import directly
 
 ```powershell
 Import-Module /path/to/ghostbit/cli/powershell/Ghostbit.psm1

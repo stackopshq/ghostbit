@@ -21,7 +21,7 @@ Content-Type: application/json
 |-------|------|----------|-------------|
 | `content` | string | **Yes** | Base64 AES-256-GCM ciphertext |
 | `nonce` | string | **Yes** | Base64 12-byte GCM nonce |
-| `kdf_salt` | string | No | Base64 PBKDF2 salt — present only for password-protected pastes |
+| `kdf_salt` | string | No | Base64 PBKDF2 salt, present only for password-protected pastes |
 | `language` | string | No | Language hint for syntax highlighting |
 | `expires_in` | integer | No | TTL in seconds (≥ 1) |
 | `burn` | boolean | No | Delete after first view. Default: `false` |
@@ -48,7 +48,7 @@ Content-Type: application/json
 
 ## GET /pastes/{id}
 
-Fetch a paste. This counts as a view — burn and max_views are evaluated server-side.
+Fetch a paste. This counts as a view: burn and max_views are evaluated server-side.
 
 ```http
 GET /api/v1/pastes/{id}
@@ -146,7 +146,7 @@ X-Ghostbit-Signature: sha256=<hex>
 X-Ghostbit-Webhook-Timestamp: <unix-seconds>
 ```
 
-The timestamp header is always sent (even without `WEBHOOK_SECRET`) and mirrors `payload.timestamp` — use it to reject stale replays (~5 min window) without parsing the body. The signature is computed over the raw JSON body. Verify it on the receiving end:
+The timestamp header is always sent (even without `WEBHOOK_SECRET`) and mirrors `payload.timestamp`, so use it to reject stale replays (~5 min window) without parsing the body. The signature is computed over the raw JSON body. Verify it on the receiving end:
 
 ```python
 import hmac, hashlib
@@ -160,7 +160,7 @@ Always use constant-time comparison to prevent timing attacks. See the [Encrypti
 
 ---
 
-## Example — create and read with curl
+## Example: create and read with curl
 
 ```bash
 # Encrypt client-side first (or use the CLI: gbit --json)

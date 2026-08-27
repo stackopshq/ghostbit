@@ -85,7 +85,7 @@ const E2E = (() => {
    *  (templates ship it under /static/hash-wasm-argon2.umd.min.js). */
   async function deriveKeyArgon2id(password, saltB64) {
     if (typeof window.hashwasm === 'undefined' || !window.hashwasm.argon2id) {
-      throw new Error('Argon2id library not loaded — refresh the page.');
+      throw new Error('Argon2id library not loaded. Refresh the page.');
     }
     const raw = await window.hashwasm.argon2id({
       password,

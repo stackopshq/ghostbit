@@ -109,7 +109,7 @@
         <input type="password" name="password" id="password" placeholder="Enter a password…" autocomplete="new-password" aria-label="Password">
         <div class="pw-strength" id="pwStrength" aria-hidden="true">
           <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
-          <span class="pw-strength-label" id="pwStrengthLabel">—</span>
+          <span class="pw-strength-label" id="pwStrengthLabel">None</span>
         </div>
         <input type="password" id="passwordConfirm" placeholder="Confirm password…" autocomplete="new-password" class="pw-confirm" aria-label="Confirm password">
         <div class="pw-match" id="pwMatch" aria-live="polite"></div>
@@ -153,7 +153,7 @@
     </div><!-- /index-sidebar -->
   </form>
   <footer class="site-footer">
-    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a> — Enjoying Ghostbit? {% set stars = star_count() %}<a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ {% if stars is not none %}{{ stars }} stars on GitHub{% else %}Star us on GitHub{% endif %}</a> — yours would mean a lot!
+    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a>. Enjoying Ghostbit? {% set stars = star_count() %}<a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ {% if stars is not none %}{{ stars }} stars on GitHub{% else %}Star us on GitHub{% endif %}</a>, yours would mean a lot!
   </footer>
 </div>
 {% endblock %}
