@@ -38,6 +38,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     outputs:
+      release: ${{ steps.gate.outputs.release }}
       version: ${{ steps.read.outputs.version }}
       tag: ${{ steps.read.outputs.tag }}
     steps:
@@ -56,18 +57,33 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION"    >> $GITHUB_OUTPUT
 
-      - name: Check tag does not already exist
+      # This step used to print "skipping release" and then exit 1, so the
+      # message and the act disagreed: it meant skip, it did fail. Every push
+      # to main that did not bump the version left the branch red, for the
+      # entirely ordinary reason that there was nothing new to publish.
+      #
+      # A permanent red teaches people to stop reading the tab, and then a
+      # real failure arrives looking exactly like the noise they have learned
+      # to ignore. Nothing to release is a third state: not fine, not broken,
+      # simply no work. It is now an output the later jobs read, so they skip
+      # and the run is green.
+      - name: Decide whether there is anything to release
+        id: gate
         run: |
           TAG="v${{ steps.read.outputs.version }}"
           if git ls-remote --tags origin | grep -q "refs/tags/${TAG}$"; then
-            echo "Tag ${TAG} already exists — skipping release."
-            exit 1
+            echo "Tag ${TAG} already exists: nothing to release."
+            echo "release=false" >> $GITHUB_OUTPUT
+          else
+            echo "Tag ${TAG} is new: the release jobs will run."
+            echo "release=true" >> $GITHUB_OUTPUT
           fi
 
   # ── 3. Build wheel + sdist ───────────────────────────────────────────────────
   build:
     name: Build
     needs: version
+    if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -89,6 +105,7 @@ jobs:
   tag:
     name: Create tag
     needs: [version, build]
+    if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -104,6 +121,7 @@ jobs:
   publish-pypi:
     name: Publish to PyPI
     needs: [version, build, tag]
+    if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -124,6 +142,7 @@ jobs:
   github-release:
     name: GitHub Release
     needs: [version, build, tag]
+    if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
