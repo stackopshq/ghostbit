@@ -11,14 +11,12 @@ on:
       - "pyproject.toml"
       - "requirements*.txt"
       - ".github/workflows/test.yml"
+  # Pas de filtre `paths` sur les pull requests, contrairement au `push`
+  # ci-dessus, et c'est délibéré : `main` est désormais protégée avec
+  # `Test / *` en contrôle requis. Un filtre ici ferait qu'une pull request de
+  # documentation ne produirait AUCUN contrôle — et une exigence qui n'arrive
+  # jamais ne bloque pas la fusion « en attendant », elle la bloque à jamais.
   pull_request:
-    paths:
-      - "app/**"
-      - "tests/**"
-      - "cli/**"
-      - "pyproject.toml"
-      - "requirements*.txt"
-      - ".github/workflows/test.yml"
   workflow_dispatch:
 
 permissions:
