@@ -24,77 +24,100 @@ permissions:
 jobs:
   build:
     name: Build & push
-    runs-on: ubuntu-latest
+    # Le runner `ubuntu-latest` de la forge exécute les jobs DANS un conteneur, sans
+    # accès au moteur : `Set up QEMU` y meurt sur « permission denied ... docker.sock »
+    # (run 2893). Le runner hôte a podman, et c'est déjà là que ghostcal construit ses
+    # images. Sur GitHub, où ce label n'existe pas, ce job ne s'exécute pas — ce qui est
+    # sans conséquence : le miroir y est figé et n'a rien construit depuis le 14 août.
+    runs-on: [self-hosted, linux, x64]
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v6
 
       # ── Vulnerability + secret + misconfig scan ───────────────────────────
       # Runs before the build so a CVE in requirements.txt or a leaked secret
-      # blocks the push entirely. `ignore-unfixed` keeps the gate actionable:
+      # blocks the push entirely. `--ignore-unfixed` keeps the gate actionable:
       # only CVEs that *have* a fix available will fail the job.
-      - name: Trivy scan (filesystem)
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL,HIGH
-          exit-code: "1"
-          ignore-unfixed: true
-          scanners: vuln,secret,misconfig
-
-      # ── Multi-platform builder (amd64 + arm64) ────────────────────────────
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      # ── Login to registries ───────────────────────────────────────────────
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
-
-      - name: Login to Docker Hub
-        if: ${{ env.DOCKERHUB_TOKEN != '' }}
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #
+      # The binary is fetched directly rather than through aquasecurity/trivy-action:
+      # that action checks out the trivy repository with the job's token, and here the
+      # job token is a Gitea one, worthless against github.com. Every run since the
+      # forge took over died on « could not read Username for 'https://github.com' ».
+      # ghostcal solved the same failure with `token-setup-trivy`; a release tarball
+      # needs no token at all, which is one dependency fewer for the same scan.
+      #
+      # Installed under RUNNER_TEMP, not /usr/local/bin: this runner is a long-lived
+      # shared machine, and a job has no business leaving binaries on it.
+      - name: Install Trivy
         env:
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          TRIVY_VERSION: "0.70.0"
+          TRIVY_SHA256: "8b4376d5d6befe5c24d503f10ff136d9e0c49f9127a4279fd110b727929a5aa9"
+        run: |
+          set -euo pipefail
+          archive="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          curl -sSfL --retry 5 --retry-delay 3 --retry-all-errors \
+            -o "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/${archive}"
+          echo "${TRIVY_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum -c -
+          tar -xzf "${RUNNER_TEMP}/${archive}" -C "${RUNNER_TEMP}" trivy
+          "${RUNNER_TEMP}/trivy" --version
 
-      # ── Tags & OCI labels ─────────────────────────────────────────────────
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: |
-            ghcr.io/stackopshq/ghostbit
-            stackopshq/ghostbit
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=edge,branch=main
-            type=sha,prefix=sha-,format=short
-          labels: |
-            org.opencontainers.image.title=Ghostbit
-            org.opencontainers.image.description=Self-hosted, end-to-end encrypted paste service
-            org.opencontainers.image.vendor=StackOps HQ
-            org.opencontainers.image.licenses=MIT
-            org.opencontainers.image.documentation=https://docs.ghostbit.dev
+      - name: Trivy scan (filesystem)
+        env:
+          # ghcr.io rate-limits Trivy DB pulls; AWS's public mirror first, as in ghostcal.
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db,ghcr.io/aquasecurity/trivy-db:2
+        run: |
+          "${RUNNER_TEMP}/trivy" fs . \
+            --severity CRITICAL,HIGH \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --scanners vuln,secret,misconfig
 
-      # ── Build & push ──────────────────────────────────────────────────────
-      - name: Build and push
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # ── Build ─────────────────────────────────────────────────────────────
+      # amd64 only, and that is why the moving tags are left alone below:
+      # `core-run-01` has neither qemu-user-static nor any binfmt handler
+      # (measured 2026-08-31), so it cannot produce the arm64 half that the
+      # GitHub build used to publish.
+      - name: Build image (Podman)
+        run: |
+          podman build -t ghostbit:ci . \
+            --label org.opencontainers.image.title=Ghostbit \
+            --label "org.opencontainers.image.description=Self-hosted, end-to-end encrypted paste service" \
+            --label org.opencontainers.image.vendor="StackOps HQ" \
+            --label org.opencontainers.image.licenses=MIT \
+            --label org.opencontainers.image.documentation=https://docs.ghostbit.dev \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+
+      # ── Publish ───────────────────────────────────────────────────────────
+      # Only `sha-<short>`, deliberately. `main`, `latest` and the semver tags are
+      # multi-architecture as published from GitHub on 2026-08-14, and moving them
+      # to an amd64-only image would break every arm64 install that follows them —
+      # silently, since a manifest simply stops listing their platform.
+      #
+      # An immutable tag is also what a deployment should pin: Ansible resolves it
+      # to a digest, and an operator can say which build is running.
+      #
+      # Restoring the moving tags means restoring arm64: install qemu-user-static
+      # on core-run-01, then build with `--platform linux/amd64,linux/arm64 --manifest`.
+      - name: Publish image to ghcr.io
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          REGISTRY: ghcr.io
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          # `ghcr.io/stackopshq/…` spelled out: on this forge `github.repository`
+          # is `stackops/ghostbit`, a namespace that does not exist on GitHub.
+          IMAGE: ghcr.io/stackopshq/ghostbit
+        run: |
+          set -euo pipefail
+          # GITHUB_TOKEN here is a forge token; ghcr.io answers 403 to it.
+          printf '%s' "${GHCR_TOKEN}" \
+            | podman login "${REGISTRY}" -u "${GHCR_USERNAME}" --password-stdin
+          SHORT="$(git rev-parse --short HEAD)"
+          podman tag ghostbit:ci "${IMAGE}:sha-${SHORT}"
+          podman push "${IMAGE}:sha-${SHORT}"
+          echo "published ${IMAGE}:sha-${SHORT}"
+          podman image inspect "${IMAGE}:sha-${SHORT}" --format 'digest={{.Digest}}'
+          podman logout "${REGISTRY}" || true
