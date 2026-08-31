@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Le conteneur partagé : c'est par lui que l'extension lit l'adresse de l'instance
+	     que l'application a réglée. Sans lui, la feuille de partage ne sait pas où poster.
+	     Le même identifiant doit figurer dans Runner.entitlements. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.dev.ghostbit</string>
+	</array>
+	<!-- Le groupe d'accès au trousseau : c'est par lui qu'un paste créé depuis la feuille
+	     de partage devient visible — et donc révocable — dans l'application. Sans lui, les
+	     deux processus écrivent chacun dans son coin, sans erreur d'aucun côté. -->
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)group.dev.ghostbit</string>
+	</array>
+</dict>
+</plist>

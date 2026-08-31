@@ -1,0 +1,7 @@
+module ghost_crypto_ffiFFI {
+    header "ghost_crypto_ffiFFI.h"
+    export *
+    use "Darwin"
+    use "_Builtin_stdbool"
+    use "_Builtin_stdint"
+}

@@ -1,0 +1,30 @@
+[package]
+name = "rust_lib_ghostbit"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib", "lib"]
+
+[dependencies]
+base64 = "0.22.1"
+flutter_rust_bridge = "=2.13.0"
+
+# Le cœur commun de la suite, pris **directement** et non à travers son binding UniFFI.
+#
+# Deux générateurs coexistent au-dessus du même cœur : UniFFI pour la feuille de partage
+# iOS — un processus séparé où Flutter ne tient pas — et `flutter_rust_bridge` pour
+# l'application. Les empiler l'un sur l'autre aurait ajouté une frontière sans rien
+# apporter ; ils sont frères, chacun au-dessus de `ghost-crypto`.
+#
+# Chemin relatif assumé : la suite vit à côté du produit, comme chez ghostcal.
+ghost-crypto = { path = "../../../../suite/crates/ghost-crypto" }
+
+[dev-dependencies]
+# Le témoin croisé chiffre « comme le navigateur » sans passer par notre code : s'il
+# passait par `partage`, il ne comparerait le cœur qu'à lui-même.
+aes-gcm = "0.10.3"
+serde_json = "1.0.151"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
