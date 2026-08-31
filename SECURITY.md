@@ -9,7 +9,7 @@ runs a current build.
 | Version | Supported |
 |---|---|
 | Latest release (and `main`) | ✅ |
-| Anything older | ❌ — upgrade |
+| Anything older | ❌ upgrade |
 
 ## Reporting a vulnerability
 
@@ -38,5 +38,5 @@ We aim to acknowledge reports within **48 hours** and provide a fix or mitigatio
 
 ## Encryption model
 
-Ghostbit uses true end-to-end encryption — the server stores ciphertext only and can never read paste content.
+Ghostbit uses true end-to-end encryption: the server stores ciphertext only and can never read paste content.
 Full details: [docs.ghostbit.dev/encryption](https://docs.ghostbit.dev/encryption/)

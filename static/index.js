@@ -1,5 +1,5 @@
 /**
- * Index page — new-paste editor with CodeMirror, live char counter,
+ * Index page: new-paste editor with CodeMirror, live char counter,
  * CM mode-switching from the language picker, password-strength meter,
  * submit flow, and a typewriter animation in the hero tagline.
  *
@@ -111,7 +111,7 @@
 
   // CodeMirror ships every language mode in one ~190 KB bundle. The editor
   // opens in plain-text mode, so that bundle is dead weight until a language is
-  // actually detected or picked — and on mobile it was competing for bandwidth
+  // actually detected or picked, and on mobile it was competing for bandwidth
   // with the element that decides LCP. Fetch it on first use instead.
   //
   // No nonce needed: script-src allows 'self' and carries no 'strict-dynamic',
@@ -136,7 +136,7 @@
 
   function setCmMode(lang) {
     const mode = CM_MODE[lang] ?? null;
-    // Plain text needs no mode file — never pay for the bundle just to clear.
+    // Plain text needs no mode file, never pay for the bundle just to clear.
     if (!mode) {
       cm.setOption('mode', null);
       return;
@@ -225,7 +225,7 @@
 
   // Strength heuristic: coarse, client-only, never shipped to server.
   // Scoring = length tiers + variety (lower/upper/digit/symbol). Good enough
-  // to nudge users off "password123" — not a substitute for a KDF cost.
+  // to nudge users off "password123", not a substitute for a KDF cost.
   function scorePassword(pw) {
     if (!pw) return 0;
     let score = 0;

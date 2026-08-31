@@ -1,6 +1,6 @@
 """Tests for language detection.
 
-detect_language is best-effort (Pygments heuristics) — tests verify
+detect_language is best-effort (Pygments heuristics): tests verify
 the interface contract, not specific detection accuracy.
 """
 
@@ -36,7 +36,7 @@ def test_detects_python():
 
 
 def test_returns_string_or_none():
-    """Return type is always str | None — never raises."""
+    """Return type is always str | None, never raises."""
     result = detect_language(_PYTHON)
     assert result is None or isinstance(result, str)
 
@@ -51,7 +51,7 @@ def test_empty_returns_none():
 
 def test_plain_text_returns_none():
     prose = "This is a simple note without any code in it. " * 10
-    # May return None or a language — what matters is it never raises
+    # May return None or a language: what matters is it never raises
     result = detect_language(prose)
     assert result is None or isinstance(result, str)
 

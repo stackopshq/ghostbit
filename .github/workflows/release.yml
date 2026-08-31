@@ -12,7 +12,7 @@ on:
 
 permissions:
   contents: write   # créer le tag + la GitHub Release
-  id-token: write   # PyPI Trusted Publishing (OIDC — aucun secret requis)
+  id-token: write   # PyPI Trusted Publishing (OIDC: aucun secret requis)
 
 jobs:
   # ── 1. Tests ─────────────────────────────────────────────────────────────────

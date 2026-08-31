@@ -93,14 +93,14 @@ impersonate another IP).
 
 When `TRUST_PROXY_HEADERS=true`, the Docker image also starts uvicorn with
 `--proxy-headers` so the real client IP is substituted for the proxy's address
-in `request.client.host` (and in the access log, if you enabled it — see
+in `request.client.host` (and in the access log, if you enabled it, see
 below). If you run the server outside of Docker, pass those flags yourself
 (`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
 
 ## Privacy notice identity
 
 The app serves a `/privacy` notice grounded in what the code actually does.
-Three variables identify the controller on it — required for a public
+Three variables identify the controller on it: required for a public
 GDPR/nLPD deployment, neutral fallback wording otherwise:
 
 ```env
@@ -112,14 +112,14 @@ PRIVACY_AUTHORITY="the BfDI (Germany)"
 ## Access logging
 
 The Docker image starts uvicorn with `--no-access-log` **by default**. An
-access log line pairs a client IP with a paste ID and a timestamp — exactly
+access log line pairs a client IP with a paste ID and a timestamp: exactly
 the correlation the rest of Ghostbit is designed to avoid, and the basis for
 the "no IP addresses are ever logged" statement in the docs.
 
 Set `ACCESS_LOG=true` to turn access logging back on for debugging. Be aware
 of what that means: combined with `TRUST_PROXY_HEADERS=true` you are then
 recording real client IPs next to capability URLs, which makes you a
-processor of personal data under the GDPR/nLPD — put a retention on those
+processor of personal data under the GDPR/nLPD: put a retention on those
 logs and say so in your privacy notice. Outside of Docker, uvicorn logs
 accesses unless you pass `--no-access-log` yourself.
 
@@ -148,7 +148,7 @@ A malformed value (missing `http://` / `https://` scheme) fails fast at startup.
 
 ## Observability
 
-Ghostbit exposes three endpoints for operators — `/healthz` and `/readyz`
+Ghostbit exposes three endpoints for operators: `/healthz` and `/readyz`
 are always unauthenticated; `/metrics` is unauthenticated unless
 `METRICS_TOKEN` is set:
 
@@ -159,7 +159,7 @@ are always unauthenticated; `/metrics` is unauthenticated unless
 | `/metrics` | Prometheus text | Scrape target for Prometheus/Grafana/Alertmanager. |
 
 The `/metrics` endpoint carries no per-paste data (only aggregate counters
-and a latency histogram, with route *templates* as labels — never real paste
+and a latency histogram, with route *templates* as labels, never real paste
 IDs), but it does reveal usage rates and the exact Python version. On a
 public deployment, set `METRICS_TOKEN` and give Prometheus the same value:
 
@@ -172,7 +172,7 @@ scrape_configs:
 
 Requests without `Authorization: Bearer <token>` then get `401`. Leaving the
 variable empty keeps the endpoint open, which is fine when it is only
-reachable from a private network — or restrict it at the reverse proxy.
+reachable from a private network, or restrict it at the reverse proxy.
 
 Exposed metrics:
 

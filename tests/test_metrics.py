@@ -94,7 +94,7 @@ async def test_view_increments_counter_with_burn_label(client):
 
 
 async def test_metrics_endpoint_does_not_recurse_into_latency_histogram(client):
-    """The /metrics path is excluded from the latency histogram — otherwise
+    """The /metrics path is excluded from the latency histogram: otherwise
     every scrape would double as a data point and bias P99 heavily."""
     text = (await client.get("/metrics")).text
     # The path="/metrics" label must not appear in the latency histogram.

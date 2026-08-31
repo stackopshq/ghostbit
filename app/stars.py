@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 _REFRESH_INTERVAL = 3600  # GitHub allows 60 unauthenticated calls/hour/IP
 _TIMEOUT = 5
 
-# None means "no number to show" — either never fetched, or every attempt
+# None means "no number to show": either never fetched, or every attempt
 # failed. The template omits the count rather than rendering a misleading 0.
 _count: int | None = None
 

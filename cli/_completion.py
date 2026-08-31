@@ -1,7 +1,7 @@
 """Shell completion templates (bash, zsh, fish).
 
 Kept in its own module so the main cli.py stays focused on the command
-logic — this file is 90% string literals. `LANGUAGES` is injected at
+logic, this file is 90% string literals. `LANGUAGES` is injected at
 render time via a placeholder so adding a language to the list in
 _languages requires no change here.
 """

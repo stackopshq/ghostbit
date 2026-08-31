@@ -7,7 +7,7 @@
      ramènerait une pile qui nommait JetBrains Mono sans en livrer un octet :
      toutes les règles `var(--font-mono)` rendaient donc en Consolas depuis le
      premier jour. */
-  /* Radii — the four charter tokens, exactly as emit_theme.py emits them.
+  /* Radii: the four charter tokens, exactly as emit_theme.py emits them.
      check_brand_drift.py compares these values (and every literal) to the
      charter's; buttons carry --radius-pill by design, like .ghost-btn. */
   --radius-sm: 8px;
@@ -16,7 +16,7 @@
   --radius-pill: 999px;
   --transition: 0.15s ease;
 
-  /* Type scale — the Ghost Suite's seven steps, exactly as emit_theme.py
+  /* Type scale: the Ghost Suite's seven steps, exactly as emit_theme.py
      emits them (ghostsuite, assets/<product>/ghost-theme.css). Every
      font-size below points at one of these tokens; check_brand_drift.py
      flags any literal size off the scale. Not to be confused with --text /
@@ -53,7 +53,7 @@
   --notice-info-fg:    var(--drac-cyan);
   --notice-success-fg: var(--drac-green);
 
-  /* Ghostbit brand — Cyber-Violet */
+  /* Ghostbit brand: Cyber-Violet */
   --brand-primary:  #BC13FE;
   --brand-light:    #D067FF;
   --brand-ghost:    #F3E5FF;
@@ -98,7 +98,7 @@
 
   /* Logo gradient finishes near-white on dark so it pops against the
      navy-purple gradient background. On a light page the same gradient
-     vanishes into the background — themed below. The glow is the neon
+     vanishes into the background: themed below. The glow is the neon
      trail you'd want on dark, replaced by a crisper shadow on light. */
   --logo-text-gradient: linear-gradient(135deg, #BC13FE 0%, #D067FF 60%, #F3E5FF 100%);
   --logo-glow:     drop-shadow(0 0 6px rgba(188, 19, 254, 0.7)) drop-shadow(0 0 14px rgba(188, 19, 254, 0.4));
@@ -108,7 +108,7 @@
 }
 
 /* ── Light theme ────────────────────────────────────────────────────────────── */
-/* Brand purple stays as the accent in both themes — only the surface/text/
+/* Brand purple stays as the accent in both themes: only the surface/text/
    border surfaces flip, so the wordmark and CTAs keep the Ghostbit identity. */
 [data-theme="light"] {
   --bg-page:      #f6f7fb;
@@ -173,7 +173,7 @@ body {
 
 /* The <main> landmark wraps the page block. body is a flex column and
    .page-bg/.page-plain claim `flex: 1` as its children, so main forwards both
-   the growth and the axis — it exists for assistive tech, not for layout. */
+   the growth and the axis, it exists for assistive tech, not for layout. */
 main {
   flex: 1;
   display: flex;
@@ -220,7 +220,7 @@ header {
   align-items: center;
   gap: 12px;
 
-  /* Gradient text — themed (see --logo-text-gradient). */
+  /* Gradient text: themed (see --logo-text-gradient). */
   background: var(--logo-text-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -902,7 +902,7 @@ kbd {
   user-select: none;
 }
 
-/* Inbar — meta + actions inside the code block */
+/* Inbar: meta + actions inside the code block */
 .paste-inbar {
   display: flex;
   align-items: center;
@@ -1197,7 +1197,7 @@ kbd {
   color: var(--drac-pink);
 }
 /* Inline code inside a heading used to ride an em ratio (0.84em). The suite
-   scale has no ratios, so the same intent — code one step below its heading —
+   scale has no ratios, so the same intent: code one step below its heading:
    is written out per level. */
 .md-body h1 code { font-size: var(--text-xl); }
 .md-body h2 code { font-size: var(--text-lg); }
@@ -1356,7 +1356,7 @@ kbd {
 }
 .toast-close:hover { opacity: 1; }
 
-/* ── Syntax highlighting (highlight.js — Dracula theme) ─────────────────────── */
+/* ── Syntax highlighting (highlight.js: Dracula theme) ─────────────────────── */
 .hljs                          { color: var(--drac-fg); background: transparent; }
 .hljs-comment, .hljs-quote     { color: var(--drac-comment); font-style: italic; }
 .hljs-keyword, .hljs-selector-tag,
@@ -1434,7 +1434,7 @@ kbd {
 }
 .error-code {
   font-family: var(--font-mono);
-  /* Display size: off any scale by design, so it is fluid — a step would
+  /* Display size: off any scale by design, so it is fluid: a step would
      cap it at 1.75rem and a literal would be flagged. Shrinks on phones. */
   font-size: clamp(3.5rem, 14vw, 6rem);
   font-weight: 800;
@@ -1528,11 +1528,11 @@ kbd {
 
 /* ── Theme toggle button ───────────────────────────────────────────────── */
 /* Inherits the .btn-new look (background, border, padding, font) so it sits
-   visually flush with the GitHub/Docs buttons next to it — only the icon
+   visually flush with the GitHub/Docs buttons next to it: only the icon
    alternates and the dimmed opacity matches the other secondary actions. */
 .btn-theme { opacity: 0.6; }
 .btn-theme:hover { opacity: 1; }
-/* Show the icon that matches "what you switch TO" — sun in dark mode,
+/* Show the icon that matches "what you switch TO": sun in dark mode,
    moon in light mode, following the convention used by macOS/GitHub. */
 .btn-theme .icon-sun  { display: none; }
 .btn-theme .icon-moon { display: inline-block; }
@@ -1588,7 +1588,7 @@ kbd {
 .edit-card textarea:focus { outline: none; border-color: var(--border-focus); }
 .edit-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
-/* ── CodeMirror — light-mode overrides ─────────────────────────────────── */
+/* ── CodeMirror: light-mode overrides ─────────────────────────────────── */
 /* The editor is instantiated with theme="dracula" (a dark palette) in JS.
    Rather than juggle two CodeMirror themes from the toggle, we override
    the dracula colors here for [data-theme="light"]. Brand purple stays
@@ -1633,7 +1633,7 @@ kbd {
   text-decoration: underline; color: var(--text) !important;
 }
 
-/* ── Logo — make the violet ghost PNG hold up in light mode ────────────── */
+/* ── Logo: make the violet ghost PNG hold up in light mode ────────────── */
 /* The PNG was painted for a dark background (light violet/magenta with a
    neon halo). On a light page the bright tones wash out. Tightening
    brightness + saturation gives it real presence without a redraw. */

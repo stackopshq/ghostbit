@@ -48,7 +48,7 @@ services:
     # REDISCLI_AUTH instead of `-a <password>`: the -a form expanded the secret
     # into the probe's argv at compose time, visible in the container's process
     # table on every probe. (The `--requirepass` in `command:` above is still
-    # argv-visible — Redis offers no env alternative short of a config file;
+    # argv-visible: Redis offers no env alternative short of a config file;
     # use one, or podman secrets, if that matters in your threat model.)
     healthcheck:
       test: >

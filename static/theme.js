@@ -1,5 +1,5 @@
 /**
- * Theme toggle — flips data-theme between "dark" and "light" and persists
+ * Theme toggle: flips data-theme between "dark" and "light" and persists
  * the choice in localStorage. The initial theme is set by an inline script
  * in <head> to avoid a flash of the wrong palette before this script runs.
  */

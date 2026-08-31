@@ -7,7 +7,7 @@
 | Docker Hub | [`stackopshq/ghostbit`](https://hub.docker.com/r/stackopshq/ghostbit) |
 | GHCR | `ghcr.io/stackopshq/ghostbit` |
 
-Available tags: `sha-<short-commit>` (amd64), one per commit on `main` —
+Available tags: `sha-<short-commit>` (amd64), one per commit on `main`:
 pin by digest for deployments. The moving tags (`latest`, `edge`, semver)
 are frozen at the last multi-arch build and will move again once the
 build farm regains arm64 support; do not use them for new installs.
@@ -156,7 +156,7 @@ docker compose up -d --build
 - No IP addresses or User-Agent strings are logged by default: the Docker
   image starts uvicorn with `--no-access-log`. Setting `ACCESS_LOG=true`
   (or running uvicorn yourself without `--no-access-log`) re-enables access
-  lines that pair client IPs with paste IDs — see
+  lines that pair client IPs with paste IDs, see
   [Configuration → Access logging](configuration.md#access-logging)
 - Paste IDs are `secrets.token_urlsafe(6)`: random, non-sequential
 - Burn-after-read fires only on API reads, not on HTML page loads
@@ -164,6 +164,6 @@ docker compose up -d --build
 - Backups (`scripts/backup.sh`) are age-encrypted and pruned after
   `BACKUP_RETENTION_DAYS` (30 by default)
 - The in-app `/privacy` notice names **your** instance's controller once you
-  set `PRIVACY_OPERATOR`, `PRIVACY_CONTACT_URL` and `PRIVACY_AUTHORITY` —
+  set `PRIVACY_OPERATOR`, `PRIVACY_CONTACT_URL` and `PRIVACY_AUTHORITY`:
   required for a public GDPR/nLPD-compliant deployment. The full checklist
   lives in the README under "Compliant deployments (GDPR / nLPD)"

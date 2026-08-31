@@ -2,8 +2,8 @@
 Prometheus metrics for Ghostbit.
 
 Exposed on GET /metrics (a plain route in main.py). The endpoint is open
-by default — there are no per-paste details here, only aggregate counters
-and histograms — and can be gated with METRICS_TOKEN, or restricted to
+by default, there are no per-paste details here, only aggregate counters
+and histograms, and can be gated with METRICS_TOKEN, or restricted to
 the scraper's IP at the reverse proxy.
 
 Design choice: we hand-roll the counters instead of using a broad
@@ -56,7 +56,7 @@ http_request_duration_seconds = Histogram(
 sqlite_pool_wait_seconds = Histogram(
     "ghostbit_sqlite_pool_wait_seconds",
     "Time a storage call spent waiting for a free SQLite connection. A non-zero "
-    "P99 means the pool is a bottleneck — raise SQLITE_POOL_SIZE.",
+    "P99 means the pool is a bottleneck: raise SQLITE_POOL_SIZE.",
     # 10 µs … 1 s; anything above 100 ms means serious contention.
     buckets=(0.00001, 0.0001, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0),
 )

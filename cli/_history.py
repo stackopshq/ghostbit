@@ -1,7 +1,7 @@
 """Local, privacy-first paste history (~/.local/share/ghostbit/history.jsonl).
 
 Every paste created by the CLI gets one JSONL line appended. The file
-never leaves the user's machine — the CLI does not sync it anywhere —
+never leaves the user's machine: the CLI does not sync it anywhere:
 and is only read by `gbit list` / `gbit list --clear`.
 
 Each entry carries `full_url`, i.e. the URL *with* the `#key~token`
@@ -30,7 +30,9 @@ def history_append(entry: dict) -> None:
         with os.fdopen(fd, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry) + "\n")
         os.chmod(HISTORY_PATH, 0o600)
-    except Exception:  # noqa: BLE001 — intentional best-effort
+    # Intentional catch-all: history is a convenience, never a reason to
+    # fail a paste.
+    except Exception:  # noqa: BLE001
         pass
 
 

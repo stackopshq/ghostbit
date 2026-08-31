@@ -14,7 +14,7 @@ on:
   # Pas de filtre `paths` sur les pull requests, contrairement au `push`
   # ci-dessus, et c'est délibéré : `main` est désormais protégée avec
   # `Test / *` en contrôle requis. Un filtre ici ferait qu'une pull request de
-  # documentation ne produirait AUCUN contrôle — et une exigence qui n'arrive
+  # documentation ne produirait AUCUN contrôle, et une exigence qui n'arrive
   # jamais ne bloque pas la fusion « en attendant », elle la bloque à jamais.
   pull_request:
   workflow_dispatch:
@@ -30,7 +30,7 @@ jobs:
   # ── Secret scan on every PR. ─────────────────────────────────────────────────
   # README and CONTRIBUTING promise "the same checks run in CI" about the
   # pre-commit hooks (ruff + gitleaks); until this job, gitleaks only ever ran
-  # on machines where the hook was installed — i.e. optionally. Installed from
+  # on machines where the hook was installed, i.e. optionally. Installed from
   # the release tarball with a pinned checksum, same pattern as Trivy in
   # docker.yml: an action would clone github.com with the forge's job token.
   secrets:
@@ -95,7 +95,7 @@ jobs:
         run: ruff format --check app/ tests/ cli/
 
   # ── Test matrix: both backends, since prod runs Redis but most local
-  #    development uses SQLite — we need either to break the build, not
+  #    development uses SQLite: we need either to break the build, not
   #    just the one that happens to match the developer's setup.
   test:
     name: Test (${{ matrix.backend }})

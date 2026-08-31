@@ -4,7 +4,7 @@
 to what the server stores, logs, or sends).
 
 This page is the record of a GDPR / nLPD (revised Swiss data protection act)
-/ ISO 27001-alignment review of Ghostbit — code, deployment defaults, CI, and
+/ ISO 27001-alignment review of Ghostbit: code, deployment defaults, CI, and
 public claims. It is a **self-assessment**: no accredited body has certified
 anything here, and the badges in the README say exactly that. "ISO
 27001-aligned" means the technical controls an auditor would ask this product
@@ -18,7 +18,7 @@ Ghostbit is a self-hostable product, so "compliant" is a property of an
 *installation*, not only of this codebase. The software supplies
 privacy-by-default (no accounts, cookies, third-party requests or access
 logs) and a `/privacy` notice whose controller identity comes from
-`PRIVACY_OPERATOR` / `PRIVACY_CONTACT_URL` / `PRIVACY_AUTHORITY` — a
+`PRIVACY_OPERATOR` / `PRIVACY_CONTACT_URL` / `PRIVACY_AUTHORITY`: a
 hardcoded operator would have made every install but ours serve a false
 notice. The deployment-side obligations (naming yourself, keeping access
 logs off, bounding proxy/CDN log retention, backup retention, closing
@@ -40,15 +40,15 @@ encrypted in the client; the key never reaches the server; there are no
 accounts, no cookies, no analytics, and no third-party requests from any page
 the app serves. The full inventory of what the server does hold, for how
 long, and for whom, is in the [privacy notice](https://ghostbit.dev/privacy)
-— kept deliberately short because the honest answer is short.
+kept deliberately short because the honest answer is short.
 
 ## What the 2026-08-31 audit found and fixed
 
 | Finding | Severity | Fix |
 |---|---|---|
 | uvicorn access logs on by default: every line paired a client IP with a paste ID, contradicting the documented "no IP logging" | High (privacy) | Access logging off by default in the image; `ACCESS_LOG=true` opts in, documented as a data-protection decision |
-| `/docs` and `/redoc` referenced third-party CDNs (jsdelivr, Google Fonts) — and rendered blank anyway under our CSP | Medium (privacy) | Both removed; `/openapi.json` remains; API reference lives in this docs site |
-| docs.ghostbit.dev imported Google Fonts — every docs reader's IP went to Google | Medium (privacy) | Fonts self-hosted (same woff2 the app serves) |
+| `/docs` and `/redoc` referenced third-party CDNs (jsdelivr, Google Fonts), and rendered blank anyway under our CSP | Medium (privacy) | Both removed; `/openapi.json` remains; API reference lives in this docs site |
+| docs.ghostbit.dev imported Google Fonts: every docs reader's IP went to Google | Medium (privacy) | Fonts self-hosted (same woff2 the app serves) |
 | CLI history stored full capability URLs (`#key~token`) with default file permissions | Medium | Created `0600` in a `0700` dir, tightened retroactively on append |
 | Backups (containing webhook URLs and delete-token hashes) accumulated forever | Medium (retention) | Pruned after `BACKUP_RETENTION_DAYS` (default 30) |
 | No privacy notice, no legal surface at all | High (GDPR art. 13 / nLPD art. 19) | `/privacy` served in-app, versioned in git, controller named per-instance via `PRIVACY_*` |
@@ -70,7 +70,7 @@ long, and for whom, is in the [privacy notice](https://ghostbit.dev/privacy)
 - **Access control** (A.8.2/5): no user accounts to protect; delete/edit
   gated by hashed capability tokens compared in constant time; admin
   export/import is a CLI requiring host access, never HTTP.
-- **Secure development** (A.8.25–31): CI on every PR — lint, tests on both
+- **Secure development** (A.8.25–31): CI on every PR: lint, tests on both
   storage backends, secret scan; Trivy (vuln/secret/misconfig) on main;
   pinned dependencies; signed-off release flow with protected `main`.
 - **Supplier management** (A.5.19–23): subprocessors are Cloudflare (CDN/TLS)

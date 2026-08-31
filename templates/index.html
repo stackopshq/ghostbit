@@ -166,7 +166,7 @@
      (~190 KB) but the editor opens in plain-text mode, so it is only needed
      once a language is detected or picked. static/index.js injects it on first
      use; keeping it off the critical path is what unblocks LCP. -->
-<!-- Argon2id WASM lib — only used when the user picks Argon2id in the
+<!-- Argon2id WASM lib: only used when the user picks Argon2id in the
      KDF picker on a password paste. Loaded on every visit so the choice
      is immediately available; 29 KB minified, defer so it never blocks
      first paint. Drop it if your deployment disables Argon2id pastes. -->

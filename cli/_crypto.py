@@ -1,4 +1,4 @@
-"""Client-side crypto — mirrors the browser's static/e2e.js behaviour.
+"""Client-side crypto: mirrors the browser's static/e2e.js behaviour.
 
 Any parameter change here (PBKDF2 iterations, AES mode, nonce length,
 salt length) must be reflected in static/e2e.js and in the app/api.py
@@ -33,7 +33,7 @@ _PBKDF2_ITERATIONS = 600_000
 
 # OWASP 2023+ minimum for Argon2id in interactive contexts (browser/CLI).
 # m = memory in KiB; t = passes; p = parallelism; hash length in bytes.
-# Anything stronger meaningfully impacts page-load time on a phone — bump
+# Anything stronger meaningfully impacts page-load time on a phone: bump
 # these together with the browser WASM lib's defaults when it lands.
 _ARGON2_MEMORY_KIB = 19_456  # 19 MiB
 _ARGON2_TIME_COST = 2
@@ -67,7 +67,7 @@ def encrypt(plaintext: str | bytes, key: bytes) -> tuple[str, str]:
 
 
 def decrypt_bytes(ciphertext_b64: str, nonce_b64: str, key: bytes) -> bytes:
-    """Decrypt returning raw bytes — used by the compressed-paste path."""
+    """Decrypt returning raw bytes: used by the compressed-paste path."""
     ct = base64.b64decode(ciphertext_b64)
     nonce = base64.b64decode(nonce_b64)
     return AESGCM(key).decrypt(nonce, ct, None)
@@ -78,7 +78,7 @@ def decrypt(ciphertext_b64: str, nonce_b64: str, key: bytes) -> str:
 
 
 def derive_key(password: str, salt_b64: str) -> bytes:
-    """PBKDF2-SHA256 at 600k iterations — the historical default."""
+    """PBKDF2-SHA256 at 600k iterations: the historical default."""
     salt = base64.b64decode(salt_b64)
     kdf = PBKDF2HMAC(
         algorithm=_hashes.SHA256(), length=32, salt=salt, iterations=_PBKDF2_ITERATIONS

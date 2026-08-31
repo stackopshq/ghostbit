@@ -17,17 +17,17 @@ from pygments.util import ClassNotFound
 from .languages import pygments_alias_map
 
 # Ordered list of (language_slug, compiled_pattern).
-# Patterns look for strong, unambiguous markers — NOT generic keywords.
+# Patterns look for strong, unambiguous markers, NOT generic keywords.
 _PATTERNS: list[tuple[str, re.Pattern]] = [
     # Shebangs
     ("bash", re.compile(r"^#!\s*/(?:usr/)?(?:local/)?bin/(?:bash|sh|zsh)", re.M)),
-    # JSON — starts with { or [ followed by quoted key or value
+    # JSON: starts with { or [ followed by quoted key or value
     ("json", re.compile(r'^\s*[\[{]\s*\n?\s*"', re.M)),
     # HTML
     ("html", re.compile(r"<!DOCTYPE\s+html|<html[\s>]|<head[\s>]|<body[\s>]", re.I)),
-    # SQL — SELECT/INSERT/UPDATE/DELETE + FROM/INTO/SET
+    # SQL: SELECT/INSERT/UPDATE/DELETE + FROM/INTO/SET
     ("sql", re.compile(r"\b(?:SELECT|INSERT\s+INTO|UPDATE\s+\w+\s+SET|DELETE\s+FROM)\b", re.I)),
-    # CSS — require known CSS properties to avoid false positives
+    # CSS: require known CSS properties to avoid false positives
     (
         "css",
         re.compile(
@@ -37,7 +37,7 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ),
     # YAML front matter or key: value blocks
     ("yaml", re.compile(r"^---\s*\n|^[a-z_][a-z0-9_]*:\s+\S", re.M)),
-    # TypeScript (must come before JavaScript — stricter markers)
+    # TypeScript (must come before JavaScript: stricter markers)
     (
         "typescript",
         re.compile(
@@ -56,7 +56,7 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ),
     # Go
     ("go", re.compile(r"^package\s+\w+|^import\s+\"|\bfmt\.\w+\s*\(|func\s+\w+\s*\(", re.M)),
-    # Rust (before CSS — brace syntax could confuse CSS pattern)
+    # Rust (before CSS: brace syntax could confuse CSS pattern)
     ("rust", re.compile(r"\bfn\s+\w+\s*\(|let\s+mut\s+|use\s+std::|impl\s+\w+")),
     # Ruby
     (
@@ -93,13 +93,13 @@ def detect_language(content: str) -> str | None:
     if not text:
         return None
 
-    # Stage 1 — fast regex patterns (works from 30 chars)
+    # Stage 1: fast regex patterns (works from 30 chars)
     if len(text) >= 30:
         for slug, pattern in _PATTERNS:
             if pattern.search(text):
                 return slug
 
-    # Stage 2 — Pygments heuristic (needs more content)
+    # Stage 2: Pygments heuristic (needs more content)
     if len(text) < _PYGMENTS_MIN:
         return None
 

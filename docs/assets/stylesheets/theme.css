@@ -1,11 +1,11 @@
-/* ── Ghostbit Docs — Cyber-Violet theme ───────────────────────────────────────
+/* ── Ghostbit Docs: Cyber-Violet theme ───────────────────────────────────────
    Mirrors the app's Dracula/Cyber-Violet design language exactly.
    Palette: #0D0B14 bg · #BC13FE accent · #f8f8f2 text · JetBrains Mono code
 ────────────────────────────────────────────────────────────────────────────── */
 
-/* ── Fonts — self-hosted, no request leaves the origin ────────────────────────
+/* ── Fonts: self-hosted, no request leaves the origin ────────────────────────
    The Google Fonts @import that used to sit here sent every docs visitor's IP
-   to Google — on the documentation of a product whose whole pitch is that no
+   to Google: on the documentation of a product whose whole pitch is that no
    third party ever sees its readers. These are the Ghost Suite's own variable
    fonts (see assets/fonts/OFL.txt), the same woff2 the app itself serves;
    mkdocs.yml sets `font: false` so Material does not re-add Google's. */
@@ -102,7 +102,7 @@
   --md-admonition-bg-color:           rgba(188, 19, 254, 0.05);
 }
 
-/* ── Page background — same gradient as the app ──────────────────────────── */
+/* ── Page background: same gradient as the app ──────────────────────────── */
 [data-md-color-scheme="slate"] .md-main {
   background: linear-gradient(150deg, #0D0B14 0%, #110720 45%, #080f1a 75%, #0a0810 100%);
   background-attachment: fixed;
@@ -113,7 +113,7 @@
   background: transparent;
 }
 
-/* ── Header — frosted glass like the app ─────────────────────────────────── */
+/* ── Header: frosted glass like the app ─────────────────────────────────── */
 [data-md-color-scheme="slate"] .md-header {
   background: rgba(13, 11, 20, 0.85);
   backdrop-filter: blur(20px);
@@ -122,7 +122,7 @@
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
 }
 
-/* ── Logo title — gradient text with glow ────────────────────────────────── */
+/* ── Logo title: gradient text with glow ────────────────────────────────── */
 [data-md-color-scheme="slate"] .md-header__title {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
@@ -246,23 +246,23 @@
   padding: 0.1em 0.4em;
 }
 
-/* ── Code blocks — Dracula syntax token colors ────────────────────────────── */
+/* ── Code blocks: Dracula syntax token colors ────────────────────────────── */
 [data-md-color-scheme="slate"] {
-  --md-code-hl-keyword-color:          #ff79c6;  /* pink   — keywords */
-  --md-code-hl-string-color:           #f1fa8c;  /* yellow — strings */
+  --md-code-hl-keyword-color:          #ff79c6;  /* pink: keywords */
+  --md-code-hl-string-color:           #f1fa8c;  /* yellow: strings */
   --md-code-hl-comment-color:          #6272a4;  /* comment */
-  --md-code-hl-number-color:           #bd93f9;  /* purple — numbers */
-  --md-code-hl-function-color:         #50fa7b;  /* green  — functions */
-  --md-code-hl-operator-color:         #ff79c6;  /* pink   — operators */
+  --md-code-hl-number-color:           #bd93f9;  /* purple: numbers */
+  --md-code-hl-function-color:         #50fa7b;  /* green: functions */
+  --md-code-hl-operator-color:         #ff79c6;  /* pink: operators */
   --md-code-hl-punctuation-color:      #f8f8f2;  /* fg */
-  --md-code-hl-name-color:             #8be9fd;  /* cyan   — names / identifiers */
-  --md-code-hl-keyword-variable-color: #bd93f9;  /* purple — self, true, false… */
+  --md-code-hl-name-color:             #8be9fd;  /* cyan: names / identifiers */
+  --md-code-hl-keyword-variable-color: #bd93f9;  /* purple: self, true, false… */
   --md-code-hl-variable-color:         #f8f8f2;  /* fg */
   --md-code-hl-generic-color:          #6272a4;
-  --md-code-hl-special-color:          #ffb86c;  /* orange — special */
+  --md-code-hl-special-color:          #ffb86c;  /* orange: special */
 }
 
-/* ── Code blocks — base (no line numbers) ─────────────────────────────────── */
+/* ── Code blocks: base (no line numbers) ─────────────────────────────────── */
 [data-md-color-scheme="slate"] .md-typeset pre {
   border-radius: 10px;
   border: 1px solid rgba(188, 19, 254, 0.15);
@@ -306,7 +306,7 @@
   background: transparent;
 }
 
-/* Gutter — matches app .line-gutter */
+/* Gutter: matches app .line-gutter */
 [data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos {
   background: rgba(0, 0, 0, 0.15);
   border-right: 1px solid #44475a;
@@ -317,7 +317,7 @@
   white-space: nowrap;
 }
 
-/* Remove Material's inset box-shadow (the grey bar) — body prefix for higher specificity */
+/* Remove Material's inset box-shadow (the grey bar): body prefix for higher specificity */
 body[data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv,
 body[data-md-color-scheme="slate"] .md-typeset .highlighttable .linenodiv {
   box-shadow: none !important;
@@ -335,7 +335,7 @@ body[data-md-color-scheme="slate"] .md-typeset .highlighttable .linenodiv {
   user-select: none;
 }
 
-/* Line number anchors — override all link styles */
+/* Line number anchors: override all link styles */
 [data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv,
 [data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv pre,
 [data-md-color-scheme="slate"] .md-typeset .highlighttable td.linenos .linenodiv .normal,

@@ -1,5 +1,5 @@
 """
-Webhook delivery — fire-and-forget POST on paste read.
+Webhook delivery: fire-and-forget POST on paste read.
 
 Payload (JSON):
   {
@@ -20,7 +20,7 @@ Signature (optional):
   can reject stale deliveries (replay protection) without parsing the body.
 
 - Non-blocking: runs in a background task, never delays the response.
-- Single attempt with a 5s timeout — no retries to avoid hammering.
+- Single attempt with a 5s timeout, no retries to avoid hammering.
 """
 
 import asyncio
@@ -51,7 +51,7 @@ def _is_non_public(ip: "ipaddress.IPv4Address | ipaddress.IPv6Address") -> bool:
 
     Delegates to the stdlib `is_global` property, which covers RFC-1918,
     loopback, link-local, CGNAT (100.64/10), benchmark (198.18/15), TEST-NET,
-    reserved, and unspecified ranges. Multicast is also rejected — Python
+    reserved, and unspecified ranges. Multicast is also rejected: Python
     considers multicast ranges `is_global=True` but they make no sense as
     unicast webhook targets and could be abused (e.g. flooding).
 
@@ -70,11 +70,11 @@ def _resolve_public_ip(host: str, port: int) -> str:
     flips the record to a private IP before the webhook fires.
 
     Policy: if *any* resolved address is private, the whole host is rejected
-    (not just the bad IP) — the caller shouldn't be asked to pick a "safe
+    (not just the bad IP), the caller shouldn't be asked to pick a "safe
     one" among a set the attacker controls.
 
     Raises SSRFError on any failure. Callers must not fall back to hostname-
-    based connection if this raises — the whole point is to bypass the
+    based connection if this raises, the whole point is to bypass the
     kernel resolver for the actual request.
     """
     # Bare IP literal: no DNS, validate directly.
@@ -140,7 +140,7 @@ def _is_ssrf_safe(url: str) -> bool:
     This is a pre-check used at paste creation so users get fast feedback on
     an obviously-bad webhook URL. The authoritative check lives in
     `_resolve_public_ip`, which runs at delivery time and pins the TCP
-    connection to the validated IP — that's what actually defeats DNS
+    connection to the validated IP, that's what actually defeats DNS
     rebinding.
     """
     try:
@@ -176,7 +176,7 @@ def _is_ssrf_safe(url: str) -> bool:
 # Hold strong references to in-flight delivery tasks so the event loop
 # doesn't garbage-collect them mid-flight. `asyncio.create_task` only keeps
 # a weak reference, and a task with no other referrer can be collected
-# before it finishes — the webhook would silently never fire. The done
+# before it finishes: the webhook would silently never fire. The done
 # callback discards the task from the set once delivery completes.
 _pending_deliveries: set[asyncio.Task] = set()
 

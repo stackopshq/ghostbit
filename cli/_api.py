@@ -1,4 +1,4 @@
-"""HTTP plumbing — user-agent, SSL context, typed error reporting.
+"""HTTP plumbing: user-agent, SSL context, typed error reporting.
 
 Kept deliberately thin (no requests/httpx dependency) so the installed
 CLI wheel stays small. certifi is an optional hard-dep from pyproject

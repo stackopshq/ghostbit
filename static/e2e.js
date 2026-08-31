@@ -1,5 +1,5 @@
 /**
- * E2E encryption — AES-256-GCM (Web Crypto API)
+ * E2E encryption: AES-256-GCM (Web Crypto API)
  *
  * Non-password pastes : random key stored in URL #fragment (never sent to server).
  * Password pastes     : key derived via PBKDF2-SHA256 (600 000 iterations).
@@ -76,7 +76,7 @@ const E2E = (() => {
     );
   }
 
-  // Argon2id parameters MUST match cli/_crypto.py and the ADR 0002 table —
+  // Argon2id parameters MUST match cli/_crypto.py and the ADR 0002 table:
   // a drift here silently fails decryption of CLI-created argon2id pastes.
   const ARGON2_PARAMS = { parallelism: 1, iterations: 2, memorySize: 19_456, hashLength: 32 };
 

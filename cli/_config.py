@@ -1,6 +1,6 @@
 """Persistent CLI configuration (~/.config/ghostbit.toml).
 
-Tiny hand-rolled TOML parser/writer — the file only carries one key
+Tiny hand-rolled TOML parser/writer: the file only carries one key
 today ("server"), so pulling in tomllib + tomli-w for a two-line format
 would be overkill for a CLI that already minimizes dependencies.
 """

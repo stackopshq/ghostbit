@@ -27,7 +27,7 @@ jobs:
     # Le runner `ubuntu-latest` de la forge exécute les jobs DANS un conteneur, sans
     # accès au moteur : `Set up QEMU` y meurt sur « permission denied ... docker.sock »
     # (run 2893). Le runner hôte a podman, et c'est déjà là que ghostcal construit ses
-    # images. Sur GitHub, où ce label n'existe pas, ce job ne s'exécute pas — ce qui est
+    # images. Sur GitHub, où ce label n'existe pas, ce job ne s'exécute pas, ce qui est
     # sans conséquence : le miroir y est figé et n'a rien construit depuis le 14 août.
     runs-on: [self-hosted, linux, x64]
     permissions:
@@ -93,7 +93,7 @@ jobs:
       # ── Publish ───────────────────────────────────────────────────────────
       # Only `sha-<short>`, deliberately. `main`, `latest` and the semver tags are
       # multi-architecture as published from GitHub on 2026-08-14, and moving them
-      # to an amd64-only image would break every arm64 install that follows them —
+      # to an amd64-only image would break every arm64 install that follows them:
       # silently, since a manifest simply stops listing their platform.
       #
       # An immutable tag is also what a deployment should pin: Ansible resolves it

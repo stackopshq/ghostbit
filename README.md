@@ -239,7 +239,7 @@ age --decrypt -i ~/.config/age/keys.txt ghostbit-2026-05-24T03-17-00Z.jsonl.age 
 | `TRUST_PROXY_HEADERS` | `false` | Use rightmost `X-Forwarded-For` for rate limiting (enable only behind a trusted proxy) |
 | `BASE_URL` | _none_ | Public base URL (e.g. `https://paste.example.com`) for the absolute links in social-preview meta tags. Derived from the request when unset. |
 | `WEBHOOK_SECRET` | _none_ | HMAC-SHA256 secret for signing webhook payloads |
-| `ACCESS_LOG` | `false` | Re-enable uvicorn access logs (pairs client IPs with paste IDs — see [Compliant deployments](#compliant-deployments-gdpr--nlpd)) |
+| `ACCESS_LOG` | `false` | Re-enable uvicorn access logs (pairs client IPs with paste IDs, see [Compliant deployments](#compliant-deployments-gdpr--nlpd)) |
 | `METRICS_TOKEN` | _none_ | Bearer token gating `GET /metrics`; empty leaves it open |
 | `PRIVACY_OPERATOR` | _none_ | Name (and country) of this instance's operator, shown as the controller on `/privacy` |
 | `PRIVACY_CONTACT_URL` | _none_ | Where `/privacy` sends privacy inquiries |
@@ -251,7 +251,7 @@ age --decrypt -i ~/.config/age/keys.txt ghostbit-2026-05-24T03-17-00Z.jsonl.age 
 
 Ghostbit ships privacy-by-default: no accounts, no cookies, no third-party
 requests from any page, no access logs, client-side encryption. What the
-software cannot do for you is the part that depends on **your** deployment —
+software cannot do for you is the part that depends on **your** deployment:
 this checklist is what keeps an installation compliant:
 
 1. **Name yourself.** Set `PRIVACY_OPERATOR`, `PRIVACY_CONTACT_URL` and
@@ -263,7 +263,7 @@ this checklist is what keeps an installation compliant:
    timestamp pairs: you become a processor of personal data, you owe those
    logs a retention, and your `/privacy` page no longer tells the truth.
 3. **Mind the proxy in front.** Your reverse proxy or CDN logs IPs even when
-   Ghostbit doesn't — bound their retention, and name the CDN in your
+   Ghostbit doesn't: bound their retention, and name the CDN in your
    notice (ghostbit.dev names Cloudflare).
 4. **Bound your backups.** `scripts/backup.sh` encrypts with age and prunes
    after `BACKUP_RETENTION_DAYS` (default 30). Keep the private key offline;

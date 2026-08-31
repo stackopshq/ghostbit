@@ -1,4 +1,4 @@
-"""Admin CLI — export / import pastes for backup or cross-backend migration.
+"""Admin CLI: export / import pastes for backup or cross-backend migration.
 
 The CLI reads the same config as the server (STORAGE_BACKEND, SQLITE_PATH /
 REDIS_URL) so it targets whichever backend is currently active.

@@ -1,5 +1,5 @@
 /**
- * Paste view — fetches ciphertext, decrypts it client-side, and renders
+ * Paste view: fetches ciphertext, decrypts it client-side, and renders
  * the result in CodeMirror with a burn / max-views notice strip.
  *
  * Per-request bootstrap data (paste id, language, CodeMirror mode map,
@@ -15,7 +15,7 @@
   const LANGUAGE = meta.language;
   const IS_MD    = meta.is_markdown;
 
-  let cm = null; // lazy — only instantiate after decryption
+  let cm = null; // lazy: only instantiate after decryption
   // Captured at decryption time so the edit flow can re-encrypt without
   // re-deriving (especially important for password pastes, where deriveKey
   // takes 600k PBKDF2 iterations).
@@ -201,8 +201,8 @@
 
   // ── Edit flow (owner only) ─────────────────────────────────────────────
   // Re-encrypts the new plaintext with the same key (already loaded into
-  // currentKey by decryptPaste) and PUTs it. The key never re-derives —
-  // even for password pastes — so save is instant after the initial unlock.
+  // currentKey by decryptPaste) and PUTs it. The key never re-derives:
+  // even for password pastes, so save is instant after the initial unlock.
   (function setupEdit() {
     const btn = document.getElementById('editBtn');
     const overlay = document.getElementById('editOverlay');
@@ -254,7 +254,7 @@
 
   // ── QR code modal ──────────────────────────────────────────────────────
   // The URL fragment (decryption key) stays in window.location.href on the
-  // client — the QR is rendered locally, the server never sees the key.
+  // client: the QR is rendered locally, the server never sees the key.
   (function setupQr() {
     const btn = document.getElementById('qrBtn');
     const modal = document.getElementById('qrModal');
@@ -381,7 +381,7 @@
 
     function switchTab(tab) {
       // The tab-switcher buttons live inside #viewCode > .paste-inbar, so
-      // hiding #viewCode itself would hide the "Code" button with it —
+      // hiding #viewCode itself would hide the "Code" button with it:
       // trapping the user in preview. Toggle only the editor body and the
       // preview pane; the header (paste-id, badges, tabs, action buttons)
       // stays visible in both modes.

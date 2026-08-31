@@ -156,7 +156,7 @@ async def test_import_ignores_blank_lines():
 
 async def test_import_tolerates_unknown_fields():
     """A JSONL export from a future version that adds a column must still
-    import cleanly on an older server — unknown fields are dropped with a
+    import cleanly on an older server: unknown fields are dropped with a
     warning, not treated as a fatal error."""
     await _wipe()
     record = dataclasses.asdict(_make_paste("fwd"))

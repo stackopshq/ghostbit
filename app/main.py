@@ -184,7 +184,7 @@ app = FastAPI(
         "Self-hosted, end-to-end encrypted paste service.\n\n"
         "All encryption is performed **client-side** (AES-256-GCM). "
         "The server stores ciphertext only and can **never** read paste content.\n\n"
-        "The decryption key lives exclusively in the URL `#fragment` — it is never transmitted to the server."
+        "The decryption key lives exclusively in the URL `#fragment`, it is never transmitted to the server."
     ),
     version=__version__,
     contact={
@@ -197,7 +197,7 @@ app = FastAPI(
     },
     # Swagger UI and ReDoc are disabled: FastAPI's default pages pull their
     # JS/CSS/fonts from cdn.jsdelivr.net, fastapi.tiangolo.com and
-    # fonts.googleapis.com — the only third-party references this app would
+    # fonts.googleapis.com: the only third-party references this app would
     # serve, and our CSP blocked them anyway, so both pages rendered blank.
     # The API reference lives at docs.ghostbit.dev/api; /openapi.json stays.
     docs_url=None,
@@ -213,7 +213,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Prometheus scrape endpoint. Explicit route (not `app.mount`) because
 # Starlette's prefix-mount only matches `/metrics/…`, redirecting bare
-# `/metrics` to `/metrics/` — scrapers hate redirect chains.
+# `/metrics` to `/metrics/`: scrapers hate redirect chains.
 @app.get("/metrics", include_in_schema=False)
 async def prometheus_metrics(request: Request):
     # METRICS_TOKEN gates the endpoint when set (Prometheus: `authorization:
@@ -243,7 +243,7 @@ _HEALTH_BODY = {
 @app.get("/healthz", include_in_schema=False)
 async def healthz():
     # Liveness probe: 200 as long as the process is alive. Deliberately does
-    # NOT touch the storage backend — that's /readyz. A storage outage must
+    # NOT touch the storage backend, that's /readyz. A storage outage must
     # not trigger a container restart (it's the dependency that's unhealthy,
     # not the app), so this endpoint never returns 503.
     return JSONResponse(_HEALTH_BODY)
@@ -253,7 +253,7 @@ async def healthz():
 async def readyz(request: Request):
     # Readiness probe: 200 only if the storage backend answers. 503 tells the
     # ingress (K8s service, Pangolin, load balancer) to drain traffic until
-    # the dependency recovers — without restarting the process.
+    # the dependency recovers: without restarting the process.
     try:
         await request.app.state.storage.ping()
         return JSONResponse(_HEALTH_BODY)
@@ -296,8 +296,8 @@ async def security_txt():
 @app.get("/privacy", include_in_schema=False)
 async def privacy(request: Request):
     # GDPR art. 13 / nLPD art. 19 notice. The operator identity comes from
-    # PRIVACY_* env vars so every self-hosted install can name ITS controller
-    # — a hardcoded name would make every other deployment serve a false
+    # PRIVACY_* env vars so every self-hosted install can name ITS controller:
+    # a hardcoded name would make every other deployment serve a false
     # notice. Everything else is grounded in this codebase, and the git
     # history doubles as the notice's change log.
     return templates.TemplateResponse(
@@ -397,7 +397,7 @@ templates.env.globals["star_count"] = stars.get_count
 def _abs_url(request: Request, path: str) -> str:
     """Absolute URL for a site path, used by social-preview meta tags.
 
-    Prefers settings.base_url when configured — the escape hatch for
+    Prefers settings.base_url when configured: the escape hatch for
     TLS-terminating proxies, where request.base_url would otherwise carry an
     internal http:// scheme/host that link-preview bots cannot reach. Falls
     back to the request's own base URL for direct exposure and scheme-aware
@@ -488,7 +488,7 @@ async def view_paste(
         await storage.force_delete(paste_id)
         raise HTTPException(status_code=404, detail="Paste has expired.")
 
-    # Serve the HTML shell only — increment_views, burn, and webhook
+    # Serve the HTML shell only: increment_views, burn, and webhook
     # are handled by api.py when the client fetches the ciphertext.
     return templates.TemplateResponse(
         request,
@@ -517,7 +517,7 @@ async def raw_paste(
         await storage.force_delete(paste_id)
         raise HTTPException(status_code=404, detail="Paste has expired.")
 
-    # Raw view is not available for password-protected pastes — no way to
+    # Raw view is not available for password-protected pastes, no way to
     # decrypt without the password, and we don't want to silently expose
     # the ciphertext in a plain-looking page.
     if paste.has_password:

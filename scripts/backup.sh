@@ -4,7 +4,7 @@
 # Streams `python -m app.admin export` through age and writes one
 # timestamped file per run to $BACKUP_DIR. The stream goes through a
 # pipe end-to-end so the plaintext export is never materialised on
-# disk — a stolen backup file is useless without the age recipient's
+# disk: a stolen backup file is useless without the age recipient's
 # private key.
 #
 # Usage (one-shot):
@@ -20,7 +20,7 @@
 #
 # Why age rather than gpg: age has a single recipient flag, no key-server
 # nonsense, no asymmetric-vs-symmetric mode footgun, and the file format
-# is small and forward-compatible. gpg works too — swap the encrypt
+# is small and forward-compatible. gpg works too: swap the encrypt
 # command if your ops standardises on it.
 
 set -euo pipefail
@@ -48,7 +48,7 @@ python -m app.admin export | age -r "$AGE_RECIPIENT" -o "$TMP"
 mv "$TMP" "$OUT"
 
 # Retention. Every backup carries webhook URLs and delete-token hashes for
-# pastes that may long since have expired or been deleted — an unbounded
+# pastes that may long since have expired or been deleted: an unbounded
 # archive would quietly outlive every retention promise the product makes.
 # Default 30 days; set BACKUP_RETENTION_DAYS=0 to keep everything (opt-in,
 # for operators who rotate off-host instead).
