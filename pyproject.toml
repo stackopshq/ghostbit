@@ -7,7 +7,7 @@ name            = "ghostbit"
 version         = "1.6.0"
 description     = "Self-hosted, end-to-end encrypted paste service"
 readme          = "README.md"
-license         = "MIT"
+license         = "Elastic-2.0"
 requires-python = ">=3.10"
 authors         = [{ name = "StackOps" }]
 

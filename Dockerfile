@@ -31,7 +31,7 @@ LABEL org.opencontainers.image.title="Ghostbit" \
       org.opencontainers.image.source="https://github.com/stackopshq/ghostbit" \
       org.opencontainers.image.documentation="https://docs.ghostbit.dev" \
       org.opencontainers.image.vendor="StackOps" \
-      org.opencontainers.image.licenses="MIT"
+      org.opencontainers.image.licenses="Elastic-2.0"
 
 # Runtime deps only (no compiler, no Rust, no build tools)
 RUN apk add --no-cache libffi openssl

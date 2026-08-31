@@ -84,4 +84,6 @@ See the [Ghostbit server repository](https://github.com/stackopshq/ghostbit) for
 
 ## License
 
-MIT
+[Elastic License 2.0](../LICENSE). Source available, not open source in the OSI sense: you may not
+provide Ghostbit to third parties as a hosted or managed service. The CLI was MIT-licensed until
+2026-08-31 and that change is not retroactive; `ghostbit-cli` 1.5.0 on PyPI stays MIT for good.

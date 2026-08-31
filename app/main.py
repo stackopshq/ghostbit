@@ -191,8 +191,8 @@ app = FastAPI(
         "url": "https://github.com/stackopshq/ghostbit",
     },
     license_info={
-        "name": "MIT",
-        "url": "https://github.com/stackopshq/ghostbit/blob/main/LICENSE",
+        "name": "Elastic-2.0",
+        "url": "https://www.elastic.co/licensing/elastic-license",
     },
     docs_url="/docs",
     redoc_url="/redoc",
