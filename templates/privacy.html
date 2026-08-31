@@ -11,13 +11,19 @@
       <div class="md-body">
         <h1>Privacy notice</h1>
         <p>
-          Ghostbit at <strong>ghostbit.dev</strong> is operated by
-          <a href="https://stackops.ch" target="_blank" rel="noopener">StackOps</a> (France),
-          the controller for whatever little processing happens here. For privacy matters, use the
-          contact channels listed on that site; for security reports, see our
+          {% if operator %}
+          This Ghostbit instance is operated by
+          {% if contact_url %}<a href="{{ contact_url }}" target="_blank" rel="noopener">{{ operator }}</a>{% else %}{{ operator }}{% endif %},
+          the controller for whatever little processing happens here. For privacy matters, use
+          that contact link;
+          {% else %}
+          This Ghostbit instance is run by its operator, who is the controller for whatever
+          little processing happens here. For privacy matters, contact them through the channel
+          where you were given this instance's address;
+          {% endif %}
+          for security reports, see our
           <a href="/.well-known/security.txt">security.txt</a>. This notice is written for the EU
-          GDPR and for the Swiss nLPD (the service is also offered to readers in Switzerland),
-          and it is versioned: every change to it is public in the
+          GDPR and for the Swiss nLPD, and it is versioned: every change to it is public in the
           <a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener">repository history</a>.
         </p>
 
@@ -49,7 +55,8 @@
 
         <h2>What the server does not collect</h2>
         <p>
-          No IP addresses and no User-Agent strings: access logging is disabled in the deployment.
+          No IP addresses and no User-Agent strings: access logging is off by default and stays
+          off on this instance unless its operator says otherwise above.
           The rate limiter examines the client address of each request in memory and keeps no log
           of it. Pastes carry no creator identity: we cannot tell who created what, which also
           means we cannot answer "give me everything you have about me" with anything but this page
@@ -65,11 +72,12 @@
 
         <h2>Third parties</h2>
         <p>
-          Traffic to ghostbit.dev transits <strong>Cloudflare</strong> (CDN and TLS), which
-          processes connection metadata as our processor under its data-protection terms. The
-          server itself makes one outbound call: it asks the GitHub API for this project's star
-          count, once an hour, from the server; your IP is never part of that. Webhook
-          notifications go only to the URL the paste creator supplied.
+          When the operator fronts this instance with a CDN or reverse proxy (ghostbit.dev uses
+          <strong>Cloudflare</strong>), that provider processes connection metadata as the
+          operator's processor under its own data-protection terms. The server itself makes at
+          most one outbound call: it asks the GitHub API for this project's star count, once an
+          hour, from the server; your IP is never part of that, and air-gapped installs disable
+          it entirely. Webhook notifications go only to the URL the paste creator supplied.
         </p>
 
         <h2>Your rights</h2>
@@ -77,9 +85,10 @@
           Under the GDPR and the nLPD you can ask for access, rectification, deletion, and the
           rest. Concretely: deletion is self-service (whoever holds a paste's delete token can
           delete it instantly, no questions asked); for anything else, contact us. If you
-          believe we are mishandling data, you can complain to the CNIL (our supervisory
-          authority in France), to your local one, or to the Swiss FDPIC if you are in
-          Switzerland.
+          believe we are mishandling data, you can complain to
+          {% if authority %}{{ authority }}, to your local supervisory authority, or to the
+          Swiss FDPIC if you are in Switzerland{% else %}your local supervisory authority (the
+          Swiss FDPIC if you are in Switzerland){% endif %}.
         </p>
 
         <p><em>Last reviewed: 2026-08-31, as part of the GDPR/nLPD/ISO 27001-alignment audit.</em></p>

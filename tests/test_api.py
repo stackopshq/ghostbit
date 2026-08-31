@@ -462,6 +462,25 @@ async def test_privacy_notice_is_served(client):
     assert "Last reviewed: 2026-08-31" in r.text
 
 
+async def test_privacy_notice_names_the_configured_operator(client, monkeypatch):
+    """Self-hosted installs must be able to name THEIR controller — a
+    hardcoded operator would make every other deployment serve a false
+    notice. Unset, the page falls back to neutral wording."""
+    from app.config import settings
+
+    neutral = (await client.get("/privacy")).text
+    assert "run by its operator" in neutral
+
+    monkeypatch.setattr(settings, "privacy_operator", "Example Corp (Germany)")
+    monkeypatch.setattr(settings, "privacy_contact_url", "https://example.com/contact")
+    monkeypatch.setattr(settings, "privacy_authority", "the BfDI (Germany)")
+    named = (await client.get("/privacy")).text
+    assert "Example Corp (Germany)" in named
+    assert 'href="https://example.com/contact"' in named
+    assert "the BfDI (Germany)" in named
+    assert "run by its operator" not in named
+
+
 async def test_paste_page_is_noindex(client):
     created = await client.post("/api/v1/pastes", json=_fake_paste())
     assert created.status_code == 201

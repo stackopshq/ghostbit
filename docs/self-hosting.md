@@ -163,3 +163,7 @@ docker compose up -d --build
 - The server never sees plaintext or passwords
 - Backups (`scripts/backup.sh`) are age-encrypted and pruned after
   `BACKUP_RETENTION_DAYS` (30 by default)
+- The in-app `/privacy` notice names **your** instance's controller once you
+  set `PRIVACY_OPERATOR`, `PRIVACY_CONTACT_URL` and `PRIVACY_AUTHORITY` —
+  required for a public GDPR/nLPD-compliant deployment. The full checklist
+  lives in the README under "Compliant deployments (GDPR / nLPD)"

@@ -97,6 +97,18 @@ in `request.client.host` (and in the access log, if you enabled it — see
 below). If you run the server outside of Docker, pass those flags yourself
 (`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
 
+## Privacy notice identity
+
+The app serves a `/privacy` notice grounded in what the code actually does.
+Three variables identify the controller on it — required for a public
+GDPR/nLPD deployment, neutral fallback wording otherwise:
+
+```env
+PRIVACY_OPERATOR="Example Corp (Germany)"
+PRIVACY_CONTACT_URL=https://example.com/contact
+PRIVACY_AUTHORITY="the BfDI (Germany)"
+```
+
 ## Access logging
 
 The Docker image starts uvicorn with `--no-access-log` **by default**. An

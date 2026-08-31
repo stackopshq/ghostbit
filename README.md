@@ -239,6 +239,40 @@ age --decrypt -i ~/.config/age/keys.txt ghostbit-2026-05-24T03-17-00Z.jsonl.age 
 | `TRUST_PROXY_HEADERS` | `false` | Use rightmost `X-Forwarded-For` for rate limiting (enable only behind a trusted proxy) |
 | `BASE_URL` | _none_ | Public base URL (e.g. `https://paste.example.com`) for the absolute links in social-preview meta tags. Derived from the request when unset. |
 | `WEBHOOK_SECRET` | _none_ | HMAC-SHA256 secret for signing webhook payloads |
+| `ACCESS_LOG` | `false` | Re-enable uvicorn access logs (pairs client IPs with paste IDs — see [Compliant deployments](#compliant-deployments-gdpr--nlpd)) |
+| `METRICS_TOKEN` | _none_ | Bearer token gating `GET /metrics`; empty leaves it open |
+| `PRIVACY_OPERATOR` | _none_ | Name (and country) of this instance's operator, shown as the controller on `/privacy` |
+| `PRIVACY_CONTACT_URL` | _none_ | Where `/privacy` sends privacy inquiries |
+| `PRIVACY_AUTHORITY` | _none_ | Supervisory authority named on `/privacy` (e.g. `the CNIL (France)`) |
+
+---
+
+### Compliant deployments (GDPR / nLPD)
+
+Ghostbit ships privacy-by-default: no accounts, no cookies, no third-party
+requests from any page, no access logs, client-side encryption. What the
+software cannot do for you is the part that depends on **your** deployment —
+this checklist is what keeps an installation compliant:
+
+1. **Name yourself.** Set `PRIVACY_OPERATOR`, `PRIVACY_CONTACT_URL` and
+   `PRIVACY_AUTHORITY` so the built-in `/privacy` page names *you* as the
+   controller (GDPR art. 13 / nLPD art. 19 require it). Without them the
+   page falls back to neutral wording, which is honest but not enough for a
+   public service.
+2. **Leave `ACCESS_LOG` off.** Turning it on records client IP + paste ID +
+   timestamp pairs: you become a processor of personal data, you owe those
+   logs a retention, and your `/privacy` page no longer tells the truth.
+3. **Mind the proxy in front.** Your reverse proxy or CDN logs IPs even when
+   Ghostbit doesn't — bound their retention, and name the CDN in your
+   notice (ghostbit.dev names Cloudflare).
+4. **Bound your backups.** `scripts/backup.sh` encrypts with age and prunes
+   after `BACKUP_RETENTION_DAYS` (default 30). Keep the private key offline;
+   an unbounded backup archive outlives every retention promise.
+5. **Close the side doors.** Set `METRICS_TOKEN` (or firewall `/metrics`),
+   and set `GITHUB_REPO=""` if the hourly server-side star-count call has no
+   business leaving your network.
+6. **Terminate TLS properly.** HTTPS at the proxy, `TRUST_PROXY_HEADERS=true`
+   so rate limits key on real clients, and HSTS stays on.
 
 ---
 

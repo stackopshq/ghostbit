@@ -12,6 +12,27 @@ for are in place; actual certification is an organizational process (an ISMS,
 management reviews, an accredited audit) that a single repository cannot
 carry.
 
+## Self-hosted instances
+
+Ghostbit is a self-hostable product, so "compliant" is a property of an
+*installation*, not only of this codebase. The software supplies
+privacy-by-default (no accounts, cookies, third-party requests or access
+logs) and a `/privacy` notice whose controller identity comes from
+`PRIVACY_OPERATOR` / `PRIVACY_CONTACT_URL` / `PRIVACY_AUTHORITY` — a
+hardcoded operator would have made every install but ours serve a false
+notice. The deployment-side obligations (naming yourself, keeping access
+logs off, bounding proxy/CDN log retention, backup retention, closing
+`/metrics`, TLS) are the README checklist, **Compliant deployments (GDPR /
+nLPD)**.
+
+For the record, ghostbit.dev runs with:
+
+```env
+PRIVACY_OPERATOR="StackOps (France)"
+PRIVACY_CONTACT_URL=mailto:privacy@stackops.ch
+PRIVACY_AUTHORITY="the CNIL (France)"
+```
+
 ## Why there is so little to assess
 
 Ghostbit's data protection story is architectural, not procedural. Pastes are
@@ -30,7 +51,7 @@ long, and for whom, is in the [privacy notice](https://ghostbit.dev/privacy)
 | docs.ghostbit.dev imported Google Fonts — every docs reader's IP went to Google | Medium (privacy) | Fonts self-hosted (same woff2 the app serves) |
 | CLI history stored full capability URLs (`#key~token`) with default file permissions | Medium | Created `0600` in a `0700` dir, tightened retroactively on append |
 | Backups (containing webhook URLs and delete-token hashes) accumulated forever | Medium (retention) | Pruned after `BACKUP_RETENTION_DAYS` (default 30) |
-| No privacy notice, no legal surface at all | High (GDPR art. 13 / nLPD art. 19) | `/privacy` served in-app, versioned in git |
+| No privacy notice, no legal surface at all | High (GDPR art. 13 / nLPD art. 19) | `/privacy` served in-app, versioned in git, controller named per-instance via `PRIVACY_*` |
 | Rate limiting on 3 of ~16 routes while README claimed all endpoints | Medium | PUT/DELETE and the HTML delete form now limited; README wording corrected |
 | `/metrics` public: aggregate rates + exact Python version | Low–Medium | Optional `METRICS_TOKEN` bearer gate; production sets it |
 | Dependencies unpinned (`>=`), invisible to Trivy's advisory matching; one known CVE in the resolved tree (cryptography < 50) | Medium (supply chain) | `requirements*.txt` pinned exactly; cryptography at 50.0.1 |

@@ -22,6 +22,18 @@ class Settings(BaseSettings):
     # If set, every webhook delivery includes X-Ghostbit-Signature: sha256=<hex>.
     webhook_secret: str = ""
 
+    # Who operates THIS instance — rendered into the /privacy notice, which
+    # legally must name the data controller (GDPR art. 13 / nLPD art. 19).
+    # Left empty, the notice falls back to neutral wording ("the operator of
+    # this instance"), which is honest but weaker: set all three when you
+    # deploy publicly. ghostbit.dev sets:
+    #   PRIVACY_OPERATOR="StackOps (France)"
+    #   PRIVACY_CONTACT_URL="https://stackops.ch"
+    #   PRIVACY_AUTHORITY="the CNIL (France)"
+    privacy_operator: str = ""
+    privacy_contact_url: str = ""
+    privacy_authority: str = ""
+
     # Optional bearer token for GET /metrics. Empty (default) leaves the
     # endpoint open — fine on private networks; on a public deployment the
     # aggregate counters and the Python version are readable by anyone.

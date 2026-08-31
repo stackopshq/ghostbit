@@ -271,13 +271,21 @@ def _security_txt() -> str:
     from datetime import datetime, timedelta, timezone
 
     expires = (datetime.now(timezone.utc) + timedelta(days=180)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return (
-        f"Contact: https://github.com/stackopshq/ghostbit/security/advisories/new\n"
-        f"Expires: {expires}\n"
-        f"Encryption: https://docs.ghostbit.dev/encryption/\n"
-        f"Policy: https://github.com/stackopshq/ghostbit/blob/main/SECURITY.md\n"
-        f"Preferred-Languages: en, fr\n"
-    )
+    lines = [
+        "Contact: https://github.com/stackopshq/ghostbit/security/advisories/new",
+        f"Expires: {expires}",
+        "Encryption: https://docs.ghostbit.dev/encryption/",
+        "Policy: https://github.com/stackopshq/ghostbit/blob/main/SECURITY.md",
+        "Preferred-Languages: en, fr",
+    ]
+    # This instance's operator, when they identified themselves for /privacy:
+    # a researcher who finds a data-protection issue should reach the
+    # controller, not only the upstream project's advisory queue.
+    if settings.privacy_contact_url:
+        lines.insert(1, f"Contact: {settings.privacy_contact_url}")
+    if settings.privacy_operator:
+        lines.append(f"# Instance operated by {settings.privacy_operator}")
+    return "\n".join(lines) + "\n"
 
 
 @app.get("/.well-known/security.txt", include_in_schema=False)
@@ -287,10 +295,20 @@ async def security_txt():
 
 @app.get("/privacy", include_in_schema=False)
 async def privacy(request: Request):
-    # GDPR art. 13 / nLPD art. 19 notice. Static by design: everything it
-    # says is grounded in this codebase, and its git history doubles as the
-    # notice's change log.
-    return templates.TemplateResponse(request, "privacy.html")
+    # GDPR art. 13 / nLPD art. 19 notice. The operator identity comes from
+    # PRIVACY_* env vars so every self-hosted install can name ITS controller
+    # — a hardcoded name would make every other deployment serve a false
+    # notice. Everything else is grounded in this codebase, and the git
+    # history doubles as the notice's change log.
+    return templates.TemplateResponse(
+        request,
+        "privacy.html",
+        context={
+            "operator": settings.privacy_operator,
+            "contact_url": settings.privacy_contact_url,
+            "authority": settings.privacy_authority,
+        },
+    )
 
 
 # Browser icon probes. Without these routes, every browser hits
