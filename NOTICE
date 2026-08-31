@@ -1,0 +1,23 @@
+Ghostbit
+Copyright (c) 2025-2026 StackOps HQ
+
+Licensed under the Elastic License 2.0. The full text is in LICENSE; it is
+Elastic's text, reproduced without modification, and it carries no copyright
+line of its own, which is why this file exists.
+
+Effective 2026-08-31.
+
+
+Licence history
+---------------
+
+Ghostbit was distributed under the MIT License until 2026-08-31.
+
+That change is not retroactive and does not attempt to be. Anyone holding a
+copy obtained under the MIT License keeps that licence for that copy, permanently: a
+grant already made cannot be withdrawn. The same is true of every release
+built from a commit predating this file. At the time of writing, the last
+such commit is 3325bcb.
+
+The Elastic License 2.0 governs this repository from this file onward, and
+every release published after 2026-08-31.

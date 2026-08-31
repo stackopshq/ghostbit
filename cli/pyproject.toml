@@ -7,7 +7,7 @@ name = "ghostbit-cli"
 version = "1.6.0"
 description = "Ghostbit CLI, create end-to-end encrypted pastes from the terminal"
 readme = "README.md"
-license = "MIT"
+license = "Elastic-2.0"
 requires-python = ">=3.10"
 keywords = ["paste", "cli", "encryption", "privacy", "ghostbit"]
 classifiers = [

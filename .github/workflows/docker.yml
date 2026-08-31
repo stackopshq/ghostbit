@@ -86,7 +86,7 @@ jobs:
             --label org.opencontainers.image.title=Ghostbit \
             --label "org.opencontainers.image.description=Self-hosted, end-to-end encrypted paste service" \
             --label org.opencontainers.image.vendor="StackOps HQ" \
-            --label org.opencontainers.image.licenses=MIT \
+            --label org.opencontainers.image.licenses=Elastic-2.0 \
             --label org.opencontainers.image.documentation=https://docs.ghostbit.dev \
             --label "org.opencontainers.image.revision=${GITHUB_SHA}"
 
