@@ -194,8 +194,13 @@ app = FastAPI(
         "name": "MIT",
         "url": "https://github.com/stackopshq/ghostbit/blob/main/LICENSE",
     },
-    docs_url="/docs",
-    redoc_url="/redoc",
+    # Swagger UI and ReDoc are disabled: FastAPI's default pages pull their
+    # JS/CSS/fonts from cdn.jsdelivr.net, fastapi.tiangolo.com and
+    # fonts.googleapis.com — the only third-party references this app would
+    # serve, and our CSP blocked them anyway, so both pages rendered blank.
+    # The API reference lives at docs.ghostbit.dev/api; /openapi.json stays.
+    docs_url=None,
+    redoc_url=None,
     lifespan=lifespan,
 )
 app.add_middleware(SecurityHeadersMiddleware)
@@ -284,7 +289,7 @@ async def _browser_icon_redirect():
     return RedirectResponse("/static/apple-touch-icon.png", status_code=301)
 
 
-_ROBOTS_TXT = "User-agent: *\nDisallow: /api/\nDisallow: /docs\nDisallow: /redoc\n"
+_ROBOTS_TXT = "User-agent: *\nDisallow: /api/\n"
 
 
 @app.get("/robots.txt", include_in_schema=False)

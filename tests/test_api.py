@@ -526,6 +526,17 @@ async def test_csp_forbids_third_party_connections(client):
     assert connect.strip() == "connect-src 'self'"
 
 
+async def test_swagger_and_redoc_are_gone(client):
+    """FastAPI's default /docs and /redoc pull JS/CSS/fonts from third-party
+    CDNs — the only third-party references this app ever served, and our CSP
+    blanked both pages anyway. They must stay disabled; /openapi.json stays."""
+    assert (await client.get("/docs")).status_code == 404
+    assert (await client.get("/redoc")).status_code == 404
+    assert (await client.get("/openapi.json")).status_code == 200
+    robots = (await client.get("/robots.txt")).text
+    assert "/docs" not in robots and "/redoc" not in robots
+
+
 async def test_footer_degrades_when_star_count_unavailable(client, monkeypatch):
     """No count yet (no egress, disabled, or GitHub down) must not break the
     footer — it falls back to a plain call to action, never a misleading 0."""

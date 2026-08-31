@@ -71,9 +71,15 @@ EXPOSE ${PORT}
 # half-committed requests on containers with many workers.
 #
 # When TRUST_PROXY_HEADERS=true, we also turn on uvicorn's --proxy-headers
-# so the access log and request.client.host reflect the real client IP
-# forwarded by the reverse proxy — otherwise the logs are full of the
-# proxy's internal IP which is useless for triage. Kept conditional so
-# the flag never applies when the operator hasn't opted in; otherwise a
-# client that speaks directly to the app could spoof their address.
-CMD ["sh", "-c", "set -- --host 0.0.0.0 --port ${PORT}; [ \"$TRUST_PROXY_HEADERS\" = \"true\" ] && set -- \"$@\" --proxy-headers --forwarded-allow-ips=\"*\"; exec uvicorn app.main:app \"$@\""]
+# so request.client.host reflects the real client IP forwarded by the
+# reverse proxy. Kept conditional so the flag never applies when the
+# operator hasn't opted in; otherwise a client that speaks directly to
+# the app could spoof their address.
+#
+# Access logging is OFF unless ACCESS_LOG=true. Every access line pairs a
+# client IP with a paste ID and a timestamp — exactly the correlation the
+# rest of the product is built to avoid, and the reason the docs can say
+# "no IP addresses are ever logged". Opting in is a data-protection
+# decision, not a debug flag: an operator who enables it starts processing
+# personal data and owns the retention that comes with it.
+CMD ["sh", "-c", "set -- --host 0.0.0.0 --port ${PORT}; [ \"$TRUST_PROXY_HEADERS\" = \"true\" ] && set -- \"$@\" --proxy-headers --forwarded-allow-ips=\"*\"; [ \"$ACCESS_LOG\" = \"true\" ] || set -- \"$@\" --no-access-log; exec uvicorn app.main:app \"$@\""]

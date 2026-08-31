@@ -150,7 +150,13 @@ docker compose up -d --build
 
 ## Privacy
 
-- No IP addresses or User-Agent strings are ever logged
+- No IP addresses or User-Agent strings are logged by default: the Docker
+  image starts uvicorn with `--no-access-log`. Setting `ACCESS_LOG=true`
+  (or running uvicorn yourself without `--no-access-log`) re-enables access
+  lines that pair client IPs with paste IDs — see
+  [Configuration → Access logging](configuration.md#access-logging)
 - Paste IDs are `secrets.token_urlsafe(6)`: random, non-sequential
 - Burn-after-read fires only on API reads, not on HTML page loads
 - The server never sees plaintext or passwords
+- Backups (`scripts/backup.sh`) are age-encrypted and pruned after
+  `BACKUP_RETENTION_DAYS` (30 by default)

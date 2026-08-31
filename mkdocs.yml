@@ -10,9 +10,10 @@ theme:
   name: material
   logo: assets/logo.png
   favicon: assets/logo.png
-  font:
-    text: Inter
-    code: JetBrains Mono
+  # No Google Fonts: `false` stops Material from injecting the
+  # fonts.googleapis.com stylesheet. The faces are self-hosted in
+  # docs/assets/fonts and declared in assets/stylesheets/theme.css.
+  font: false
   palette:
     scheme: slate
     primary: custom
