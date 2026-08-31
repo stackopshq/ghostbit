@@ -40,4 +40,8 @@
          <loc>https://docs.ghostbit.dev/adr/0002-argon2id-kdf/</loc>
          <lastmod>2026-08-31</lastmod>
     </url>
+    <url>
+         <loc>https://docs.ghostbit.dev/adr/0003-elastic-license-v2/</loc>
+         <lastmod>2026-08-31</lastmod>
+    </url>
 </urlset>
