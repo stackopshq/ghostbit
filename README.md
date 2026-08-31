@@ -24,7 +24,7 @@
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.10+-bc13fe?style=flat-square&logo=python&logoColor=white">
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.141-bc13fe?style=flat-square&logo=fastapi&logoColor=white">
-  <img alt="License" src="https://img.shields.io/badge/license-MIT-bc13fe?style=flat-square">
+  <img alt="License: Elastic-2.0" src="https://img.shields.io/badge/license-Elastic--2.0-bc13fe?style=flat-square">
   <img alt="PyPI" src="https://img.shields.io/pypi/v/ghostbit-cli?style=flat-square&color=bc13fe&label=ghostbit-cli">
   <br>
   <a href="https://docs.ghostbit.dev/compliance/"><img alt="GDPR" src="https://img.shields.io/badge/GDPR-self--assessed-2ea44f?style=flat-square"></a>
@@ -433,8 +433,15 @@ Where things live:
 
 ## License
 
-MIT. Do what you like with it, and if you run a public instance, please read
-the [compliant-deployment checklist](#compliant-deployments-gdpr--nlpd) first.
+[Elastic License 2.0](LICENSE). Read it, audit it, self-host it, modify it, run it for your own
+organisation. What it reserves is resale: you may not provide Ghostbit to third parties as a hosted
+or managed service. That is *source available*, not open source in the OSI sense.
+
+Ghostbit was MIT-licensed until 2026-08-31, and the change is not retroactive: see [NOTICE](NOTICE)
+and [ADR-0003](docs/adr/0003-elastic-license-v2.md).
+
+If you run a public instance, please read the
+[compliant-deployment checklist](#compliant-deployments-gdpr--nlpd) first.
 
 <p align="center">
   Built by <a href="https://stackops.ch">StackOps</a>, part of the Ghost suite.<br>
