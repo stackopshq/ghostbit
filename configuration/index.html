@@ -954,7 +954,9 @@ X-Forwarded-For;</code>) so only one hop contributes by the time Ghostbit
 reads the header.</p>
 </div>
 <h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
-<p>Ghostbit exposes three unauthenticated endpoints for operators:</p>
+<p>Ghostbit exposes three endpoints for operators — <code>/healthz</code> and <code>/readyz</code>
+are always unauthenticated; <code>/metrics</code> is unauthenticated unless
+<code>METRICS_TOKEN</code> is set:</p>
 <table>
 <thead>
 <tr>
@@ -981,9 +983,21 @@ reads the header.</p>
 </tr>
 </tbody>
 </table>
-<p>The <code>/metrics</code> endpoint has no sensitive data (only aggregate counters and a
-latency histogram) but you can still restrict it to your scraper's IP at the
-reverse proxy if you prefer.</p>
+<p>The <code>/metrics</code> endpoint carries no per-paste data (only aggregate counters
+and a latency histogram, with route <em>templates</em> as labels — never real paste
+IDs), but it does reveal usage rates and the exact Python version. On a
+public deployment, set <code>METRICS_TOKEN</code> and give Prometheus the same value:</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">scrape_configs</span><span class="p">:</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghostbit</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="nt">authorization</span><span class="p">:</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">      </span><span class="nt">credentials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;METRICS_TOKEN&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+<p>Requests without <code>Authorization: Bearer &lt;token&gt;</code> then get <code>401</code>. Leaving the
+variable empty keeps the endpoint open, which is fine when it is only
+reachable from a private network — or restrict it at the reverse proxy.</p>
 <p>Exposed metrics:</p>
 <table>
 <thead>
@@ -1029,41 +1043,41 @@ reverse proxy if you prefer.</p>
 <p><code>/healthz</code>, <code>/readyz</code> and <code>/metrics</code> are excluded from the HTTP latency histogram so probe
 traffic doesn't skew P99.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-7-10">10</a></span>
-<span class="normal"><a href="#__codelineno-7-11">11</a></span>
-<span class="normal"><a href="#__codelineno-7-12">12</a></span>
-<span class="normal"><a href="#__codelineno-7-13">13</a></span>
-<span class="normal"><a href="#__codelineno-7-14">14</a></span>
-<span class="normal"><a href="#__codelineno-7-15">15</a></span>
-<span class="normal"><a href="#__codelineno-7-16">16</a></span>
-<span class="normal"><a href="#__codelineno-7-17">17</a></span>
-<span class="normal"><a href="#__codelineno-7-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a>SQLITE_PATH=/data/ghostbit.db
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a>MAX_PASTE_SIZE=524288
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a>PORT=8000
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a># SQLITE_POOL_SIZE=5
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8"></a>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9"></a># Rate limiting (defaults shown)
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10"></a># RATE_LIMIT_CREATE=30/minute
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11"></a># RATE_LIMIT_VIEW=120/minute
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12"></a>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13"></a># Enable when behind a reverse proxy: rightmost X-Forwarded-For entry
-</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
-</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15"></a># TRUST_PROXY_HEADERS=true
-</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16"></a>
-</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17"></a># Optional: sign webhook deliveries
-</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-8-10">10</a></span>
+<span class="normal"><a href="#__codelineno-8-11">11</a></span>
+<span class="normal"><a href="#__codelineno-8-12">12</a></span>
+<span class="normal"><a href="#__codelineno-8-13">13</a></span>
+<span class="normal"><a href="#__codelineno-8-14">14</a></span>
+<span class="normal"><a href="#__codelineno-8-15">15</a></span>
+<span class="normal"><a href="#__codelineno-8-16">16</a></span>
+<span class="normal"><a href="#__codelineno-8-17">17</a></span>
+<span class="normal"><a href="#__codelineno-8-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>SQLITE_PATH=/data/ghostbit.db
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a>PORT=8000
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a># SQLITE_POOL_SIZE=5
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9"></a># Rate limiting (defaults shown)
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10"></a># RATE_LIMIT_CREATE=30/minute
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11"></a># RATE_LIMIT_VIEW=120/minute
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12"></a>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13"></a># Enable when behind a reverse proxy: rightmost X-Forwarded-For entry
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15"></a># TRUST_PROXY_HEADERS=true
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16"></a>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17"></a># Optional: sign webhook deliveries
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div></td></tr></table></div>
 
 
