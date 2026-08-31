@@ -47,12 +47,6 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
-      
     
     
       <link rel="stylesheet" href="../assets/stylesheets/theme.css">
@@ -391,7 +385,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Reverse proxy">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access logging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access logging">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -704,7 +709,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Reverse proxy">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access logging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Access logging">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -904,10 +920,20 @@ client-controlled (a malicious client could forge <code>X-Forwarded-For: 1.2.3.4
 impersonate another IP).</p>
 <p>When <code>TRUST_PROXY_HEADERS=true</code>, the Docker image also starts uvicorn with
 <code>--proxy-headers</code> so the real client IP is substituted for the proxy's address
-in the access log and in <code>request.client.host</code>. Otherwise the uvicorn logs
-would show only the reverse proxy's internal IP, which is not useful for
-incident triage. If you run the server outside of Docker, pass those flags
-yourself (<code>uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"</code>).</p>
+in <code>request.client.host</code> (and in the access log, if you enabled it — see
+below). If you run the server outside of Docker, pass those flags yourself
+(<code>uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"</code>).</p>
+<h2 id="access-logging">Access logging<a class="headerlink" href="#access-logging" title="Permanent link">&para;</a></h2>
+<p>The Docker image starts uvicorn with <code>--no-access-log</code> <strong>by default</strong>. An
+access log line pairs a client IP with a paste ID and a timestamp — exactly
+the correlation the rest of Ghostbit is designed to avoid, and the basis for
+the "no IP addresses are ever logged" statement in the docs.</p>
+<p>Set <code>ACCESS_LOG=true</code> to turn access logging back on for debugging. Be aware
+of what that means: combined with <code>TRUST_PROXY_HEADERS=true</code> you are then
+recording real client IPs next to capability URLs, which makes you a
+processor of personal data under the GDPR/nLPD — put a retention on those
+logs and say so in your privacy notice. Outside of Docker, uvicorn logs
+accesses unless you pass <code>--no-access-log</code> yourself.</p>
 <h3 id="absolute-urls-for-link-previews">Absolute URLs for link previews<a class="headerlink" href="#absolute-urls-for-link-previews" title="Permanent link">&para;</a></h3>
 <p>Ghostbit puts absolute URLs in its social-preview <code>&lt;meta&gt;</code> tags (<code>og:image</code>,
 <code>og:url</code>) so link-unfurl bots (iMessage, Slack, Discord…) can fetch the

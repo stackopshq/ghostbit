@@ -45,12 +45,6 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
-      
     
     
       <link rel="stylesheet" href="../assets/stylesheets/theme.css">
@@ -1088,10 +1082,16 @@ Without HTTPS, the browser will refuse to encrypt pastes.</p>
 <hr />
 <h2 id="privacy">Privacy<a class="headerlink" href="#privacy" title="Permanent link">&para;</a></h2>
 <ul>
-<li>No IP addresses or User-Agent strings are ever logged</li>
+<li>No IP addresses or User-Agent strings are logged by default: the Docker
+  image starts uvicorn with <code>--no-access-log</code>. Setting <code>ACCESS_LOG=true</code>
+  (or running uvicorn yourself without <code>--no-access-log</code>) re-enables access
+  lines that pair client IPs with paste IDs — see
+  <a href="../configuration/#access-logging">Configuration → Access logging</a></li>
 <li>Paste IDs are <code>secrets.token_urlsafe(6)</code>: random, non-sequential</li>
 <li>Burn-after-read fires only on API reads, not on HTML page loads</li>
 <li>The server never sees plaintext or passwords</li>
+<li>Backups (<code>scripts/backup.sh</code>) are age-encrypted and pruned after
+  <code>BACKUP_RETENTION_DAYS</code> (30 by default)</li>
 </ul>
 
 
