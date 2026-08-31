@@ -117,7 +117,47 @@ jobs:
             | podman login "${REGISTRY}" -u "${GHCR_USERNAME}" --password-stdin
           SHORT="$(git rev-parse --short HEAD)"
           podman tag ghostbit:ci "${IMAGE}:sha-${SHORT}"
-          podman push "${IMAGE}:sha-${SHORT}"
+          # --digestfile is the registry's digest, written by the push itself.
+          # `podman image inspect` prints the LOCAL image digest, which is a
+          # different value: pinning it in Apollo makes the pull fail, and it
+          # cost two rounds of skopeo inspect on 2026-08-31 to notice.
+          podman push --digestfile "${RUNNER_TEMP}/digest" "${IMAGE}:sha-${SHORT}"
           echo "published ${IMAGE}:sha-${SHORT}"
-          podman image inspect "${IMAGE}:sha-${SHORT}" --format 'digest={{.Digest}}'
+          echo "digest=$(cat "${RUNNER_TEMP}/digest")"
           podman logout "${REGISTRY}" || true
+
+      # ── SBOM ──────────────────────────────────────────────────────────────
+      # Deliberately AFTER the push, and that ordering is the whole safety
+      # property: the image is already published when this runs, so a failure
+      # here turns the run red without blocking a deployment.
+      #
+      # It answers the question THIRD-PARTY-NOTICES.md cannot: that file
+      # covers what this repository redistributes, but an image also carries
+      # every Python package pip installed at build time. Written by hand,
+      # that inventory would be wrong by the second release.
+      - name: SBOM of the published image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          SHORT="$(git rev-parse --short HEAD)"
+          # Through a docker-archive rather than the podman socket, which is
+          # not exposed to jobs on this runner.
+          podman save --format docker-archive -o "${RUNNER_TEMP}/image.tar" ghostbit:ci
+          "${RUNNER_TEMP}/trivy" image \
+            --input "${RUNNER_TEMP}/image.tar" \
+            --format cyclonedx \
+            --scanners license \
+            --output "sbom-${SHORT}.cdx.json"
+          python3 - "sbom-${SHORT}.cdx.json" <<'PY'
+          import json, sys
+          doc = json.load(open(sys.argv[1]))
+          parts = doc.get("components", [])
+          print(f"{len(parts)} components in {sys.argv[1]}")
+          PY
+
+      - name: Keep the SBOM with the run
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom
+          path: sbom-*.cdx.json

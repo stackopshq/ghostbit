@@ -440,6 +440,9 @@ or managed service. That is *source available*, not open source in the OSI sense
 Ghostbit was MIT-licensed until 2026-08-31, and the change is not retroactive: see [NOTICE](NOTICE)
 and [ADR-0003](docs/adr/0003-elastic-license-v2.md).
 
+Third-party code and fonts served from `/static/` keep their own licences, and
+their attributions are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
 If you run a public instance, please read the
 [compliant-deployment checklist](#compliant-deployments-gdpr--nlpd) first.
 
