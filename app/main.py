@@ -1,6 +1,7 @@
 import base64
 import functools
 import hashlib
+import hmac
 import logging
 import secrets
 import time
@@ -214,7 +215,15 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Starlette's prefix-mount only matches `/metrics/…`, redirecting bare
 # `/metrics` to `/metrics/` — scrapers hate redirect chains.
 @app.get("/metrics", include_in_schema=False)
-async def prometheus_metrics():
+async def prometheus_metrics(request: Request):
+    # METRICS_TOKEN gates the endpoint when set (Prometheus: `authorization:
+    # credentials:` in the scrape config). Constant-time compare so the token
+    # can't be recovered byte by byte. Unset = open, for private networks.
+    if settings.metrics_token:
+        supplied = request.headers.get("authorization", "")
+        expected = f"Bearer {settings.metrics_token}"
+        if not hmac.compare_digest(supplied, expected):
+            raise HTTPException(status_code=401, detail="Missing or invalid metrics token.")
     return PlainTextResponse(
         metrics.generate_latest(),
         media_type=metrics.CONTENT_TYPE_LATEST,
@@ -492,6 +501,7 @@ async def raw_paste(
 
 
 @app.post("/{paste_id}/delete")
+@limiter.limit(lambda: settings.rate_limit_create)
 async def delete_paste(
     request: Request,
     paste_id: str = PathParam(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),

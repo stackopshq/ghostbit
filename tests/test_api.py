@@ -526,6 +526,37 @@ async def test_csp_forbids_third_party_connections(client):
     assert connect.strip() == "connect-src 'self'"
 
 
+async def test_metrics_open_by_default_and_gated_by_token(client, monkeypatch):
+    """Empty METRICS_TOKEN keeps /metrics open (private networks). Once set,
+    only `Authorization: Bearer <token>` passes — anything else is 401."""
+    from app.config import settings
+
+    assert (await client.get("/metrics")).status_code == 200
+
+    monkeypatch.setattr(settings, "metrics_token", "scrape-secret")
+    assert (await client.get("/metrics")).status_code == 401
+    wrong = {"Authorization": "Bearer nope"}
+    assert (await client.get("/metrics", headers=wrong)).status_code == 401
+    good = {"Authorization": "Bearer scrape-secret"}
+    assert (await client.get("/metrics", headers=good)).status_code == 200
+
+
+async def test_create_rejects_out_of_bounds_fields(client):
+    """The documented contract is enforced, not just described: TTL caps at
+    one year, webhook URLs at 2048 chars, language slugs at 40."""
+    r = await client.post("/api/v1/pastes", json=_fake_paste(expires_in=31_536_001))
+    assert r.status_code == 422
+    r = await client.post(
+        "/api/v1/pastes", json=_fake_paste(webhook_url="https://x.test/" + "a" * 2048)
+    )
+    assert r.status_code == 422
+    r = await client.post("/api/v1/pastes", json=_fake_paste(language="x" * 41))
+    assert r.status_code == 422
+    # The boundary values themselves are accepted.
+    r = await client.post("/api/v1/pastes", json=_fake_paste(expires_in=31_536_000))
+    assert r.status_code == 201
+
+
 async def test_swagger_and_redoc_are_gone(client):
     """FastAPI's default /docs and /redoc pull JS/CSS/fonts from third-party
     CDNs — the only third-party references this app ever served, and our CSP

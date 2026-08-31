@@ -54,11 +54,24 @@ class PasteCreateRequest(BaseModel):
     kdf_salt: str | None = Field(
         None, description="Base64 PBKDF2 salt. Present only for password-protected pastes."
     )
-    language: str | None = None
-    expires_in: int | None = Field(None, ge=1, description="TTL in seconds (≥ 1). Null = never.")
+    language: str | None = Field(
+        None,
+        max_length=40,
+        description="Syntax-highlighting hint. Free-form slug, consumed only by the viewer.",
+    )
+    expires_in: int | None = Field(
+        None,
+        ge=1,
+        le=31_536_000,
+        description="TTL in seconds (1 second to 1 year, as documented). Null = never.",
+    )
     burn: bool = False
     max_views: int | None = Field(None, ge=1, description="Delete after N views.")
-    webhook_url: str | None = Field(None, description="URL to POST when the paste is read.")
+    webhook_url: str | None = Field(
+        None,
+        max_length=2048,
+        description="URL to POST when the paste is read.",
+    )
     compressed: bool = Field(
         False,
         description=(
@@ -339,8 +352,10 @@ class PasteUpdateRequest(BaseModel):
     responses={
         400: {"description": "Content too large or invalid base64."},
         403: {"description": "Invalid delete token, or paste does not exist."},
+        429: {"description": "Rate limit exceeded."},
     },
 )
+@limiter.limit(lambda: settings.rate_limit_create)
 async def update_paste(
     body: PasteUpdateRequest,
     request: Request,
@@ -379,8 +394,10 @@ async def update_paste(
     ),
     responses={
         403: {"description": "Invalid delete token, or paste does not exist."},
+        429: {"description": "Rate limit exceeded."},
     },
 )
+@limiter.limit(lambda: settings.rate_limit_create)
 async def delete_paste(
     request: Request,
     paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
