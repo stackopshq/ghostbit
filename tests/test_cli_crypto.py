@@ -1,4 +1,4 @@
-"""Tests for CLI crypto — mirrors e2e.js behaviour."""
+"""Tests for CLI crypto: mirrors e2e.js behaviour."""
 
 import pytest
 from cryptography.exceptions import InvalidTag

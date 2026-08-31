@@ -148,7 +148,7 @@ def cmd_paste(args) -> None:
 
     full_url = f"{result['url']}#{fragment}"
 
-    # Append to local history (best-effort, privacy-first — stays on disk only).
+    # Append to local history (best-effort, privacy-first: stays on disk only).
     if not args.no_history:
         history_append(
             {

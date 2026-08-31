@@ -102,7 +102,7 @@ class RedisStorage(StorageBackend):
         if paste.expires_at:
             ttl = paste.expires_at - int(time.time())
             if ttl <= 0:
-                # Paste is already past its expiry — skip instead of writing
+                # Paste is already past its expiry: skip instead of writing
                 # a key Redis would immediately evict. Report the skip to the
                 # caller (e.g. admin import) instead of pretending we saved
                 # something that never hits disk.

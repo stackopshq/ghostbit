@@ -47,7 +47,7 @@ include = ["app*"]
 [tool.setuptools.package-data]
 app = ["languages.json"]
 
-# ── Ruff — lint + format ─────────────────────────────────────────────────────
+# ── Ruff: lint + format ─────────────────────────────────────────────────────
 # Intentionally narrow ruleset for an established codebase: enable the checks
 # that catch real bugs (pyflakes F, pycodestyle E/W, bugbear B, simplify SIM,
 # comprehensions C4, pyupgrade UP) and rely on ruff format for style. The full
@@ -61,9 +61,9 @@ extend-exclude = ["static/*.min.js", "static/cm"]
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "B", "SIM", "C4", "UP"]
 ignore = [
-    "E501",  # line too long — handled loosely; formatter wraps what it can
-    "E731",  # lambda assignments — used deliberately in a couple of rate-limit decorators
-    "B008",  # function calls in argument defaults — FastAPI relies on these (Path, Header, Form, Field)
+    "E501",  # line too long: handled loosely; formatter wraps what it can
+    "E731",  # lambda assignments: used deliberately in a couple of rate-limit decorators
+    "B008",  # function calls in argument defaults: FastAPI relies on these (Path, Header, Form, Field)
 ]
 
 [tool.ruff.format]
@@ -83,7 +83,7 @@ asyncio_mode         = "auto"
 # tests ("[asyncio]") and runs them in loops it manages itself, while the
 # module-scoped fixtures stay on pytest-asyncio's loop. The Redis pool then ends
 # up holding connections opened on loops that are already closed, and the module
-# teardown dies with "RuntimeError: Event loop is closed" — reproducible only in
+# teardown dies with "RuntimeError: Event loop is closed": reproducible only in
 # CI. asyncio_mode = "auto" already handles every async test without a marker.
 asyncio_default_fixture_loop_scope = "module"
 asyncio_default_test_loop_scope    = "module"

@@ -22,14 +22,26 @@ class Settings(BaseSettings):
     # If set, every webhook delivery includes X-Ghostbit-Signature: sha256=<hex>.
     webhook_secret: str = ""
 
+    # Who operates THIS instance: rendered into the /privacy notice, which
+    # legally must name the data controller (GDPR art. 13 / nLPD art. 19).
+    # Left empty, the notice falls back to neutral wording ("the operator of
+    # this instance"), which is honest but weaker: set all three when you
+    # deploy publicly. ghostbit.dev sets:
+    #   PRIVACY_OPERATOR="StackOps (France)"
+    #   PRIVACY_CONTACT_URL="https://stackops.ch"
+    #   PRIVACY_AUTHORITY="the CNIL (France)"
+    privacy_operator: str = ""
+    privacy_contact_url: str = ""
+    privacy_authority: str = ""
+
     # Optional bearer token for GET /metrics. Empty (default) leaves the
-    # endpoint open — fine on private networks; on a public deployment the
+    # endpoint open: fine on private networks; on a public deployment the
     # aggregate counters and the Python version are readable by anyone.
     # When set, scrapes must send `Authorization: Bearer <token>`.
     metrics_token: str = ""
 
     # Trust X-Forwarded-For for rate limiting. Enable ONLY when behind a
-    # reverse proxy that strips/overwrites this header — otherwise clients
+    # reverse proxy that strips/overwrites this header: otherwise clients
     # can spoof it and bypass rate limits.
     trust_proxy_headers: bool = False
 
@@ -41,7 +53,7 @@ class Settings(BaseSettings):
     base_url: str = ""
 
     # Repo whose stargazer count the footer shows, fetched server-side once an
-    # hour. Set to "" to disable the outbound call entirely — the footer then
+    # hour. Set to "" to disable the outbound call entirely: the footer then
     # omits the number. Never fetched from the visitor's browser: that would
     # disclose every visitor's IP to GitHub, paste readers included.
     github_repo: str = "stackopshq/ghostbit"

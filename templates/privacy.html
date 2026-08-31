@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy · Ghostbit{% endblock %}
+
+{% block header_actions %}{% endblock %}
+
+{% block page %}
+<div class="page-plain">
+  <div class="paste-layout">
+    <div class="card">
+      <div class="md-body">
+        <h1>Privacy notice</h1>
+        <p>
+          {% if operator %}
+          This Ghostbit instance is operated by
+          {% if contact_url %}<a href="{{ contact_url }}" target="_blank" rel="noopener">{{ operator }}</a>{% else %}{{ operator }}{% endif %},
+          the controller for whatever little processing happens here. For privacy matters, use
+          that contact link;
+          {% else %}
+          This Ghostbit instance is run by its operator, who is the controller for whatever
+          little processing happens here. For privacy matters, contact them through the channel
+          where you were given this instance's address;
+          {% endif %}
+          for security reports, see our
+          <a href="/.well-known/security.txt">security.txt</a>. This notice is written for the EU
+          GDPR and for the Swiss nLPD, and it is versioned: every change to it is public in the
+          <a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener">repository history</a>.
+        </p>
+
+        <h2>The short version</h2>
+        <p>
+          Ghostbit is built so that there is almost nothing to disclose. No accounts, no cookies,
+          no analytics, no advertising, no fingerprinting, and not a single request from your
+          browser to a third party: scripts, fonts and styles are all served from this origin.
+          Pastes are encrypted <em>in your browser</em> before anything reaches us; the decryption
+          key lives in the URL fragment (<code>#…</code>), which browsers never transmit. We could
+          not read your pastes if we wanted to.
+        </p>
+
+        <h2>What the server stores</h2>
+        <table>
+          <thead><tr><th>Data</th><th>Why</th><th>For how long</th></tr></thead>
+          <tbody>
+            <tr><td>Ciphertext, nonce, KDF salt</td><td>Serving the paste back</td><td>Until it expires, burns, hits its view cap, or is deleted. Your choice at creation, at most one year, or no expiry</td></tr>
+            <tr><td>Language hint, timestamps, view count, flags</td><td>Rendering and enforcing your paste's rules</td><td>Same lifetime as the paste</td></tr>
+            <tr><td>SHA-256 hash of the delete token</td><td>Letting the holder of the link delete or edit the paste</td><td>Same lifetime as the paste</td></tr>
+            <tr><td>Webhook URL (optional, yours)</td><td>POSTing a notification when the paste is read</td><td>Same lifetime as the paste</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Expired pastes are removed on first access, and a background sweep purges the remainder
+          within the hour. Encrypted backups (age public-key encryption; the plaintext export never
+          touches disk) are kept for 30 days, then deleted.
+        </p>
+
+        <h2>What the server does not collect</h2>
+        <p>
+          No IP addresses and no User-Agent strings: access logging is off by default and stays
+          off on this instance unless its operator says otherwise above.
+          The rate limiter examines the client address of each request in memory and keeps no log
+          of it. Pastes carry no creator identity: we cannot tell who created what, which also
+          means we cannot answer "give me everything you have about me" with anything but this page
+          (GDPR art. 11: we hold nothing that identifies you).
+        </p>
+
+        <h2>Browser storage</h2>
+        <p>
+          No cookies. Three keys of plain browser storage, none of which leave your machine:
+          your theme choice and a collapsed-hero flag (localStorage), and a tab-scoped one-time
+          marker that shows the "paste created" banner exactly once (sessionStorage).
+        </p>
+
+        <h2>Third parties</h2>
+        <p>
+          When the operator fronts this instance with a CDN or reverse proxy (ghostbit.dev uses
+          <strong>Cloudflare</strong>), that provider processes connection metadata as the
+          operator's processor under its own data-protection terms. The server itself makes at
+          most one outbound call: it asks the GitHub API for this project's star count, once an
+          hour, from the server; your IP is never part of that, and air-gapped installs disable
+          it entirely. Webhook notifications go only to the URL the paste creator supplied.
+        </p>
+
+        <h2>Your rights</h2>
+        <p>
+          Under the GDPR and the nLPD you can ask for access, rectification, deletion, and the
+          rest. Concretely: deletion is self-service (whoever holds a paste's delete token can
+          delete it instantly, no questions asked); for anything else, contact us. If you
+          believe we are mishandling data, you can complain to
+          {% if authority %}{{ authority }}, to your local supervisory authority, or to the
+          Swiss FDPIC if you are in Switzerland{% else %}your local supervisory authority (the
+          Swiss FDPIC if you are in Switzerland){% endif %}.
+        </p>
+
+        <p><em>Last reviewed: 2026-08-31, as part of the GDPR/nLPD/ISO 27001-alignment audit.</em></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

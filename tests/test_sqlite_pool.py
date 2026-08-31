@@ -66,7 +66,7 @@ async def test_concurrent_reads_do_not_serialize(storage):
     elapsed = time.perf_counter() - start
 
     assert all(r is not None and r.id == "same" for r in results)
-    # Not a strict perf assertion — just a sanity check that 20 reads on a
+    # Not a strict perf assertion: just a sanity check that 20 reads on a
     # pool of 4 finish quickly. SQLite in-memory-ish ops on a single row
     # return in sub-millisecond; 0.5 s leaves a lot of room for slow CI.
     assert elapsed < 0.5
@@ -112,7 +112,7 @@ async def test_iter_all_holds_one_connection_others_stay_available(storage):
     p = await storage.get("r0")
     assert p is not None
 
-    # Clean up — exhaust the generator so it releases the connection.
+    # Clean up: exhaust the generator so it releases the connection.
     async for _ in agen:
         pass
     assert storage._pool.qsize() == 4

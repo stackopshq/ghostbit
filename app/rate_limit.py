@@ -3,7 +3,7 @@ Rate-limit key extraction.
 
 When TRUST_PROXY_HEADERS is false (default), the direct peer address is used.
 
-When true, the *rightmost* X-Forwarded-For entry is used — this is the IP
+When true, the *rightmost* X-Forwarded-For entry is used, this is the IP
 appended by the nearest hop, which is our own reverse proxy. Leftmost entries
 are client-controlled: a client that sends `X-Forwarded-For: 1.2.3.4` would
 have that spoofed value keyed for rate limiting if we took the first entry

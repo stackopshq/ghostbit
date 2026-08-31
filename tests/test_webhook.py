@@ -28,7 +28,7 @@ def _fake_getaddrinfo(host, port, *args, **kwargs):
         "http://169.254.169.254/hook",  # AWS/GCP/Azure IMDS endpoint
         "https://10.255.255.255/hook",
         "ftp://example.com/hook",  # non-http scheme
-        "http://0.0.0.0/hook",  # unspecified — resolves to localhost on Linux
+        "http://0.0.0.0/hook",  # unspecified: resolves to localhost on Linux
         "http://100.64.1.1/hook",  # CGNAT (RFC 6598)
         "http://198.18.0.1/hook",  # benchmark (RFC 2544)
         "http://192.0.2.1/hook",  # TEST-NET-1
@@ -67,7 +67,7 @@ def test_resolve_public_ip_accepts_public_dns():
 
 
 def test_resolve_public_ip_accepts_bare_public_ip_without_dns():
-    # Bare IP literal must not trigger DNS — protects against spoofed resolvers
+    # Bare IP literal must not trigger DNS: protects against spoofed resolvers
     # and keeps the fast path deterministic.
     with patch("socket.getaddrinfo", side_effect=AssertionError("DNS must not be called")):
         assert _resolve_public_ip("1.2.3.4", 443) == "1.2.3.4"
@@ -90,7 +90,7 @@ def test_resolve_public_ip_rejects_rebound_hostname():
 
 
 def test_resolve_public_ip_rejects_mixed_result():
-    """If one returned record is private, reject the whole host — we don't
+    """If one returned record is private, reject the whole host: we don't
     trust the attacker to let us pick the 'safe' one."""
     mixed = _PUBLIC_ADDRINFO + _PRIVATE_ADDRINFO
     with patch("socket.getaddrinfo", return_value=mixed), pytest.raises(SSRFError):
@@ -111,7 +111,7 @@ def test_resolve_public_ip_raises_on_nxdomain():
 async def test_fire_keeps_strong_reference_to_delivery_task():
     """`fire()` must keep a strong reference to the created task so the event
     loop doesn't garbage-collect it mid-delivery. Without it, a delivery
-    could silently never run — the task object is the only thing holding
+    could silently never run: the task object is the only thing holding
     the coroutine alive."""
     import asyncio
 
@@ -143,7 +143,7 @@ def test_signed_headers_timestamp_always_present_even_without_secret():
 
 def test_signed_headers_signature_matches_hmac_when_secret_set():
     """The header value must equal the HMAC the receiver will recompute
-    locally — any drift here silently breaks every consumer's verification."""
+    locally: any drift here silently breaks every consumer's verification."""
     import hashlib
     import hmac as _hmac
 
@@ -154,7 +154,7 @@ def test_signed_headers_signature_matches_hmac_when_secret_set():
 
 
 def test_signed_headers_signature_format_is_stable():
-    """The "sha256=<hex>" format is part of the public contract — receiver
+    """The "sha256=<hex>" format is part of the public contract: receiver
     snippets in docs/api.md and docs/encryption.md depend on it."""
     headers = _signed_headers(b"x", 0, secret="k")
     assert headers["X-Ghostbit-Signature"].startswith("sha256=")

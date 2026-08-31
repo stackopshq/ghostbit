@@ -2,11 +2,11 @@
 
 Thanks for considering a contribution. This document covers how to get the project running locally and the conventions Ghostbit follows.
 
-## Core invariant — please read first
+## Core invariant: please read first
 
 **The server must never see plaintext.** All encryption happens client-side (browser via Web Crypto API in [static/e2e.js](static/e2e.js), CLI via [cli/_crypto.py](cli/_crypto.py)). The API only stores Base64 ciphertext + nonce + optional PBKDF2 salt.
 
-The AES-256-GCM key (or, for password pastes, only the PBKDF2 salt) lives in the URL `#fragment`, which browsers never transmit. Any change that risks leaking the key to the server — a redirect that re-emits the fragment, analytics on the paste view page, a new server-side decryption path, accepting plaintext on `POST /api/v1/pastes`, logging request bodies on paste routes — is a protocol break and will be rejected.
+The AES-256-GCM key (or, for password pastes, only the PBKDF2 salt) lives in the URL `#fragment`, which browsers never transmit. Any change that risks leaking the key to the server (a redirect that re-emits the fragment, analytics on the paste view page, a new server-side decryption path, accepting plaintext on `POST /api/v1/pastes`, logging request bodies on paste routes) is a protocol break and will be rejected.
 
 The crypto parameters (PBKDF2-SHA256 at 600 000 iterations, AES-256-GCM with a 12-byte nonce, 16-byte salt) are duplicated in three places and must stay aligned: [static/e2e.js](static/e2e.js), [cli/_crypto.py](cli/_crypto.py), and the test vectors in [tests/test_cli_crypto.py](tests/test_cli_crypto.py). See [docs/adr/0001-zero-knowledge-crypto.md](docs/adr/0001-zero-knowledge-crypto.md) for the full rationale.
 
@@ -31,7 +31,7 @@ pip install pre-commit
 pre-commit install
 ```
 
-The hooks run ruff (lint + format), gitleaks (secret scan), and a few hygiene checks. CI runs the same checks — installing locally just gives you the feedback before the push.
+The hooks run ruff (lint + format), gitleaks (secret scan), and a few hygiene checks. CI runs the same checks; installing locally just gives you the feedback before the push.
 
 ## Tests, lint, format
 
@@ -59,13 +59,13 @@ A PR is ready to merge when, in order:
 
 ## Pull requests
 
-- Keep PRs small and atomic — one intent per PR. If the diff is over ~400 significant lines, consider splitting.
+- Keep PRs small and atomic, one intent per PR. If the diff is over ~400 significant lines, consider splitting.
 - Description structure: *Context*, *Changes*, *Tests*, *Risks*.
 - Link any related issue.
 
 ## Reporting a security vulnerability
 
-Please **do not** open a public issue. Use [GitHub Security Advisories](https://github.com/stackopshq/ghostbit/security/advisories/new) instead — see [SECURITY.md](SECURITY.md) for the full policy.
+Please **do not** open a public issue. Use [GitHub Security Advisories](https://github.com/stackopshq/ghostbit/security/advisories/new) instead. [SECURITY.md](SECURITY.md) has the full policy.
 
 ## Architecture decisions
 

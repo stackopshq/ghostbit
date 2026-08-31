@@ -84,7 +84,7 @@ function Invoke-AesGcmEncrypt {
         $aes.Dispose()
     }
 
-    # Append GCM tag to ciphertext — matches Python AESGCM output format
+    # Append GCM tag to ciphertext: matches Python AESGCM output format
     $ctWithTag = $ciphertext + $tag
 
     return [PSCustomObject]@{

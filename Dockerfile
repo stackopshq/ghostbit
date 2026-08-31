@@ -12,7 +12,7 @@ WORKDIR /build
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-# Then install the server package itself — this is what makes
+# Then install the server package itself; this is what makes
 # `importlib.metadata.version("ghostbit")` work inside the final image
 # (otherwise /openapi.json reports "0.0.0+source" even on tagged releases).
 # `--no-deps` skips re-resolving the requirements we just installed.
@@ -60,14 +60,14 @@ EXPOSE ${PORT}
 
 # No HEALTHCHECK instruction on purpose: `podman build` produces OCI-format
 # images, which silently drop it ("HEALTHCHECK is not supported for OCI image
-# format"). The liveness probe lives with the orchestrator instead — the
+# format"). The liveness probe lives with the orchestrator instead: the
 # `healthcheck:` block in docker-compose.yml and the Health* keys in the Podman
-# Quadlet (see README) — so it behaves the same regardless of build engine.
+# Quadlet (see README), so it behaves the same regardless of build engine.
 
 # JSON-array CMD (silences Dockerfile JSONArgsRecommended) + `exec` so the
 # shell is replaced by uvicorn. Without exec, uvicorn would be a child of
 # /bin/sh and `podman stop` / `docker stop` SIGTERM would be delivered to
-# the shell, not uvicorn — that's ~10 s of wasted shutdown time and risks
+# the shell, not uvicorn: that's ~10 s of wasted shutdown time and risks
 # half-committed requests on containers with many workers.
 #
 # When TRUST_PROXY_HEADERS=true, we also turn on uvicorn's --proxy-headers
@@ -77,7 +77,7 @@ EXPOSE ${PORT}
 # the app could spoof their address.
 #
 # Access logging is OFF unless ACCESS_LOG=true. Every access line pairs a
-# client IP with a paste ID and a timestamp — exactly the correlation the
+# client IP with a paste ID and a timestamp: exactly the correlation the
 # rest of the product is built to avoid, and the reason the docs can say
 # "no IP addresses are ever logged". Opting in is a data-protection
 # decision, not a debug flag: an operator who enables it starts processing

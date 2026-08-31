@@ -1,10 +1,10 @@
 """
 Prometheus metrics for Ghostbit.
 
-Exposed on GET /metrics (mounted as an ASGI sub-app in main.py). The
-endpoint is public by default — there are no per-paste details here,
-only aggregate counters and histograms — but operators behind a proxy
-can restrict it to the scraper's IP if they want.
+Exposed on GET /metrics (a plain route in main.py). The endpoint is open
+by default, there are no per-paste details here, only aggregate counters
+and histograms, and can be gated with METRICS_TOKEN, or restricted to
+the scraper's IP at the reverse proxy.
 
 Design choice: we hand-roll the counters instead of using a broad
 instrumentation library so the metric names stay stable across fastapi
@@ -15,7 +15,6 @@ raw URLs).
 from __future__ import annotations
 
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
-from prometheus_client import make_asgi_app as _make_asgi_app
 
 # ── Business counters ────────────────────────────────────────────────────────
 
@@ -57,20 +56,13 @@ http_request_duration_seconds = Histogram(
 sqlite_pool_wait_seconds = Histogram(
     "ghostbit_sqlite_pool_wait_seconds",
     "Time a storage call spent waiting for a free SQLite connection. A non-zero "
-    "P99 means the pool is a bottleneck — raise SQLITE_POOL_SIZE.",
+    "P99 means the pool is a bottleneck: raise SQLITE_POOL_SIZE.",
     # 10 µs … 1 s; anything above 100 ms means serious contention.
     buckets=(0.00001, 0.0001, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0),
 )
 
-# ── ASGI sub-app ─────────────────────────────────────────────────────────────
-
-# Prometheus client ships an ASGI app that serves the exposition format.
-# Mounted at /metrics from main.py.
-asgi_app = _make_asgi_app()
-
 __all__ = [
     "CONTENT_TYPE_LATEST",
-    "asgi_app",
     "generate_latest",
     "http_request_duration_seconds",
     "pastes_created_total",

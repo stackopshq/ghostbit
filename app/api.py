@@ -1,12 +1,12 @@
 """
-REST API — /api/v1
+REST API: /api/v1
 
 All encryption is performed CLIENT-SIDE (E2E). The server stores ciphertext only
 and can never read paste content.
 
 Endpoints:
   POST   /api/v1/pastes          Create a paste (send pre-encrypted content)
-  GET    /api/v1/pastes/{id}     Get a paste (returns ciphertext — client decrypts)
+  GET    /api/v1/pastes/{id}     Get a paste (returns ciphertext: client decrypts)
   DELETE /api/v1/pastes/{id}     Delete a paste (requires X-Delete-Token header)
   POST   /api/v1/detect          Detect language of a plaintext snippet
 """
@@ -76,7 +76,7 @@ class PasteCreateRequest(BaseModel):
         False,
         description=(
             "Whether the plaintext was gzipped by the client BEFORE encryption. "
-            "Server-side this is a transparent flag — the viewer reads it to "
+            "Server-side this is a transparent flag: the viewer reads it to "
             "decide whether to gunzip after decryption."
         ),
     )
@@ -210,7 +210,7 @@ async def create_paste(body: PasteCreateRequest, request: Request):
     )
 
     # Retry on paste-ID collision. token_urlsafe(6) = ~48 bits of entropy,
-    # collisions are rare but not impossible at scale — handle them instead
+    # collisions are rare but not impossible at scale: handle them instead
     # of silently overwriting a stranger's paste.
     storage = _storage(request)
     for _ in range(8):
@@ -342,7 +342,7 @@ class PasteUpdateRequest(BaseModel):
     description=(
         "Replace the ciphertext + nonce of an existing paste.\n\n"
         "Requires the same `X-Delete-Token` header used by DELETE. The encryption "
-        "key (URL `#fragment`) is unchanged — re-encrypt client-side with the "
+        "key (URL `#fragment`) is unchanged: re-encrypt client-side with the "
         "existing key and a fresh nonce. The server preserves id, created_at, "
         "expires_at, kdf_salt, language, burn, has_password, max_views, view_count "
         "and webhook_url. The compressed flag may change.\n\n"
@@ -387,7 +387,7 @@ async def update_paste(
     description=(
         "Permanently delete a paste.\n\n"
         "Requires the `X-Delete-Token` header returned at creation time. "
-        "The token is verified against a SHA-256 hash — the plaintext token is never stored.\n\n"
+        "The token is verified against a SHA-256 hash: the plaintext token is never stored.\n\n"
         "Returns 403 whether the paste is missing, expired, or the token is wrong. "
         "This is intentional: distinguishing those cases would let a caller enumerate "
         "existing paste IDs by probing with arbitrary tokens."
@@ -403,7 +403,7 @@ async def delete_paste(
     paste_id: str = Path(..., pattern=r"^[A-Za-z0-9_-]{1,20}$"),
     x_delete_token: str = Header(..., description="Delete token returned at paste creation."),
 ):
-    # Unified 403 response — see docstring. `storage.delete` returns False
+    # Unified 403 response, see docstring. `storage.delete` returns False
     # identically for a missing paste and a bad token, so we don't need to
     # look up the paste first (which would also leak existence via timing).
     storage = _storage(request)

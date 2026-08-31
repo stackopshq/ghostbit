@@ -1,5 +1,5 @@
 /**
- * Raw paste view — decrypts the ciphertext and renders it as plain text
+ * Raw paste view: decrypts the ciphertext and renders it as plain text
  * inside a single <pre>. Kept intentionally tiny; the richer interactive
  * view lives in paste.js.
  */

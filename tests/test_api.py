@@ -52,7 +52,7 @@ async def test_healthz(client):
 
 
 async def test_healthz_stays_200_when_storage_is_down(client, monkeypatch):
-    """Liveness MUST NOT depend on the storage backend — a Redis blip should
+    """Liveness MUST NOT depend on the storage backend: a Redis blip should
     not cascade into a container restart loop."""
 
     async def boom():
@@ -95,7 +95,7 @@ async def test_csp_uses_nonce_not_unsafe_inline(client):
 
 
 async def test_csp_nonce_is_per_request(client):
-    """Nonces must be unique per response — reuse would let an attacker
+    """Nonces must be unique per response: reuse would let an attacker
     who saw one nonce reuse it on later injections."""
     import re
 
@@ -137,7 +137,7 @@ async def test_paste_page_emits_sri_for_third_party_libs(client):
 
 
 async def test_compressed_flag_round_trips(client):
-    """compressed is a server-transparent metadata flag — it must persist
+    """compressed is a server-transparent metadata flag, it must persist
     through save/load exactly as the client sent it, with no coercion."""
     r = await client.post("/api/v1/pastes", json=_fake_paste(compressed=True))
     assert r.status_code == 201
@@ -148,7 +148,7 @@ async def test_compressed_flag_round_trips(client):
 
 async def test_kdf_field_round_trips(client):
     """The kdf hint must persist exactly as sent so the viewer can run the
-    matching KDF — derive PBKDF2 from a password meant for Argon2id and
+    matching KDF: derive PBKDF2 from a password meant for Argon2id and
     you get a wrong key + AES-GCM tag failure."""
     payload = _fake_paste(
         kdf_salt=base64.b64encode(os.urandom(16)).decode(),
@@ -168,14 +168,14 @@ async def test_kdf_defaults_to_pbkdf2(client):
 
 
 async def test_kdf_rejects_unknown_value(client):
-    """An unknown KDF must be rejected at the validator — silently accepting
+    """An unknown KDF must be rejected at the validator: silently accepting
     it would let a malformed paste reach the storage layer."""
     r = await client.post("/api/v1/pastes", json=_fake_paste(kdf="scrypt"))
     assert r.status_code == 422
 
 
 async def test_compressed_flag_defaults_to_false(client):
-    """Pastes created without the flag must come back with compressed=False —
+    """Pastes created without the flag must come back with compressed=False:
     backwards compatibility for clients and existing pastes."""
     r = await client.post("/api/v1/pastes", json=_fake_paste())
     pid = r.json()["id"]
@@ -216,7 +216,7 @@ async def test_homepage_does_not_ship_codemirror_modes_eagerly(client):
 
 async def test_password_paste_includes_argon2_lib(client):
     """A password-protected paste page must ship the Argon2 lib unconditionally
-    — the viewer doesn't know yet which KDF the paste used."""
+    the viewer doesn't know yet which KDF the paste used."""
     payload = _fake_paste(kdf_salt=base64.b64encode(os.urandom(16)).decode())
     pid = (await client.post("/api/v1/pastes", json=payload)).json()["id"]
     html = (await client.get(f"/{pid}")).text
@@ -244,7 +244,7 @@ async def test_csp_allows_wasm_unsafe_eval(client):
 async def test_paste_page_ships_qr_button_modal_and_lib(client):
     """QR code is rendered client-side so the URL fragment (encryption key)
     never reaches the server. The button + modal must be in the shell. The lib
-    itself is fetched on first open — most readers never touch the modal — but
+    itself is fetched on first open, most readers never touch the modal, but
     it still has to carry SRI like every other vendored script."""
     import re
 
@@ -253,7 +253,7 @@ async def test_paste_page_ships_qr_button_modal_and_lib(client):
     assert 'id="qrBtn"' in html
     assert 'id="qrModal"' in html
     assert not re.search(r"<script[^>]+src=[^>]*qrcode\.min\.js", html), (
-        "qrcode.min.js must not be loaded eagerly — paste.js injects it on first open"
+        "qrcode.min.js must not be loaded eagerly: paste.js injects it on first open"
     )
     assert re.search(r'"qr_sri":\s*"sha384-[A-Za-z0-9+/=]+"', html), (
         "the lazily injected QR lib must still carry an SRI hash"
@@ -261,7 +261,7 @@ async def test_paste_page_ships_qr_button_modal_and_lib(client):
 
 
 def test_abs_url_prefers_configured_base_url(monkeypatch):
-    """BASE_URL, when set, overrides the request-derived origin — the escape
+    """BASE_URL, when set, overrides the request-derived origin: the escape
     hatch for TLS-terminating proxies that would otherwise emit http:// URLs."""
     from app.config import settings
     from app.main import _abs_url
@@ -329,7 +329,7 @@ async def test_delete_with_invalid_token(client):
 
 async def test_update_paste_replaces_ciphertext(client):
     """The PUT endpoint lets the owner change the ciphertext while keeping
-    the same id and metadata — used by the in-place edit flow."""
+    the same id and metadata: used by the in-place edit flow."""
     r = await client.post("/api/v1/pastes", json=_fake_paste(language="python"))
     data = r.json()
     original = await client.get(f"/api/v1/pastes/{data['id']}")
@@ -376,7 +376,7 @@ async def test_update_unknown_paste_returns_403(client):
 
 async def test_update_can_flip_compressed_flag(client):
     """A re-encrypt path that turns compression on (or off) must be able to
-    persist the new flag — otherwise the viewer would gunzip wrong bytes."""
+    persist the new flag: otherwise the viewer would gunzip wrong bytes."""
     r = await client.post("/api/v1/pastes", json=_fake_paste(compressed=False))
     data = r.json()
     new_payload = _fake_paste()
@@ -394,7 +394,7 @@ async def test_update_can_flip_compressed_flag(client):
 
 async def test_delete_of_unknown_paste_also_returns_403(client):
     """The API must not distinguish 'paste exists with wrong token' from
-    'paste does not exist' — otherwise an attacker can enumerate IDs by
+    'paste does not exist': otherwise an attacker can enumerate IDs by
     probing with an arbitrary token."""
     r = await client.delete(
         "/api/v1/pastes/doesnotexist",
@@ -404,7 +404,7 @@ async def test_delete_of_unknown_paste_also_returns_403(client):
 
 
 async def test_form_delete_of_unknown_paste_also_returns_403(client):
-    """Same policy for the HTML form endpoint — the form is the legitimate
+    """Same policy for the HTML form endpoint: the form is the legitimate
     owner path, but we still avoid leaking existence to anyone who can POST."""
     r = await client.post(
         "/doesnotexist/delete",
@@ -425,7 +425,7 @@ async def test_content_too_large(client):
     }
     r = await client.post("/api/v1/pastes", json=payload)
     # 413 from the body-size middleware (hard HTTP ceiling) or 400 from the
-    # application-level max_paste_size check — both are acceptable rejections.
+    # application-level max_paste_size check: both are acceptable rejections.
     assert r.status_code in (400, 413)
 
 
@@ -443,12 +443,42 @@ async def test_robots_txt_points_at_sitemap(client):
     assert "/sitemap.xml" in r.text
 
 
-async def test_sitemap_lists_only_the_landing_page(client):
+async def test_sitemap_lists_only_public_pages(client):
     r = await client.get("/sitemap.xml")
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("application/xml")
-    # Exactly one entry: listing paste URLs would leak capability URLs.
-    assert r.text.count("<loc>") == 1
+    # Exactly the landing page and the privacy notice: listing paste URLs
+    # would leak capability URLs.
+    assert r.text.count("<loc>") == 2
+    assert "/privacy</loc>" in r.text
+
+
+async def test_privacy_notice_is_served(client):
+    r = await client.get("/privacy")
+    assert r.status_code == 200
+    assert "Privacy notice" in r.text
+    # The notice's headline claims must match the code that backs them.
+    assert "No accounts, no cookies" in r.text
+    assert "Last reviewed: 2026-08-31" in r.text
+
+
+async def test_privacy_notice_names_the_configured_operator(client, monkeypatch):
+    """Self-hosted installs must be able to name THEIR controller: a
+    hardcoded operator would make every other deployment serve a false
+    notice. Unset, the page falls back to neutral wording."""
+    from app.config import settings
+
+    neutral = (await client.get("/privacy")).text
+    assert "run by its operator" in neutral
+
+    monkeypatch.setattr(settings, "privacy_operator", "Example Corp (Germany)")
+    monkeypatch.setattr(settings, "privacy_contact_url", "https://example.com/contact")
+    monkeypatch.setattr(settings, "privacy_authority", "the BfDI (Germany)")
+    named = (await client.get("/privacy")).text
+    assert "Example Corp (Germany)" in named
+    assert 'href="https://example.com/contact"' in named
+    assert "the BfDI (Germany)" in named
+    assert "run by its operator" not in named
 
 
 async def test_paste_page_is_noindex(client):
@@ -471,7 +501,7 @@ async def test_landing_page_has_description_and_canonical(client):
 
 async def test_id_collision_retry(client, monkeypatch):
     """When the random ID generator collides, create_paste should retry
-    up to 8 times before giving up — it must never overwrite an existing paste."""
+    up to 8 times before giving up, it must never overwrite an existing paste."""
     # Force the generator to return a colliding ID twice, then a fresh one.
     import secrets as _secrets
 
@@ -509,7 +539,7 @@ async def test_security_headers_present(client):
 
 async def test_footer_does_not_call_github_from_the_browser(client):
     """The star count is fetched server-side. A browser-side call would disclose
-    every visitor's IP to GitHub — including someone opening a secret paste."""
+    every visitor's IP to GitHub: including someone opening a secret paste."""
     html = (await client.get("/")).text
     assert "api.github.com" not in html
     assert "footer.js" not in html
@@ -528,7 +558,7 @@ async def test_csp_forbids_third_party_connections(client):
 
 async def test_metrics_open_by_default_and_gated_by_token(client, monkeypatch):
     """Empty METRICS_TOKEN keeps /metrics open (private networks). Once set,
-    only `Authorization: Bearer <token>` passes — anything else is 401."""
+    only `Authorization: Bearer <token>` passes: anything else is 401."""
     from app.config import settings
 
     assert (await client.get("/metrics")).status_code == 200
@@ -559,7 +589,7 @@ async def test_create_rejects_out_of_bounds_fields(client):
 
 async def test_swagger_and_redoc_are_gone(client):
     """FastAPI's default /docs and /redoc pull JS/CSS/fonts from third-party
-    CDNs — the only third-party references this app ever served, and our CSP
+    CDNs: the only third-party references this app ever served, and our CSP
     blanked both pages anyway. They must stay disabled; /openapi.json stays."""
     assert (await client.get("/docs")).status_code == 404
     assert (await client.get("/redoc")).status_code == 404
@@ -570,7 +600,7 @@ async def test_swagger_and_redoc_are_gone(client):
 
 async def test_footer_degrades_when_star_count_unavailable(client, monkeypatch):
     """No count yet (no egress, disabled, or GitHub down) must not break the
-    footer — it falls back to a plain call to action, never a misleading 0."""
+    footer, it falls back to a plain call to action, never a misleading 0."""
     from app import stars
 
     monkeypatch.setattr(stars, "_count", None)

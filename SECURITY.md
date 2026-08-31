@@ -1,5 +1,16 @@
 # Security Policy
 
+## Supported versions
+
+Only the latest release receives security fixes. There are no maintenance
+branches: a fix ships as a new release from `main`, and ghostbit.dev always
+runs a current build.
+
+| Version | Supported |
+|---|---|
+| Latest release (and `main`) | ✅ |
+| Anything older | ❌ upgrade |
+
 ## Reporting a vulnerability
 
 Please **do not** open a public GitHub issue for security vulnerabilities.
@@ -27,5 +38,5 @@ We aim to acknowledge reports within **48 hours** and provide a fix or mitigatio
 
 ## Encryption model
 
-Ghostbit uses true end-to-end encryption — the server stores ciphertext only and can never read paste content.
+Ghostbit uses true end-to-end encryption: the server stores ciphertext only and can never read paste content.
 Full details: [docs.ghostbit.dev/encryption](https://docs.ghostbit.dev/encryption/)

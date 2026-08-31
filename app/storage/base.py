@@ -11,7 +11,7 @@ class PasteData:
     nonce: str  # base64 12-byte GCM nonce
     kdf_salt: (
         str | None
-    )  # base64 16-byte PBKDF2 salt — only for password-protected pastes (client-side key derivation)
+    )  # base64 16-byte PBKDF2 salt: only for password-protected pastes (client-side key derivation)
     language: str | None
     created_at: int
     expires_at: int | None
@@ -23,7 +23,7 @@ class PasteData:
     webhook_url: str | None = None
     # When True, the plaintext was gzipped by the client BEFORE encryption.
     # The server only sees this as a hint to relay back so the viewer knows
-    # to decompress after decryption — it never touches plaintext itself.
+    # to decompress after decryption; it never touches plaintext itself.
     compressed: bool = False
     # Key derivation function used for password-protected pastes. The server
     # never derives keys; it only stores this hint so the viewer knows which
@@ -73,7 +73,7 @@ class StorageBackend(ABC):
     ) -> bool:
         """Replace the ciphertext + nonce (+ compressed flag) of an existing
         paste. Returns False if the paste no longer exists. Auth is the
-        caller's responsibility — the storage layer does not check tokens.
+        caller's responsibility: the storage layer does not check tokens.
         """
         ...
 

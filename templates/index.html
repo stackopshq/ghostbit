@@ -153,7 +153,7 @@
     </div><!-- /index-sidebar -->
   </form>
   <footer class="site-footer">
-    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a>. Enjoying Ghostbit? {% set stars = star_count() %}<a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ {% if stars is not none %}{{ stars }} stars on GitHub{% else %}Star us on GitHub{% endif %}</a>, yours would mean a lot!
+    Made with ❤️ by <a href="https://github.com/stackopshq" target="_blank" rel="noopener"><strong>StackOps</strong></a>. Enjoying Ghostbit? {% set stars = star_count() %}<a href="https://github.com/stackopshq/ghostbit" target="_blank" rel="noopener" id="footerStarLink">⭐ {% if stars is not none %}{{ stars }} stars on GitHub{% else %}Star us on GitHub{% endif %}</a>, yours would mean a lot! <span class="sep">·</span> <a href="/privacy">Privacy</a>
   </footer>
 </div>
 {% endblock %}
@@ -166,7 +166,7 @@
      (~190 KB) but the editor opens in plain-text mode, so it is only needed
      once a language is detected or picked. static/index.js injects it on first
      use; keeping it off the critical path is what unblocks LCP. -->
-<!-- Argon2id WASM lib — only used when the user picks Argon2id in the
+<!-- Argon2id WASM lib: only used when the user picks Argon2id in the
      KDF picker on a password paste. Loaded on every visit so the choice
      is immediately available; 29 KB minified, defer so it never blocks
      first paint. Drop it if your deployment disables Argon2id pastes. -->

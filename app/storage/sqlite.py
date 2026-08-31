@@ -56,7 +56,7 @@ async def _configure_connection(conn: aiosqlite.Connection) -> None:
     # busy_timeout lets a blocked writer wait up to 5 s for the WAL lock
     # instead of raising SQLITE_BUSY immediately. Without this, two
     # near-simultaneous write transactions on different connections fail
-    # instead of queuing — defeats the whole point of the pool.
+    # instead of queuing: defeats the whole point of the pool.
     await conn.execute("PRAGMA busy_timeout=5000")
 
 
@@ -72,7 +72,7 @@ class SQLiteStorage(StorageBackend):
     while SQLite itself serializes writers via its internal lock
     (complemented by busy_timeout so contenders queue instead of failing).
     Multi-statement transactions still run on a single checked-out
-    connection — acquire() is a context manager that keeps the same
+    connection: acquire() is a context manager that keeps the same
     connection from `await` to return.
     """
 
@@ -159,7 +159,7 @@ class SQLiteStorage(StorageBackend):
 
     @staticmethod
     def _row_to_paste(row: aiosqlite.Row) -> PasteData:
-        # `compressed` was added later — fall back to False on rows persisted
+        # `compressed` was added later: fall back to False on rows persisted
         # before the auto-migration ran on this DB file.
         return PasteData(
             id=row["id"],
@@ -175,7 +175,7 @@ class SQLiteStorage(StorageBackend):
             max_views=row["max_views"],
             view_count=row["view_count"] or 0,
             webhook_url=row["webhook_url"],
-            compressed=bool(row["compressed"]) if "compressed" in row.keys() else False,  # noqa: SIM118 — aiosqlite.Row needs .keys()
+            compressed=bool(row["compressed"]) if "compressed" in row.keys() else False,  # noqa: SIM118 (aiosqlite.Row needs .keys())
             kdf=row["kdf"] if "kdf" in row.keys() else "pbkdf2-sha256",  # noqa: SIM118
         )
 

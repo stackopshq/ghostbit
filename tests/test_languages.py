@@ -16,7 +16,7 @@ from app import languages
 
 @pytest.fixture(scope="module")
 def server_slugs() -> set[str]:
-    # Skip the leading "" placeholder — it's a UI affordance, not a language.
+    # Skip the leading "" placeholder, it's a UI affordance, not a language.
     return {s for s in languages.slugs() if s}
 
 
@@ -27,7 +27,7 @@ def test_every_entry_has_required_fields():
         assert "cm_mode" in entry  # may be None
         assert isinstance(entry["pygments_aliases"], list)
         assert entry["pygments_aliases"], (
-            f"slug {entry['slug']} has no pygments aliases — Pygments fallback will never match it"
+            f"slug {entry['slug']} has no pygments aliases: Pygments fallback will never match it"
         )
 
 
@@ -104,5 +104,5 @@ def test_cli_extension_map_agrees_with_server(server_slugs):
             "Add the extension on one side or rename on the other."
         )
 
-    # Module exists to make the linter happy — the real assertion is above.
+    # Module exists to make the linter happy: the real assertion is above.
     assert hasattr(cli_module, "LANGUAGES")

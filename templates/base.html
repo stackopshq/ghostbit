@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script nonce="{{ request.state.csp_nonce }}">
-    // Apply the theme as early as possible — before CSS resolves — so the
+    // Apply the theme as early as possible, before CSS resolves, so the
     // page never flashes the wrong palette. Stored choice wins; otherwise
     // follow the OS preference, falling back to dark.
     (function(){
