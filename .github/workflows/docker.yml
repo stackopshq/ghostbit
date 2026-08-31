@@ -155,9 +155,18 @@ jobs:
           print(f"{len(parts)} components in {sys.argv[1]}")
           PY
 
+      # v3, et non v4+ : `@actions/artifact` v2 s'adresse a une API que Gitea
+      # n'implemente pas, et qui repond alors comme un GitHub Enterprise Server.
+      # Le premier passage a echoue exactement la-dessus (run 3099) :
+      #
+      #   GHESNotSupportedError: upload-artifact@v4+ [...] not supported on GHES
+      #
+      # L'image etait deja poussee et le SBOM deja produit ; seule sa
+      # conservation manquait. C'est la raison pour laquelle cette etape vient
+      # apres le push, et non avant.
       - name: Keep the SBOM with the run
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v3
         with:
           name: sbom
           path: sbom-*.cdx.json
