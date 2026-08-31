@@ -170,3 +170,47 @@ jobs:
         with:
           name: sbom
           path: sbom-*.cdx.json
+
+      # L'etape ci-dessus a deja imprime « Artifact sbom has been successfully
+      # uploaded! » sur un run ou l'artefact n'existait nulle part : ni dans
+      # l'API du run, ni dans celle du depot, ni sur sa page. Un SBOM produit
+      # puis jete, sous une etape verte, ne vaut pas mieux que pas de SBOM :
+      # il fait croire qu'on saura repondre « quels paquets contenait l'image
+      # du 31 aout », et on ne le saura pas.
+      #
+      # Trois etats, et le troisieme echoue : l'artefact est la, il n'y est
+      # pas, ou l'API n'a pas repondu. Une verification qui ne peut pas
+      # mesurer ne dit pas « conforme ».
+      #
+      # Cette etape est la DERNIERE du job, apres la poussee : elle rend le
+      # run rouge sans jamais empecher une image de partir ni un deploiement
+      # d'avancer.
+      - name: The artifact actually exists
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          FORGE_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          API="${GITHUB_API_URL:-${GITHUB_SERVER_URL}/api/v1}"
+          URL="${API}/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts"
+          code=$(curl -sS -o "${RUNNER_TEMP}/artifacts.json" -w '%{http_code}' \
+            -H "Authorization: token ${FORGE_TOKEN}" "${URL}" || echo 000)
+          python3 - "${RUNNER_TEMP}/artifacts.json" "${code}" <<'PY'
+          import json, sys
+
+          path, code = sys.argv[1], sys.argv[2]
+          if code != "200":
+              sys.exit(f"[2] l'API des artefacts a repondu {code}, rien n'a pu etre mesure")
+          try:
+              doc = json.load(open(path))
+          except (OSError, json.JSONDecodeError) as exc:
+              sys.exit(f"[2] reponse illisible, rien n'a pu etre mesure : {exc}")
+          noms = [a.get("name") for a in doc.get("artifacts", [])]
+          if "sbom" not in noms:
+              sys.exit(
+                  "[1] l'etape de televersement s'est dite verte, et le run ne "
+                  f"porte aucun artefact « sbom ». Presents : {noms or 'aucun'}. "
+                  "Le SBOM de cette image n'a donc ete conserve nulle part."
+              )
+          print(f"artefact sbom present, avec {noms}")
+          PY
