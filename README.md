@@ -285,6 +285,12 @@ Old backups are pruned after `BACKUP_RETENTION_DAYS` (30 by default).
 
 ### Compliant deployments (GDPR / nLPD)
 
+<!-- ghost-conformite:debut. The six bolded lead-ins below are the suite's
+     rules, canonical in ghostsuite/assets/ghost-readme/GABARIT.md. That repo
+     is private, so this page carries a copy rather than a link; the markers
+     let a drift check compare the rules. The prose between them is meant to
+     be ours: it names our CDN, our retention variable, our outbound call. -->
+
 Ghostbit ships privacy by default: no accounts, no cookies, no third-party
 requests from any page, no access logs, encryption in the client. What the
 software cannot do for you is the part that depends on **your** deployment.
@@ -309,6 +315,8 @@ This checklist is the rest:
    business leaving your network.
 6. **Terminate TLS properly.** HTTPS at the proxy, `TRUST_PROXY_HEADERS=true`
    so rate limits key on real clients, and HSTS stays on.
+
+<!-- ghost-conformite:fin -->
 
 The reasoning behind each item, and the audit that produced them, is at
 [docs.ghostbit.dev/compliance](https://docs.ghostbit.dev/compliance/).
