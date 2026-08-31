@@ -22,15 +22,25 @@ this repository and every container image built from it.
 | [marked](https://marked.js.org/) | 15.0.12 | MIT | `static/marked.min.js` |
 | [DOMPurify](https://github.com/cure53/DOMPurify) | 3.1.7 | Apache-2.0 **or** MPL-2.0 | `static/purify.min.js` |
 | [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) | 1.4.4 | MIT | `static/qrcode.min.js` |
-| [hash-wasm](https://github.com/Daninet/hash-wasm) | see note | MIT | `static/hash-wasm-argon2.umd.min.js` |
+| [hash-wasm](https://github.com/Daninet/hash-wasm) | 4.12.0 | MIT | `static/hash-wasm-argon2.umd.min.js` |
 
-**Note on hash-wasm.** The vendored bundle carries no version string, and none
-was recorded when it was added ([`e627d44`](https://github.com/stackopshq/ghostbit/commit/e627d44),
-the Argon2id work in [ADR 0002](docs/adr/0002-argon2id-kdf.md)). Rather than
-print a version nobody verified, here is what is verifiable: the file is the
-argon2-only UMD build, and its SHA-256 begins `dcec617a2e1b700f`. Pinning the
-exact upstream version is tracked as a follow-up; a dependency whose version
-nobody can state is a dependency nobody can audit for vulnerabilities.
+**How the hash-wasm version was established.** The bundle carries no version
+string, and none was recorded when it was added
+([`e627d44`](https://github.com/stackopshq/ghostbit/commit/e627d44), the
+Argon2id work in [ADR 0002](docs/adr/0002-argon2id-kdf.md)). It was recovered
+by comparison rather than by memory: the vendored file is byte-identical to
+the `dist/argon2.umd.min.js` published upstream for 4.12.0, and to no other
+release from 4.5.0 onwards.
+
+```
+sha256  dcec617a2e1b700fa132d1583a186cb70611113395e869f2dd6cc82b415d3094
+        static/hash-wasm-argon2.umd.min.js
+        cdn.jsdelivr.net/npm/hash-wasm@4.12.0/dist/argon2.umd.min.js
+```
+
+The same digest is served by ghostbit.dev today, so the deployed file is this
+one and not some other build. Anyone can redo the check; that is the point of
+recording the digest next to the version.
 
 ## Fonts
 
@@ -82,6 +92,13 @@ bundled file states this in its own header, which is preserved. Full texts:
 
 The Python packages in `requirements.txt` are installed from PyPI when the
 image is built, each under its own licence. They are not vendored here, but a
-published container image does contain them: an image redistributed to third
-parties carries their notices too, and that inventory belongs with the image
-rather than with this repository.
+published container image does contain them, and an image redistributed to
+third parties carries their notices too.
+
+That inventory is generated rather than written: every push to `main` publishes
+a CycloneDX SBOM of the image it just pushed, from the `SBOM of the published
+image` step in [`.github/workflows/docker.yml`](.github/workflows/docker.yml).
+It lists the OS and Python components with their versions and licences (89
+components at the time of writing). A hand-written list would be wrong by the
+second release; this one cannot drift from the image, because it is read out of
+it.
