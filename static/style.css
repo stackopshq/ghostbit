@@ -7,8 +7,13 @@
      ramènerait une pile qui nommait JetBrains Mono sans en livrer un octet :
      toutes les règles `var(--font-mono)` rendaient donc en Consolas depuis le
      premier jour. */
-  --radius: 10px;
-  --radius-sm: 6px;
+  /* Radii — the four charter tokens, exactly as emit_theme.py emits them.
+     check_brand_drift.py compares these values (and every literal) to the
+     charter's; buttons carry --radius-pill by design, like .ghost-btn. */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
   --transition: 0.15s ease;
 
   /* Type scale — the Ghost Suite's seven steps, exactly as emit_theme.py
@@ -242,7 +247,7 @@ header {
 .btn-new {
   background: rgba(189,147,249,0.15);
   border: 1px solid rgba(189,147,249,0.3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   color: var(--drac-purple);
   font-size: var(--text-xs);
   font-weight: 500;
@@ -284,7 +289,7 @@ header {
 .hero-toggle {
   background: none;
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   color: var(--text-muted);
   cursor: pointer;
   padding: 3px 10px;
@@ -386,7 +391,7 @@ header {
 /* ── Cards ──────────────────────────────────────────────────────────────────── */
 .card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 20px;
   box-shadow: var(--shadow-card);
   border: 1px solid rgba(255,255,255,0.1);
@@ -528,7 +533,7 @@ header {
 .input-small {
   background: var(--card-2);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -548,7 +553,7 @@ header {
   align-items: center;
   gap: 0;
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   overflow: hidden;
   transition: border-color var(--transition);
 }
@@ -602,7 +607,7 @@ header {
 select {
   background: var(--card-2);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   color: var(--text);
   font-family: var(--font-ui);
   font-size: var(--text-xs);
@@ -630,7 +635,7 @@ select:focus { border-color: var(--border-focus); }
   width: 100%;
   background: var(--card-2);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -655,7 +660,7 @@ select:focus { border-color: var(--border-focus); }
   flex: 1;
   height: 4px;
   background: rgba(255,255,255,0.06);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 .pw-strength-fill {
@@ -692,7 +697,7 @@ select:focus { border-color: var(--border-focus); }
   width: 100%;
   background: var(--card-2);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -714,7 +719,7 @@ select:focus { border-color: var(--border-focus); }
 .toggle-track {
   position: absolute;
   inset: 0;
-  border-radius: 11px;
+  border-radius: var(--radius-pill);
   background: var(--toggle-off);
   cursor: pointer;
   transition: background 0.2s ease;
@@ -751,7 +756,7 @@ select:focus { border-color: var(--border-focus); }
 kbd {
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 1px 5px;
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
@@ -764,7 +769,7 @@ kbd {
   align-items: center;
   gap: 7px;
   padding: 9px 20px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
@@ -871,7 +876,7 @@ kbd {
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   font-size: var(--text-2xs);
   font-family: var(--font-mono);
   background: rgba(188, 19, 254, 0.12);
@@ -942,7 +947,7 @@ kbd {
   justify-content: center;
   width: 30px;
   height: 30px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-muted);
@@ -967,7 +972,7 @@ kbd {
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   border: 1px solid;
   font-size: var(--text-xs);
   font-weight: 500;
@@ -1008,7 +1013,7 @@ kbd {
 .paste-content {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-card), 0 0 30px rgba(188, 19, 254, 0.07);
 }
@@ -1037,7 +1042,7 @@ kbd {
   max-width: 380px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 32px 28px;
   box-shadow: var(--shadow);
   text-align: center;
@@ -1059,7 +1064,7 @@ kbd {
   width: 100%;
   background: var(--card-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
@@ -1104,7 +1109,7 @@ kbd {
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(188, 19, 254, 0.25);
   background: rgba(188, 19, 254, 0.07);
   color: var(--brand-light);
@@ -1132,13 +1137,13 @@ kbd {
   gap: 2px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   padding: 2px;
 }
 .tab {
   background: none;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
   color: var(--text-muted);
   cursor: pointer;
   font-family: var(--font-ui);
@@ -1188,7 +1193,7 @@ kbd {
   font-size: var(--text-sm);
   background: var(--surface-2, #44475a);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   color: var(--drac-pink);
 }
 /* Inline code inside a heading used to ride an em ratio (0.84em). The suite
@@ -1235,12 +1240,12 @@ kbd {
 .api-header { margin-bottom: 32px; }
 .api-header h1 { font-size: var(--text-xl); font-weight: 700; margin-bottom: 6px; }
 .api-sub { font-size: var(--text-sm); color: var(--text-muted); }
-.api-sub code { color: var(--accent); background: var(--accent-dim); padding: 1px 6px; border-radius: 4px; }
+.api-sub code { color: var(--accent); background: var(--accent-dim); padding: 1px 6px; border-radius: var(--radius-sm); }
 
 .api-section {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 16px;
 }
@@ -1262,7 +1267,7 @@ kbd {
   font-weight: 700;
   font-family: var(--font-mono);
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   letter-spacing: 0.05em;
 }
 .method.post   { background: rgba(80,250,123,0.12); color: #50fa7b; border: 1px solid rgba(80,250,123,0.25); }
@@ -1270,7 +1275,7 @@ kbd {
 .method.delete { background: rgba(255,85,85,0.1);   color: #ff5555; border: 1px solid rgba(255,85,85,0.25); }
 
 .api-desc { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: 16px; }
-.api-desc code { color: var(--accent); background: var(--accent-dim); padding: 1px 5px; border-radius: 3px; font-family: var(--font-mono); font-size: var(--text-xs); }
+.api-desc code { color: var(--accent); background: var(--accent-dim); padding: 1px 5px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); }
 
 .api-block-label {
   font-size: var(--text-2xs);
@@ -1481,7 +1486,7 @@ kbd {
   background: #ffffff;
   color: #111111;
   padding: 24px 24px 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   max-width: 320px;
   width: 100%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -1557,7 +1562,7 @@ kbd {
   background: var(--card);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   width: min(800px, 100%);
   max-height: 90vh;
   padding: 18px 20px;
@@ -1577,7 +1582,7 @@ kbd {
   flex: 1; min-height: 280px;
   font-family: var(--font-mono); font-size: var(--text-sm);
   background: var(--code-bg); color: var(--text);
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  border: 1px solid var(--border); border-radius: var(--radius);
   padding: 10px 12px; resize: vertical;
 }
 .edit-card textarea:focus { outline: none; border-color: var(--border-focus); }
