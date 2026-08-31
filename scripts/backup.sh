@@ -47,4 +47,15 @@ python -m app.admin export | age -r "$AGE_RECIPIENT" -o "$TMP"
 # "good" backup by a downstream rotation/sync step.
 mv "$TMP" "$OUT"
 
+# Retention. Every backup carries webhook URLs and delete-token hashes for
+# pastes that may long since have expired or been deleted — an unbounded
+# archive would quietly outlive every retention promise the product makes.
+# Default 30 days; set BACKUP_RETENTION_DAYS=0 to keep everything (opt-in,
+# for operators who rotate off-host instead).
+RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
+if [ "$RETENTION_DAYS" -gt 0 ] 2>/dev/null; then
+    find "$BACKUP_DIR" -maxdepth 1 -name 'ghostbit-*.jsonl.age' \
+        -mtime "+$RETENTION_DAYS" -delete
+fi
+
 echo "$OUT"

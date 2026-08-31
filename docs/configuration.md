@@ -93,10 +93,23 @@ impersonate another IP).
 
 When `TRUST_PROXY_HEADERS=true`, the Docker image also starts uvicorn with
 `--proxy-headers` so the real client IP is substituted for the proxy's address
-in the access log and in `request.client.host`. Otherwise the uvicorn logs
-would show only the reverse proxy's internal IP, which is not useful for
-incident triage. If you run the server outside of Docker, pass those flags
-yourself (`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
+in `request.client.host` (and in the access log, if you enabled it — see
+below). If you run the server outside of Docker, pass those flags yourself
+(`uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"`).
+
+## Access logging
+
+The Docker image starts uvicorn with `--no-access-log` **by default**. An
+access log line pairs a client IP with a paste ID and a timestamp — exactly
+the correlation the rest of Ghostbit is designed to avoid, and the basis for
+the "no IP addresses are ever logged" statement in the docs.
+
+Set `ACCESS_LOG=true` to turn access logging back on for debugging. Be aware
+of what that means: combined with `TRUST_PROXY_HEADERS=true` you are then
+recording real client IPs next to capability URLs, which makes you a
+processor of personal data under the GDPR/nLPD — put a retention on those
+logs and say so in your privacy notice. Outside of Docker, uvicorn logs
+accesses unless you pass `--no-access-log` yourself.
 
 ### Absolute URLs for link previews
 

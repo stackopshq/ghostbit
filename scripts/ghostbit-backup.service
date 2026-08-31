@@ -8,6 +8,8 @@ Type=oneshot
 # Adjust these paths and the recipient to match your install.
 Environment=BACKUP_DIR=/var/backups/ghostbit
 Environment=AGE_RECIPIENT=age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Days of backups to keep (0 = keep forever). See backup.sh.
+Environment=BACKUP_RETENTION_DAYS=30
 WorkingDirectory=/opt/ghostbit
 ExecStart=/opt/ghostbit/scripts/backup.sh
 
