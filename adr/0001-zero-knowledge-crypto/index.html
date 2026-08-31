@@ -25,7 +25,7 @@
     
     
       
-        <title>ADR 0001 — Zero-knowledge end-to-end encryption - Ghostbit</title>
+        <title>ADR 0001: Zero-knowledge end-to-end encryption - Ghostbit</title>
       
     
     
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0001 — Zero-knowledge end-to-end encryption
+              ADR 0001: Zero-knowledge end-to-end encryption
             
           </span>
         </div>
@@ -496,6 +496,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -664,7 +691,7 @@
   
 
 
-<h1 id="adr-0001-zero-knowledge-end-to-end-encryption">ADR 0001 — Zero-knowledge end-to-end encryption<a class="headerlink" href="#adr-0001-zero-knowledge-end-to-end-encryption" title="Permanent link">&para;</a></h1>
+<h1 id="adr-0001-zero-knowledge-end-to-end-encryption">ADR 0001: Zero-knowledge end-to-end encryption<a class="headerlink" href="#adr-0001-zero-knowledge-end-to-end-encryption" title="Permanent link">&para;</a></h1>
 <ul>
 <li><strong>Status:</strong> Accepted</li>
 <li><strong>Date:</strong> 2026-04-20 (initial); 2026-05-24 (this ADR formalising the decision)</li>
@@ -703,7 +730,7 @@
 <tr>
 <td>KDF (password mode)</td>
 <td>PBKDF2-HMAC-SHA256, <strong>600 000 iterations</strong></td>
-<td>OWASP 2023+ recommendation for PBKDF2-SHA256 in browser/CLI contexts. Argon2id would be stronger but is not yet native in <code>crypto.subtle</code> — adding a WASM build would mean a third place to maintain crypto code. See "Future considerations" below.</td>
+<td>OWASP 2023+ recommendation for PBKDF2-SHA256 in browser/CLI contexts. Argon2id would be stronger but is not yet native in <code>crypto.subtle</code>: adding a WASM build would mean a third place to maintain crypto code. See "Future considerations" below.</td>
 </tr>
 <tr>
 <td>Salt length</td>
@@ -725,22 +752,22 @@
 <h3 id="where-the-parameters-are-duplicated">Where the parameters are duplicated<a class="headerlink" href="#where-the-parameters-are-duplicated" title="Permanent link">&para;</a></h3>
 <p>They appear in <strong>three</strong> implementations and must stay aligned:</p>
 <ul>
-<li><a href="../../static/e2e.js"><code>static/e2e.js</code></a> — browser (Web Crypto API)</li>
-<li><a href="../../cli/_crypto.py"><code>cli/_crypto.py</code></a> — <code>gbit</code> CLI (<code>cryptography</code> package)</li>
-<li><a href="../../tests/test_cli_crypto.py"><code>tests/test_cli_crypto.py</code></a> — round-trip test vectors that cross both impls</li>
+<li><a href="../../static/e2e.js"><code>static/e2e.js</code></a>: browser (Web Crypto API)</li>
+<li><a href="../../cli/_crypto.py"><code>cli/_crypto.py</code></a>: <code>gbit</code> CLI (<code>cryptography</code> package)</li>
+<li><a href="../../tests/test_cli_crypto.py"><code>tests/test_cli_crypto.py</code></a>: round-trip test vectors that cross both impls</li>
 </ul>
 <p>Any change to one must change the other two in the same PR.</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <h3 id="positive">Positive<a class="headerlink" href="#positive" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Operator (and anyone who compromises the operator) <strong>cannot</strong> read user pastes.</li>
-<li>A leaked backup, a subpoena, a malicious infrastructure provider — none of these break the secrecy of past pastes.</li>
+<li>A leaked backup, a subpoena, a malicious infrastructure provider: none of these break the secrecy of past pastes.</li>
 <li>Pastes created by the browser are decryptable by the CLI, and vice versa.</li>
 </ul>
 <h3 id="negative-accepted-trade-offs">Negative / accepted trade-offs<a class="headerlink" href="#negative-accepted-trade-offs" title="Permanent link">&para;</a></h3>
 <ul>
 <li>No server-side search, no server-side syntax highlighting (must run in the client after decryption).</li>
-<li>No server-side language detection on ciphertext — clients call <code>POST /api/v1/detect</code> on <strong>plaintext</strong> before upload if they want language assist. The server route exists precisely to keep that workflow possible without ever sending the encrypted content to detect against.</li>
+<li>No server-side language detection on ciphertext: clients call <code>POST /api/v1/detect</code> on <strong>plaintext</strong> before upload if they want language assist. The server route exists precisely to keep that workflow possible without ever sending the encrypted content to detect against.</li>
 <li>The server cannot migrate the encryption format on its own (e.g. PBKDF2 → Argon2id); doing so requires versioning the wire format so clients can recognise both during a transition.</li>
 <li>Lost URL fragment = lost paste. No recovery path. This is the price of zero-knowledge.</li>
 </ul>
@@ -754,14 +781,14 @@
 <h2 id="future-considerations">Future considerations<a class="headerlink" href="#future-considerations" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Argon2id</strong> (PHC winner, memory-hard) would be a stronger KDF than PBKDF2-SHA256. A future ADR may introduce it alongside PBKDF2 with a wire-format <code>kdf</code> field so both can coexist during migration. Browser support would require a WASM build of an Argon2 implementation (~50 KB).</li>
-<li>~~Compression before encryption~~ — <strong>implemented as opt-in</strong> via a <code>compressed</code> boolean on the paste metadata. When set, the client gzips the plaintext before AES-GCM; the viewer reads the flag back from the API response and gunzips after decryption. The server never sees plaintext either way. Cuts payload sizes 60–80% on text/JSON/code. Implemented in <a href="../../static/e2e.js">static/e2e.js</a> (<code>gzipString</code>/<code>gunzipToString</code> via the browser's CompressionStream), <a href="../../cli/_crypto.py">cli/_crypto.py</a> (<code>encrypt</code> polymorphic on str/bytes, plus <code>decrypt_bytes</code>), and persisted as a column/JSON field by the two storage backends.</li>
+<li>~~Compression before encryption~~: <strong>implemented as opt-in</strong> via a <code>compressed</code> boolean on the paste metadata. When set, the client gzips the plaintext before AES-GCM; the viewer reads the flag back from the API response and gunzips after decryption. The server never sees plaintext either way. Cuts payload sizes 60–80% on text/JSON/code. Implemented in <a href="../../static/e2e.js">static/e2e.js</a> (<code>gzipString</code>/<code>gunzipToString</code> via the browser's CompressionStream), <a href="../../cli/_crypto.py">cli/_crypto.py</a> (<code>encrypt</code> polymorphic on str/bytes, plus <code>decrypt_bytes</code>), and persisted as a column/JSON field by the two storage backends.</li>
 </ul>
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
 <li>OWASP Password Storage Cheat Sheet (PBKDF2 iteration recommendations)</li>
 <li>NIST SP 800-38D (GCM mode)</li>
 <li>NIST SP 800-132 (PBKDF salt length)</li>
-<li><a href="../../encryption/">docs/encryption.md</a> — user-facing explanation of the protocol</li>
+<li><a href="../../encryption/">docs/encryption.md</a>: user-facing explanation of the protocol</li>
 </ul>
 
 

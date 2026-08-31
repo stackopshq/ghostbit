@@ -18,6 +18,8 @@
         <link rel="prev" href="../encryption/">
       
       
+        <link rel="next" href="../compliance/">
+      
       
         
       
@@ -706,6 +708,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -933,7 +962,10 @@
 </tr>
 </tbody>
 </table>
-<p>Available tags: <code>latest</code>, <code>edge</code>, semver (<code>1.0.0</code>, <code>1.0</code>, <code>1</code>).</p>
+<p>Available tags: <code>sha-&lt;short-commit&gt;</code> (amd64), one per commit on <code>main</code>:
+pin by digest for deployments. The moving tags (<code>latest</code>, <code>edge</code>, semver)
+are frozen at the last multi-arch build and will move again once the
+build farm regains arm64 support; do not use them for new installs.</p>
 <hr />
 <h2 id="docker-compose-recommended">Docker Compose (recommended)<a class="headerlink" href="#docker-compose-recommended" title="Permanent link">&para;</a></h2>
 <h3 id="sqlite">SQLite<a class="headerlink" href="#sqlite" title="Permanent link">&para;</a></h3>
@@ -1085,13 +1117,17 @@ Without HTTPS, the browser will refuse to encrypt pastes.</p>
 <li>No IP addresses or User-Agent strings are logged by default: the Docker
   image starts uvicorn with <code>--no-access-log</code>. Setting <code>ACCESS_LOG=true</code>
   (or running uvicorn yourself without <code>--no-access-log</code>) re-enables access
-  lines that pair client IPs with paste IDs — see
+  lines that pair client IPs with paste IDs, see
   <a href="../configuration/#access-logging">Configuration → Access logging</a></li>
 <li>Paste IDs are <code>secrets.token_urlsafe(6)</code>: random, non-sequential</li>
 <li>Burn-after-read fires only on API reads, not on HTML page loads</li>
 <li>The server never sees plaintext or passwords</li>
 <li>Backups (<code>scripts/backup.sh</code>) are age-encrypted and pruned after
   <code>BACKUP_RETENTION_DAYS</code> (30 by default)</li>
+<li>The in-app <code>/privacy</code> notice names <strong>your</strong> instance's controller once you
+  set <code>PRIVACY_OPERATOR</code>, <code>PRIVACY_CONTACT_URL</code> and <code>PRIVACY_AUTHORITY</code>:
+  required for a public GDPR/nLPD-compliant deployment. The full checklist
+  lives in the README under "Compliant deployments (GDPR / nLPD)"</li>
 </ul>
 
 

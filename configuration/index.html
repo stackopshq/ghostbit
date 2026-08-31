@@ -388,6 +388,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#privacy-notice-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Privacy notice identity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#access-logging" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -641,6 +652,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -705,6 +743,17 @@
     <span class="md-ellipsis">
       
         Reverse proxy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#privacy-notice-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Privacy notice identity
       
     </span>
   </a>
@@ -920,18 +969,28 @@ client-controlled (a malicious client could forge <code>X-Forwarded-For: 1.2.3.4
 impersonate another IP).</p>
 <p>When <code>TRUST_PROXY_HEADERS=true</code>, the Docker image also starts uvicorn with
 <code>--proxy-headers</code> so the real client IP is substituted for the proxy's address
-in <code>request.client.host</code> (and in the access log, if you enabled it — see
+in <code>request.client.host</code> (and in the access log, if you enabled it, see
 below). If you run the server outside of Docker, pass those flags yourself
 (<code>uvicorn app.main:app --proxy-headers --forwarded-allow-ips="*"</code>).</p>
+<h2 id="privacy-notice-identity">Privacy notice identity<a class="headerlink" href="#privacy-notice-identity" title="Permanent link">&para;</a></h2>
+<p>The app serves a <code>/privacy</code> notice grounded in what the code actually does.
+Three variables identify the controller on it: required for a public
+GDPR/nLPD deployment, neutral fallback wording otherwise:</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>PRIVACY_OPERATOR="Example Corp (Germany)"
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>PRIVACY_CONTACT_URL=https://example.com/contact
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>PRIVACY_AUTHORITY="the BfDI (Germany)"
+</span></code></pre></div></td></tr></table></div>
 <h2 id="access-logging">Access logging<a class="headerlink" href="#access-logging" title="Permanent link">&para;</a></h2>
 <p>The Docker image starts uvicorn with <code>--no-access-log</code> <strong>by default</strong>. An
-access log line pairs a client IP with a paste ID and a timestamp — exactly
+access log line pairs a client IP with a paste ID and a timestamp: exactly
 the correlation the rest of Ghostbit is designed to avoid, and the basis for
 the "no IP addresses are ever logged" statement in the docs.</p>
 <p>Set <code>ACCESS_LOG=true</code> to turn access logging back on for debugging. Be aware
 of what that means: combined with <code>TRUST_PROXY_HEADERS=true</code> you are then
 recording real client IPs next to capability URLs, which makes you a
-processor of personal data under the GDPR/nLPD — put a retention on those
+processor of personal data under the GDPR/nLPD: put a retention on those
 logs and say so in your privacy notice. Outside of Docker, uvicorn logs
 accesses unless you pass <code>--no-access-log</code> yourself.</p>
 <h3 id="absolute-urls-for-link-previews">Absolute URLs for link previews<a class="headerlink" href="#absolute-urls-for-link-previews" title="Permanent link">&para;</a></h3>
@@ -941,7 +1000,7 @@ preview banner. They are derived from the incoming request by default, which
 is correct for direct exposure and for proxies that forward the scheme and
 <code>Host</code> header. If a TLS-terminating proxy would otherwise make the app emit
 <code>http://</code> URLs, pin the public origin explicitly:</p>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>BASE_URL=https://paste.example.com
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a>BASE_URL=https://paste.example.com
 </span></code></pre></div></td></tr></table></div>
 <p>A malformed value (missing <code>http://</code> / <code>https://</code> scheme) fails fast at startup.</p>
 <div class="admonition warning">
@@ -954,7 +1013,7 @@ X-Forwarded-For;</code>) so only one hop contributes by the time Ghostbit
 reads the header.</p>
 </div>
 <h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h2>
-<p>Ghostbit exposes three endpoints for operators — <code>/healthz</code> and <code>/readyz</code>
+<p>Ghostbit exposes three endpoints for operators: <code>/healthz</code> and <code>/readyz</code>
 are always unauthenticated; <code>/metrics</code> is unauthenticated unless
 <code>METRICS_TOKEN</code> is set:</p>
 <table>
@@ -984,20 +1043,20 @@ are always unauthenticated; <code>/metrics</code> is unauthenticated unless
 </tbody>
 </table>
 <p>The <code>/metrics</code> endpoint carries no per-paste data (only aggregate counters
-and a latency histogram, with route <em>templates</em> as labels — never real paste
+and a latency histogram, with route <em>templates</em> as labels, never real paste
 IDs), but it does reveal usage rates and the exact Python version. On a
 public deployment, set <code>METRICS_TOKEN</code> and give Prometheus the same value:</p>
-<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
-<span class="normal"><a href="#__codelineno-7-2">2</a></span>
-<span class="normal"><a href="#__codelineno-7-3">3</a></span>
-<span class="normal"><a href="#__codelineno-7-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">scrape_configs</span><span class="p">:</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghostbit</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">    </span><span class="nt">authorization</span><span class="p">:</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">      </span><span class="nt">credentials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;METRICS_TOKEN&gt;</span>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">scrape_configs</span><span class="p">:</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghostbit</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">authorization</span><span class="p">:</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">      </span><span class="nt">credentials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;METRICS_TOKEN&gt;</span>
 </span></code></pre></div></td></tr></table></div>
 <p>Requests without <code>Authorization: Bearer &lt;token&gt;</code> then get <code>401</code>. Leaving the
 variable empty keeps the endpoint open, which is fine when it is only
-reachable from a private network — or restrict it at the reverse proxy.</p>
+reachable from a private network, or restrict it at the reverse proxy.</p>
 <p>Exposed metrics:</p>
 <table>
 <thead>
@@ -1043,41 +1102,41 @@ reachable from a private network — or restrict it at the reverse proxy.</p>
 <p><code>/healthz</code>, <code>/readyz</code> and <code>/metrics</code> are excluded from the HTTP latency histogram so probe
 traffic doesn't skew P99.</p>
 <h2 id="env-example">.env example<a class="headerlink" href="#env-example" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-8-10">10</a></span>
-<span class="normal"><a href="#__codelineno-8-11">11</a></span>
-<span class="normal"><a href="#__codelineno-8-12">12</a></span>
-<span class="normal"><a href="#__codelineno-8-13">13</a></span>
-<span class="normal"><a href="#__codelineno-8-14">14</a></span>
-<span class="normal"><a href="#__codelineno-8-15">15</a></span>
-<span class="normal"><a href="#__codelineno-8-16">16</a></span>
-<span class="normal"><a href="#__codelineno-8-17">17</a></span>
-<span class="normal"><a href="#__codelineno-8-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a>STORAGE_BACKEND=sqlite
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>SQLITE_PATH=/data/ghostbit.db
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a>MAX_PASTE_SIZE=524288
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a>PORT=8000
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a># SQLITE_POOL_SIZE=5
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9"></a># Rate limiting (defaults shown)
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10"></a># RATE_LIMIT_CREATE=30/minute
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11"></a># RATE_LIMIT_VIEW=120/minute
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12"></a>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13"></a># Enable when behind a reverse proxy: rightmost X-Forwarded-For entry
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15"></a># TRUST_PROXY_HEADERS=true
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16"></a>
-</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17"></a># Optional: sign webhook deliveries
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-9-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-9-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-9-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-9-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-9-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-9-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-9-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-9-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-9-10">10</a></span>
+<span class="normal"><a href="#__codelineno-9-11">11</a></span>
+<span class="normal"><a href="#__codelineno-9-12">12</a></span>
+<span class="normal"><a href="#__codelineno-9-13">13</a></span>
+<span class="normal"><a href="#__codelineno-9-14">14</a></span>
+<span class="normal"><a href="#__codelineno-9-15">15</a></span>
+<span class="normal"><a href="#__codelineno-9-16">16</a></span>
+<span class="normal"><a href="#__codelineno-9-17">17</a></span>
+<span class="normal"><a href="#__codelineno-9-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a>STORAGE_BACKEND=sqlite
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>SQLITE_PATH=/data/ghostbit.db
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a>MAX_PASTE_SIZE=524288
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a>PORT=8000
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a># SQLite pool (bump if ghostbit_sqlite_pool_wait_seconds shows contention)
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a># SQLITE_POOL_SIZE=5
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a># Rate limiting (defaults shown)
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a># RATE_LIMIT_CREATE=30/minute
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a># RATE_LIMIT_VIEW=120/minute
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12"></a>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13"></a># Enable when behind a reverse proxy: rightmost X-Forwarded-For entry
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14"></a># is used as the rate-limit key. See the Reverse proxy section above.
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a># TRUST_PROXY_HEADERS=true
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a># Optional: sign webhook deliveries
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a># WEBHOOK_SECRET=your_hex_encoded_secret_here
 </span></code></pre></div></td></tr></table></div>
 
 

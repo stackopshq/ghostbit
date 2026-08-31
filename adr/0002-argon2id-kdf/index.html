@@ -25,7 +25,7 @@
     
     
       
-        <title>ADR 0002 — Argon2id alongside PBKDF2 for password pastes - Ghostbit</title>
+        <title>ADR 0002: Argon2id alongside PBKDF2 for password pastes - Ghostbit</title>
       
     
     
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR 0002 — Argon2id alongside PBKDF2 for password pastes
+              ADR 0002: Argon2id alongside PBKDF2 for password pastes
             
           </span>
         </div>
@@ -496,6 +496,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -647,29 +674,29 @@
   
 
 
-<h1 id="adr-0002-argon2id-alongside-pbkdf2-for-password-pastes">ADR 0002 — Argon2id alongside PBKDF2 for password pastes<a class="headerlink" href="#adr-0002-argon2id-alongside-pbkdf2-for-password-pastes" title="Permanent link">&para;</a></h1>
+<h1 id="adr-0002-argon2id-alongside-pbkdf2-for-password-pastes">ADR 0002: Argon2id alongside PBKDF2 for password pastes<a class="headerlink" href="#adr-0002-argon2id-alongside-pbkdf2-for-password-pastes" title="Permanent link">&para;</a></h1>
 <ul>
-<li><strong>Status:</strong> Accepted — server, CLI <strong>and</strong> browser implementations all shipped.</li>
+<li><strong>Status:</strong> Accepted. Server, CLI <strong>and</strong> browser implementations all shipped.</li>
 <li><strong>Date:</strong> 2026-05-24</li>
-<li><strong>Builds on:</strong> <a href="../0001-zero-knowledge-crypto/">ADR 0001 — Zero-knowledge end-to-end encryption</a></li>
+<li><strong>Builds on:</strong> <a href="../0001-zero-knowledge-crypto/">ADR 0001: Zero-knowledge end-to-end encryption</a></li>
 </ul>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
-<p>ADR 0001 fixed PBKDF2-SHA256 at 600 000 iterations as the KDF for password-protected pastes. PBKDF2 is well-supported (native in <code>crypto.subtle</code> and the Python <code>cryptography</code> package), but it is <strong>not</strong> memory-hard — a GPU/ASIC attacker can amortise the work massively in parallel. Argon2id (the PHC winner) is the current state of the art: memory-hard, side-channel resistant, recommended by OWASP since 2021.</p>
-<p>Adding Argon2id wholesale would break every existing paste (and every existing CLI release in the wild), so it has to coexist with PBKDF2 — selected per paste, advertised by the server, run by whichever client opens the paste.</p>
+<p>ADR 0001 fixed PBKDF2-SHA256 at 600 000 iterations as the KDF for password-protected pastes. PBKDF2 is well-supported (native in <code>crypto.subtle</code> and the Python <code>cryptography</code> package), but it is <strong>not</strong> memory-hard: a GPU/ASIC attacker can amortise the work massively in parallel. Argon2id (the PHC winner) is the current state of the art: memory-hard, side-channel resistant, recommended by OWASP since 2021.</p>
+<p>Adding Argon2id wholesale would break every existing paste (and every existing CLI release in the wild), so it has to coexist with PBKDF2: selected per paste, advertised by the server, run by whichever client opens the paste.</p>
 <h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
 <p>Add an opt-in <code>kdf</code> field to the paste protocol with two values:</p>
 <ul>
-<li><code>"pbkdf2-sha256"</code> — historical default. Unchanged parameters (600k iterations, see ADR 0001).</li>
-<li><code>"argon2id"</code> — new. Parameters fixed for the protocol (no per-paste tuning, otherwise verifiers couldn't reproduce the derivation):</li>
+<li><code>"pbkdf2-sha256"</code>: historical default. Unchanged parameters (600k iterations, see ADR 0001).</li>
+<li><code>"argon2id"</code>: new. Parameters fixed for the protocol (no per-paste tuning, otherwise verifiers couldn't reproduce the derivation):</li>
 <li><strong>memory</strong> = 19 456 KiB (19 MiB)</li>
 <li><strong>time</strong> = 2 passes</li>
 <li><strong>parallelism</strong> = 1</li>
 <li><strong>hash length</strong> = 32 bytes (AES-256 key)</li>
 <li><strong>salt</strong> = 16 random bytes (shared with the PBKDF2 path)</li>
 </ul>
-<p>These are the OWASP 2023 minimums for Argon2id in interactive contexts (browser/CLI). Anything stronger meaningfully impacts page-load time on mobile — bump in lockstep with the browser WASM library's defaults when we revisit.</p>
+<p>These are the OWASP 2023 minimums for Argon2id in interactive contexts (browser/CLI). Anything stronger meaningfully impacts page-load time on mobile: bump in lockstep with the browser WASM library's defaults when we revisit.</p>
 <h2 id="wire-format">Wire format<a class="headerlink" href="#wire-format" title="Permanent link">&para;</a></h2>
-<p><code>PasteData.kdf: str</code> — defaults to <code>"pbkdf2-sha256"</code> for backward compatibility. Persisted by both storage backends (new column in SQLite, JSON field in Redis, default applied for old rows on read). Returned in <code>GET /api/v1/pastes/{id}</code> so the viewer knows which KDF to run.</p>
+<p><code>PasteData.kdf: str</code>: defaults to <code>"pbkdf2-sha256"</code> for backward compatibility. Persisted by both storage backends (new column in SQLite, JSON field in Redis, default applied for old rows on read). Returned in <code>GET /api/v1/pastes/{id}</code> so the viewer knows which KDF to run.</p>
 <h2 id="implementations">Implementations<a class="headerlink" href="#implementations" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -698,31 +725,31 @@
 </tbody>
 </table>
 <p>The browser bundle came in smaller than expected once the argon2-only build was selected (29 KB instead of the ~70 KB full hash-wasm bundle), so we ship it eagerly with <code>defer</code> rather than dynamic-loading it on demand. Non-password paste pages don't include it at all, which is the only conditional needed in practice.</p>
-<p>The CSP gains <code>'wasm-unsafe-eval'</code> in <code>script-src</code> so the bundle can <code>WebAssembly.instantiate()</code> its embedded module. This is a narrow opt-in — it does not enable JS <code>eval()</code>, only WebAssembly compilation — and is supported by Chrome 92+ / Firefox 122+ / Safari 16.4+.</p>
+<p>The CSP gains <code>'wasm-unsafe-eval'</code> in <code>script-src</code> so the bundle can <code>WebAssembly.instantiate()</code> its embedded module. This is a narrow opt-in (it does not enable JS <code>eval()</code>, only WebAssembly compilation) and is supported by Chrome 92+ / Firefox 122+ / Safari 16.4+.</p>
 <h2 id="backward-compatibility">Backward compatibility<a class="headerlink" href="#backward-compatibility" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Existing pastes have <code>kdf=NULL</code> in the row → storage layer fills in <code>"pbkdf2-sha256"</code> on read (SQLite NOT NULL default, Redis <code>setdefault</code>).</li>
 <li>CLI defaults <code>--kdf pbkdf2-sha256</code>. Users explicitly opt in with <code>gbit paste -p --kdf argon2id</code>.</li>
-<li>A paste created with <code>--kdf argon2id</code> (CLI) is now decryptable in any modern browser that can run WebAssembly — and conversely, a paste created with "Argon2id" picked in the browser KDF picker is readable by a CLI with <code>argon2-cffi</code>. Cross-impl round-trip verified manually.</li>
+<li>A paste created with <code>--kdf argon2id</code> (CLI) is now decryptable in any modern browser that can run WebAssembly, and conversely, a paste created with "Argon2id" picked in the browser KDF picker is readable by a CLI with <code>argon2-cffi</code>. Cross-impl round-trip verified manually.</li>
 </ul>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <h3 id="positive">Positive<a class="headerlink" href="#positive" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Defenders get a path to a memory-hard KDF without a flag day.</li>
 <li>Power users with valuable secrets can opt in immediately via the CLI.</li>
-<li>The protocol carries the KDF choice explicitly, so any future addition (scrypt, Argon2d, etc.) plugs in the same way without breaking older clients — they just reject unknown values at the validator.</li>
+<li>The protocol carries the KDF choice explicitly, so any future addition (scrypt, Argon2d, etc.) plugs in the same way without breaking older clients, they just reject unknown values at the validator.</li>
 </ul>
 <h3 id="negative-accepted">Negative / accepted<a class="headerlink" href="#negative-accepted" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Three KDF call sites instead of two (browser, CLI, server-side validator). They must stay in sync with this ADR's parameter table.</li>
-<li>The browser WASM lib is dead weight on PBKDF2 pastes — the lazy-load partly addresses that, but bandwidth-conscious deployments may want to disable Argon2id entirely (future toggle).</li>
+<li>The browser WASM lib is dead weight on PBKDF2 pastes: the lazy-load partly addresses that, but bandwidth-conscious deployments may want to disable Argon2id entirely (future toggle).</li>
 <li>Cross-client compatibility window: until the browser implementation lands, an Argon2id paste created by the CLI cannot be opened in a browser. Documented in the CLI help and in this ADR.</li>
 </ul>
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#argon2id">OWASP Password Storage Cheat Sheet — Argon2id</a></li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#argon2id">OWASP Password Storage Cheat Sheet: Argon2id</a></li>
 <li>RFC 9106 (Argon2)</li>
-<li><a href="https://github.com/Daninet/hash-wasm">hash-wasm</a> — chosen as the browser library for the follow-up</li>
+<li><a href="https://github.com/Daninet/hash-wasm">hash-wasm</a>: chosen as the browser library for the follow-up</li>
 </ul>
 
 

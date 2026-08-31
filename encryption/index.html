@@ -613,6 +613,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -755,7 +782,7 @@
 </tr>
 <tr>
 <td>KDF (password)</td>
-<td>PBKDF2-SHA256, 600 000 iterations</td>
+<td>PBKDF2-SHA256 (600 000 iterations) or Argon2id, chosen at creation</td>
 </tr>
 <tr>
 <td>KDF salt</td>
@@ -775,7 +802,9 @@
 <p>The <code>#fragment</code> is never transmitted in HTTP requests: it stays in the browser.</p>
 </div>
 <div class="tabbed-block">
-<p>The key is derived from the user's password using PBKDF2-SHA256 (600 000 iterations).
+<p>The key is derived from the user's password using the KDF selected at creation
+time: PBKDF2-SHA256 (600 000 iterations) or Argon2id (see ADR 0002). The server
+never derives keys; it stores the KDF name so the viewer knows which one to run.
 A random 16-byte salt is generated per paste and stored server-side (it is not secret).</p>
 <p>The URL fragment contains only the delete token:</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>https://your-instance.com/aB3kZx9m#~DELETE_TOKEN
