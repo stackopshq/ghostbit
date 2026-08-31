@@ -1402,8 +1402,24 @@ kbd {
   /* Editor */
   .card-editor { flex: none; }
   .editor-body { flex: none; min-height: 240px; overflow: visible; }
-  .cm-host, .cm-host .CodeMirror { min-height: 240px; font-size: var(--text-xs); }
+  .cm-host { min-height: 240px; }
   .editor-topbar { padding: 7px 10px; }
+
+  /* Every control that can take focus sits on the 1rem step here, and that is
+     not a taste decision. WebKit zooms the page in when a focused field's text
+     is under 16px, and it does not zoom back out on blur: the layout stays
+     wider than the screen with the right edge cut off, header included. This
+     hits Chrome and Firefox on iOS too, since both are WebKit there. The fix
+     has to be the font size rather than `maximum-scale=1`, which would also
+     take pinch-zoom away from everyone who needs it. */
+  .cm-host .CodeMirror,
+  .input-small,
+  select,
+  .lang-picker,
+  .password-input-wrap input,
+  .webhook-input-wrap input,
+  .password-card input,
+  .edit-card textarea { font-size: var(--text-base); }
 
   /* Hero: hidden on mobile */
   .index-hero { display: none; }
