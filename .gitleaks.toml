@@ -1,0 +1,23 @@
+# Configuration gitleaks de ghostbit.
+#
+# `useDefault` garde les centaines de règles du jeu par défaut : ce fichier ne
+# fait qu'y retrancher une valeur démontrablement inventée.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Le jeton d'exemple de la documentation de l'API. Il apparaît trois fois dans
+docs/api.md (corps de réponse, en-tête HTTP, commande curl) et n'a jamais été
+un secret : c'est une chaîne inventée pour illustrer la forme d'un
+delete_token.
+
+L'exclusion porte sur la VALEUR seule, jamais sur le chemin. Une allowlist qui
+nomme `docs/api.md` filtre le fichier AVANT l'évaluation des règles — le
+`matchCondition = "AND"` n'y change rien, c'est un filtre de chemin, pas une
+condition. Vérifié en injectant un `ghp_` de 36 caractères dans ce fichier :
+avec le chemin, il passait sans un mot ; sans lui, il est détecté.
+"""
+regexTarget = "match"
+regexes = ['''rA8mXvLqP2wKjN5sYtUcFg''']

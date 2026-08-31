@@ -27,6 +27,46 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── Secret scan on every PR. ─────────────────────────────────────────────────
+  # README and CONTRIBUTING promise "the same checks run in CI" about the
+  # pre-commit hooks (ruff + gitleaks); until this job, gitleaks only ever ran
+  # on machines where the hook was installed — i.e. optionally. Installed from
+  # the release tarball with a pinned checksum, same pattern as Trivy in
+  # docker.yml: an action would clone github.com with the forge's job token.
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+          GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL --retry 5 --retry-delay 3 --retry-all-errors \
+            -o "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum -c -
+          tar -xzf "${RUNNER_TEMP}/${archive}" -C "${RUNNER_TEMP}" gitleaks
+          "${RUNNER_TEMP}/gitleaks" version
+
+      # `dir` et non `git` : l'historique porte 24 trouvailles, toutes dans
+      # `search/search_index.json` et `api/index.html` de la branche `gh-pages`,
+      # c'est-a-dire l'index de recherche et la doc que MkDocs GENERE. Aucune
+      # n'est un secret, et surtout aucune n'est corrigeable par l'auteur d'une
+      # PR : une garde qui exige de reecrire l'historique est une garde qu'on
+      # finit par desactiver. Ce job mesure ce que la PR propose.
+      #
+      # L'historique reste une question ouverte, mais c'est un audit ponctuel,
+      # pas un controle par PR.
+      - name: Gitleaks
+        run: |
+          "${RUNNER_TEMP}/gitleaks" dir . --config .gitleaks.toml \
+            --no-banner --redact --exit-code 1
+
   # ── Lint runs once, no backend dependency. ───────────────────────────────────
   lint:
     name: Lint

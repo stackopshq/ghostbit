@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     # If set, every webhook delivery includes X-Ghostbit-Signature: sha256=<hex>.
     webhook_secret: str = ""
 
+    # Optional bearer token for GET /metrics. Empty (default) leaves the
+    # endpoint open — fine on private networks; on a public deployment the
+    # aggregate counters and the Python version are readable by anyone.
+    # When set, scrapes must send `Authorization: Bearer <token>`.
+    metrics_token: str = ""
+
     # Trust X-Forwarded-For for rate limiting. Enable ONLY when behind a
     # reverse proxy that strips/overwrites this header — otherwise clients
     # can spoof it and bypass rate limits.

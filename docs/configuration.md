@@ -136,7 +136,9 @@ A malformed value (missing `http://` / `https://` scheme) fails fast at startup.
 
 ## Observability
 
-Ghostbit exposes three unauthenticated endpoints for operators:
+Ghostbit exposes three endpoints for operators — `/healthz` and `/readyz`
+are always unauthenticated; `/metrics` is unauthenticated unless
+`METRICS_TOKEN` is set:
 
 | Endpoint | Format | Purpose |
 |----------|--------|---------|
@@ -144,9 +146,21 @@ Ghostbit exposes three unauthenticated endpoints for operators:
 | `/readyz` | JSON (`{"status": "ok"}` or `"error"`) | Readiness probe: pings the storage backend. Returns **503** if it doesn't answer, so the ingress / load balancer drains traffic until the dependency recovers. |
 | `/metrics` | Prometheus text | Scrape target for Prometheus/Grafana/Alertmanager. |
 
-The `/metrics` endpoint has no sensitive data (only aggregate counters and a
-latency histogram) but you can still restrict it to your scraper's IP at the
-reverse proxy if you prefer.
+The `/metrics` endpoint carries no per-paste data (only aggregate counters
+and a latency histogram, with route *templates* as labels — never real paste
+IDs), but it does reveal usage rates and the exact Python version. On a
+public deployment, set `METRICS_TOKEN` and give Prometheus the same value:
+
+```yaml
+scrape_configs:
+  - job_name: ghostbit
+    authorization:
+      credentials: <METRICS_TOKEN>
+```
+
+Requests without `Authorization: Bearer <token>` then get `401`. Leaving the
+variable empty keeps the endpoint open, which is fine when it is only
+reachable from a private network — or restrict it at the reverse proxy.
 
 Exposed metrics:
 
