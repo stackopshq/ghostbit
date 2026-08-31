@@ -68,7 +68,9 @@ GET /api/v1/pastes/{id}
   "burn": false,
   "max_views": 5,
   "view_count": 2,
-  "has_password": false
+  "has_password": false,
+  "compressed": false,
+  "kdf": "pbkdf2-sha256"
 }
 ```
 
@@ -94,9 +96,9 @@ X-Delete-Token: rA8mXvLqP2wKjN5sYtUcFg
 | Code | Meaning |
 |------|---------|
 | `204` | Deleted |
-| `403` | Invalid token |
-| `404` | Paste not found |
+| `403` | Invalid token — **or** paste not found. The two cases are deliberately indistinguishable: a `404` here would let anyone enumerate existing paste IDs by probing with arbitrary tokens |
 | `422` | Missing `X-Delete-Token` header |
+| `429` | Rate limit exceeded |
 
 ---
 

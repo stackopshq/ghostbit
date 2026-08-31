@@ -7,7 +7,10 @@
 | Docker Hub | [`stackopshq/ghostbit`](https://hub.docker.com/r/stackopshq/ghostbit) |
 | GHCR | `ghcr.io/stackopshq/ghostbit` |
 
-Available tags: `latest`, `edge`, semver (`1.0.0`, `1.0`, `1`).
+Available tags: `sha-<short-commit>` (amd64), one per commit on `main` —
+pin by digest for deployments. The moving tags (`latest`, `edge`, semver)
+are frozen at the last multi-arch build and will move again once the
+build farm regains arm64 support; do not use them for new installs.
 
 ---
 

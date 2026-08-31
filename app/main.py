@@ -285,6 +285,14 @@ async def security_txt():
     return PlainTextResponse(_security_txt())
 
 
+@app.get("/privacy", include_in_schema=False)
+async def privacy(request: Request):
+    # GDPR art. 13 / nLPD art. 19 notice. Static by design: everything it
+    # says is grounded in this codebase, and its git history doubles as the
+    # notice's change log.
+    return templates.TemplateResponse(request, "privacy.html")
+
+
 # Browser icon probes. Without these routes, every browser hits
 #   GET /favicon.ico / /apple-touch-icon.png / /apple-touch-icon-precomposed.png
 # on page load and those paths fall through to the `/{paste_id}` catch-all,
@@ -310,15 +318,17 @@ async def robots_txt(request: Request):
 
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap_xml(request: Request):
-    # The landing page is the only indexable URL this app serves. Paste pages
-    # are unguessable capability URLs (see the noindex in paste.html) and would
-    # be a privacy leak if listed, so the sitemap is deliberately a single
-    # entry rather than a crawl of storage.
+    # The landing page and the privacy notice are the only indexable URLs this
+    # app serves. Paste pages are unguessable capability URLs (see the noindex
+    # in paste.html) and would be a privacy leak if listed, so the sitemap is
+    # deliberately these two entries rather than a crawl of storage.
     url = escape(_abs_url(request, "/"))
+    privacy_url = escape(_abs_url(request, "/privacy"))
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         f"  <url><loc>{url}</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>\n"
+        f"  <url><loc>{privacy_url}</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>\n"
         "</urlset>\n"
     )
     return Response(content=body, media_type="application/xml")

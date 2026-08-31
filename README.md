@@ -28,6 +28,11 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.100+-bc13fe?style=flat-square&logo=fastapi&logoColor=white">
   <img alt="License: Elastic-2.0" src="https://img.shields.io/badge/license-Elastic--2.0-bc13fe?style=flat-square">
   <img alt="PyPI" src="https://img.shields.io/pypi/v/ghostbit-cli?style=flat-square&color=bc13fe&label=ghostbit-cli">
+  <br>
+  <a href="https://docs.ghostbit.dev/compliance/"><img alt="GDPR" src="https://img.shields.io/badge/GDPR-self--assessed-2ea44f?style=flat-square"></a>
+  <a href="https://docs.ghostbit.dev/compliance/"><img alt="nLPD" src="https://img.shields.io/badge/nLPD_(CH)-self--assessed-2ea44f?style=flat-square"></a>
+  <a href="https://docs.ghostbit.dev/compliance/"><img alt="ISO 27001" src="https://img.shields.io/badge/ISO_27001-aligned,_not_certified-6c757d?style=flat-square"></a>
+  <a href="https://docs.ghostbit.dev/compliance/"><img alt="Audit" src="https://img.shields.io/badge/privacy_audit-2026--08--31-bc13fe?style=flat-square"></a>
 </p>
 
 ---
@@ -68,7 +73,7 @@ https://paste.example.com/aB3kZx9m#KEY~DELETE_TOKEN
 | Paste type | Key source | Where the key lives |
 |---|---|---|
 | No password | `crypto.subtle.generateKey()` | URL `#fragment` |
-| With password | PBKDF2-SHA256 (600k iter) | User's memory |
+| With password | PBKDF2-SHA256 (600k iter) or Argon2id | User's memory |
 
 ---
 
@@ -77,7 +82,7 @@ https://paste.example.com/aB3kZx9m#KEY~DELETE_TOKEN
 - **True E2E encryption**: AES-256-GCM, server sees ciphertext only
 - **Burn after read**: deleted permanently after the first view
 - **Max views**: auto-deleted after N reads
-- **Expiration**: from 5 minutes to 1 year
+- **Expiration**: up to 1 year, or never (enforced server-side)
 - **Password protection**: client-side key derivation, password never leaves the browser
 - **Webhook**: POST notification on each read
 - **Language detection**: auto-detected from content or file extension
@@ -312,7 +317,9 @@ Ghostbit follows a **zero-knowledge** architecture:
 - The URL `#fragment` is **never sent** to the server by any browser.
 - A compromised server cannot decrypt any paste, past or future.
 - SSRF protection blocks webhooks to private/internal networks.
-- Rate limiting protects against abuse on all endpoints.
+- Rate limiting covers every endpoint that creates, reads or mutates a paste.
+- No access logs by default: the server never records who read which paste.
+- Privacy posture and the latest audit: [docs.ghostbit.dev/compliance](https://docs.ghostbit.dev/compliance/) · in-app notice at [`/privacy`](https://ghostbit.dev/privacy).
 
 If you discover a security vulnerability, please report it responsibly via [GitHub Security Advisories](https://github.com/stackopshq/ghostbit/security/advisories).
 

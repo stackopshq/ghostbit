@@ -12,7 +12,7 @@ Ghostbit uses **true end-to-end encryption**: all encryption and decryption happ
 | Key size | 256 bits |
 | Nonce | 12 bytes (random, per paste) |
 | Auth tag | 128 bits (included in ciphertext) |
-| KDF (password) | PBKDF2-SHA256, 600 000 iterations |
+| KDF (password) | PBKDF2-SHA256 (600 000 iterations) or Argon2id, chosen at creation |
 | KDF salt | 16 bytes (random, per paste) |
 
 ---
@@ -33,7 +33,9 @@ Ghostbit uses **true end-to-end encryption**: all encryption and decryption happ
 
 === "With password"
 
-    The key is derived from the user's password using PBKDF2-SHA256 (600 000 iterations).
+    The key is derived from the user's password using the KDF selected at creation
+    time — PBKDF2-SHA256 (600 000 iterations) or Argon2id (see ADR 0002). The server
+    never derives keys; it stores the KDF name so the viewer knows which one to run.
     A random 16-byte salt is generated per paste and stored server-side (it is not secret).
 
     The URL fragment contains only the delete token:

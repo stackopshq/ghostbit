@@ -1,5 +1,16 @@
 # Security Policy
 
+## Supported versions
+
+Only the latest release receives security fixes. There are no maintenance
+branches: a fix ships as a new release from `main`, and ghostbit.dev always
+runs a current build.
+
+| Version | Supported |
+|---|---|
+| Latest release (and `main`) | ✅ |
+| Anything older | ❌ — upgrade |
+
 ## Reporting a vulnerability
 
 Please **do not** open a public GitHub issue for security vulnerabilities.

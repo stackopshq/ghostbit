@@ -443,12 +443,23 @@ async def test_robots_txt_points_at_sitemap(client):
     assert "/sitemap.xml" in r.text
 
 
-async def test_sitemap_lists_only_the_landing_page(client):
+async def test_sitemap_lists_only_public_pages(client):
     r = await client.get("/sitemap.xml")
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("application/xml")
-    # Exactly one entry: listing paste URLs would leak capability URLs.
-    assert r.text.count("<loc>") == 1
+    # Exactly the landing page and the privacy notice: listing paste URLs
+    # would leak capability URLs.
+    assert r.text.count("<loc>") == 2
+    assert "/privacy</loc>" in r.text
+
+
+async def test_privacy_notice_is_served(client):
+    r = await client.get("/privacy")
+    assert r.status_code == 200
+    assert "Privacy notice" in r.text
+    # The notice's headline claims must match the code that backs them.
+    assert "No accounts, no cookies" in r.text
+    assert "Last reviewed: 2026-08-31" in r.text
 
 
 async def test_paste_page_is_noindex(client):
