@@ -54,8 +54,8 @@ promise honest.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/create-dark.png" alt="Create paste, dark theme, with expiration, max views, burn-after-read, compression, password and webhook options"></td>
-    <td width="50%"><img src="docs/screenshots/create-light.png" alt="Create paste, light theme"></td>
+    <td width="50%"><img src="docs/screenshots/create-dark.png" alt="Creating a paste in the dark theme: code editor on the left, and expiration, max views, burn-after-read, compression, password and webhook options on the right"></td>
+    <td width="50%"><img src="docs/screenshots/create-light.png" alt="The same create screen in the light theme"></td>
   </tr>
   <tr>
     <td align="center"><em>Create a paste (dark)</em></td>
