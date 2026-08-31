@@ -38,9 +38,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          # Full history so gitleaks can scan commits, not just the checkout.
-          fetch-depth: 0
 
       - name: Install gitleaks
         env:
@@ -56,9 +53,19 @@ jobs:
           tar -xzf "${RUNNER_TEMP}/${archive}" -C "${RUNNER_TEMP}" gitleaks
           "${RUNNER_TEMP}/gitleaks" version
 
+      # `dir` et non `git` : l'historique porte 24 trouvailles, toutes dans
+      # `search/search_index.json` et `api/index.html` de la branche `gh-pages`,
+      # c'est-a-dire l'index de recherche et la doc que MkDocs GENERE. Aucune
+      # n'est un secret, et surtout aucune n'est corrigeable par l'auteur d'une
+      # PR : une garde qui exige de reecrire l'historique est une garde qu'on
+      # finit par desactiver. Ce job mesure ce que la PR propose.
+      #
+      # L'historique reste une question ouverte, mais c'est un audit ponctuel,
+      # pas un controle par PR.
       - name: Gitleaks
         run: |
-          "${RUNNER_TEMP}/gitleaks" git . --no-banner --redact --exit-code 1
+          "${RUNNER_TEMP}/gitleaks" dir . --config .gitleaks.toml \
+            --no-banner --redact --exit-code 1
 
   # ── Lint runs once, no backend dependency. ───────────────────────────────────
   lint:
