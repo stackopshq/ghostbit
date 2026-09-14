@@ -170,7 +170,23 @@ class CargoKitPlugin implements Plugin<Project> {
                     ndkVersion = plugin.project.android.ndkVersion
                     sdkDirectory = plugin.project.android.sdkDirectory
                     minSdkVersion = plugin.project.android.defaultConfig.minSdkVersion.apiLevel as int
-                    compileSdkVersion = plugin.project.android.compileSdkVersion.substring(8) as int
+                    // ─── « android-37.0 » n'est pas un entier ────────────────────
+                    //
+                    // `compileSdkVersion` rend une chaîne de hachage de plateforme. Elle
+                    // valait « android-36 » ; depuis que l'application nomme la mineure
+                    // de l'API 37 (voir `android/app/build.gradle.kts`), et que le greffon
+                    // Gradle de Flutter aligne les sous-projets de greffon sur le
+                    // compileSdk de l'application, elle vaut ici « android-37.0 ».
+                    // `substring(8) as int` lève alors, pendant la configuration :
+                    //
+                    //     For input string: "37.0"
+                    //
+                    // On ne garde donc que la majeure. C'est sans perte : la valeur part
+                    // dans `CARGOKIT_COMPILE_SDK_VERSION` (ligne 84) et **rien** ne la
+                    // relit — `grep -r COMPILE_SDK build_tool/` ne rend rien. Elle doit
+                    // s'analyser, pas être exacte.
+                    compileSdkVersion =
+                        plugin.project.android.compileSdkVersion.substring(8).split("\\.")[0] as int
                     targetPlatforms = platforms
                     pluginFile = CargoKitPlugin.file
                 }
