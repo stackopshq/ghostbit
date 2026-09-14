@@ -152,29 +152,176 @@ seconde description du format, à côté de celle du cœur. Une façade `ghostbi
 
 ---
 
-## Ce qui reste à faire
+## La cible Xcode de l'extension, et pourquoi pas xcodegen
 
-**La cible Xcode de l'extension de partage n'est pas câblée.** Les sources
-(`ios/Partage/`), l'`Info.plist`, les droits et l'XCFramework existent et sont éprouvés,
-mais aucune cible `Partage` n'a été ajoutée à `Runner.xcodeproj`. C'est une manipulation
-qui se fait dans Xcode et que je n'ai pas pu vérifier ici ; la décrire comme faite aurait
-été pire que de la laisser nommée.
+`outils/cabler-extension-ios.sh` ajoute la cible `Partage` à `ios/Runner.xcodeproj`. Le
+script est **idempotent** : il défait puis refait, si bien qu'il vaut à la fois
+installation et documentation exécutable. Une cible ajoutée à la main dans Xcode ne se
+relit pas, ne se diffe pas, et ne se refait pas.
 
-À faire dans Xcode : nouvelle cible *Share Extension* nommée `Partage`, y ajouter les
-quatre fichiers Swift, remplacer son `Info.plist` par celui fourni, lui attacher
-`Partage.entitlements`, lier `GhostbitCrypto.xcframework`, et cocher le groupe
-`group.dev.ghostbit` sur les deux cibles.
+`apps/ios/` de ghostpass décrit tout son projet en `project.yml` et ne versionne pas son
+`.xcodeproj` — c'est plus propre, et ce serait le bon choix pour un projet iOS natif.
+**Il ne se transpose pas ici**, et la raison est mesurable : le `Runner.xcodeproj` de
+Flutter porte deux phases de script (`xcode_backend.sh build` et `embed_and_thin`), une
+chaîne de `xcconfig`, et il se compile depuis un `.xcworkspace` que `pod install`
+entretient. Passer sous xcodegen voudrait dire redéclarer tout cela **puis** relancer
+`pod install` après chaque génération : le projet généré ne serait jamais celui qu'on
+compile.
+
+La bibliothèque employée, `xcodeproj`, est celle de CocoaPods — déjà elle qui écrit dans ce
+fichier à chaque `pod install`. Deux écrivains, une seule grammaire.
+
+**Le risque qu'un outil Flutter réécrive le projet a été mesuré, pas supposé :**
+
+| Après | Cibles présentes |
+|---|---|
+| câblage | `Partage, Runner, RunnerTests` |
+| `pod install` | `Partage, Runner, RunnerTests` |
+| `flutter clean` + `flutter pub get` | `Partage, Runner, RunnerTests` |
+
+Et la phase « Embed App Extensions » reste **avant** « Thin Binary » — copier l'extension
+après la signature la laisserait non signée dans un paquet déjà scellé.
+
+### Ce que la compilation prouve
+
+```
+Runner.app/
+├── Frameworks/rust_lib_ghostbit.framework   ← le cœur, par flutter_rust_bridge
+└── PlugIns/Partage.appex                    ← le cœur, par UniFFI (139 symboles)
+```
+
+Les deux générateurs frères, au-dessus du même `ghost-crypto`, dans le même paquet.
+Vérifié par `nm` sur le binaire produit, pas déduit du fichier de projet.
+
+### Ce que la compilation ne prouve pas
+
+Elle ne prouve pas que la feuille de partage existe pour l'utilisateur, et il a fallu
+deux échecs pour l'apprendre.
+
+**Le premier tenait à la signature.** `flutter create` avait posé
+`DEVELOPMENT_TEAM = 6BBGV83S5C` — une équipe **personnelle**, qui ne peut pas
+provisionner de groupe d'applications, et dont la signature réussit sans un mot. On
+obtient une application qui s'installe, se lance, et dont la feuille de partage ne trouve
+jamais l'adresse du serveur : `UserDefaults(suiteName:)` rend `nil`. Le symptôme est à
+mille lieues de la cause. `cabler-extension-ios.rb` **impose** désormais l'équipe payante
+sur les deux cibles, et `appareil-ios.sh` la réimpose en ligne de commande.
+
+**Le second tenait à une variable non définie.** `Partage/Info.plist` porte
+`$(FLUTTER_BUILD_NUMBER)`, qui vient de `Flutter/Generated.xcconfig` — et que seule la
+cible Runner incluait. Non définie, elle ne laisse pas une valeur par défaut : elle
+s'efface. Compilation et signature passent ; c'est l'appareil qui refuse :
+
+    Appex bundle … does not have a CFBundleVersion key with a non-zero length string
+    value in its Info.plist (MIInstallerErrorDomain error 33)
+
+`ios/Partage/Partage.xcconfig` n'inclut que `Generated.xcconfig`, pour que la version
+vienne de `pubspec.yaml` une seule fois et pour les deux cibles.
+
+### Et ce que l'ouverture de la feuille prouve
+
+```bash
+outils/temoin-feuille-de-partage.sh      # sur un simulateur démarré
+```
+
+`TemoinPartage` ouvre la **vraie** feuille du système depuis une application d'un bouton
+(`ios/HoteDePartage/`), y choisit GhostBit, et vérifie que la zone de rédaction contient
+un jeton qui n'existe nulle part ailleurs sur l'appareil. La capture est jointe au
+résultat d'essai.
+
+Passer par Safari ou Notes aurait marché, au prix d'une dépendance à la disposition
+interne d'applications d'Apple qui change à chaque version majeure : le témoin aurait
+rougi pour des raisons étrangères à GhostBit.
+
+Ce que l'ouvrir a révélé, et que trois relectures n'avaient pas montré : **la feuille
+affichait « Ghostbit »**. Elle montre le nom de l'application contenante, jamais celui de
+l'extension — le `CFBundleDisplayName` de `Partage/Info.plist` n'a aucun effet là.
+
+Trois choses restent hors de portée d'un script, et sont nommées plutôt que contournées :
+
+- **Le geste de l'utilisateur sur un appareil réel.** Le témoin tourne sur simulateur. Sur
+  un iPhone, ouvrir la feuille demande une main, et un journal ne la remplace pas :
+  `NSLog` depuis une extension iOS n'est visible ni par `devicectl --console` ni par
+  `idevicesyslog`. Prévoir un affichage à l'écran, jamais un journal.
+- **Le réglage de l'adresse.** L'extension lit ce que l'application a écrit dans le
+  groupe ; sans une première ouverture de GhostBit, elle lève `adresseAbsente`.
+- **La publication elle-même.** Le témoin s'arrête à « le texte est arrivé ». Ce qui suit
+  — chiffrer, poster, rendre un lien — passe par le réseau et par une instance, et n'a pas
+  encore été mesuré de bout en bout depuis la feuille.
 
 ---
+
+## Android
+
+`outils/verifier-rust-android.sh` compile le cœur pour les trois ABI que Flutter livre
+(`arm64-v8a`, `armeabi-v7a`, `x86_64`), au niveau d'API 24 — le `minSdk` de Flutter — et
+compare la **surface exportée** de chaque `.so` à celle de la bibliothèque hôte.
+
+La comparaison remplace une liste de symboles écrite à la main, et ce n'est pas de la
+coquetterie : la première version de ce contrôle cherchait `frbgen_ghostbit` et échouait
+sur les trois architectures **alors que les trois bibliothèques étaient bonnes**.
+`flutter_rust_bridge` 2.x n'exporte pas un symbole par fonction ; il expose un répartiteur,
+`frb_pde_ffi_dispatcher_primary`, et achemine les appels par un discriminant. Le contrôle
+accusait la compilation d'un défaut qui était le sien.
+
+Ce contrôle sait rougir, et cela a été mesuré plutôt que supposé : en lui donnant une
+autre bibliothèque hôte, il sort 1 et nomme la différence.
+
+### L'APK
+
+```bash
+ANDROID_HOME=$HOME/Library/Android/sdk JAVA_HOME=/opt/homebrew/opt/openjdk@21 \
+  flutter build apk
+```
+
+**Le JDK 21, pas plus récent** : `jlink`, qu'appelle l'AGP, casse sous le JDK 26.
+
+`flutter build apk` produit `app-release.apk`, 54,5 Mo, avec `librust_lib_ghostbit.so`
+dans `arm64-v8a`, `armeabi-v7a` et `x86_64`. Il a d'abord échoué trois fois, et les trois
+échecs se cachaient l'un l'autre :
+
+1. `:app` compilait contre `android-36` quand `flutter_secure_storage` 11 exige 37. Le
+   greffon Gradle de Flutter aligne les **sous-projets de greffon** sur le compileSdk de
+   l'application, et non l'inverse : l'application ne monte pas toute seule.
+2. `compileSdk = 37` seul échange ce message contre
+   `Failed to find target with hash string 'android-37'`, qui ressemble à un SDK mal
+   installé et n'en est pas un. Google ne publie plus de `platforms;android-37`, seulement
+   `android-37.0` et suivantes ; `compileSdkMinor` nomme la mineure.
+3. cargokit lit ce même `compileSdkVersion` et l'analyse en entier :
+   `substring(8) as int` sur « android-37.0 » lève `For input string: "37.0"`.
+
+Les trois correctifs portent leur explication à l'endroit où ils sont
+(`android/app/build.gradle.kts`, `android/build.gradle.kts`,
+`rust_builder/cargokit/gradle/plugin.gradle`), parce que chacun a l'air arbitraire seul.
+
+**Ce qui n'est pas éprouvé côté Android** : rien n'a tourné sur un téléphone. Le Redmi
+n'était pas branché — `adb devices` ne montrait qu'un émulateur — et un APK qui se
+construit n'est pas un APK qui se lance. Le partage par `ACTION_SEND` en particulier n'a
+jamais été déclenché.
 
 ## Construire
 
 ```bash
 flutter pub get
 outils/construire-xcframework.sh        # iOS seulement, macOS + Xcode requis
+outils/cabler-extension-ios.sh          # idem : ajoute la cible Partage au projet
 outils/engendrer_langages.py            # après un changement de app/languages.json
 flutter run
 ```
+
+L'ordre compte : `cabler-extension-ios.sh` refuse de tourner si l'XCFramework et les
+liaisons Swift n'existent pas encore, plutôt que de câbler une cible qui ne compilerait pas.
+
+Pour poser sur un iPhone branché, extension comprise :
+
+```bash
+outils/appareil-ios.sh                  # construit, vérifie, installe
+outils/temoin-feuille-de-partage.sh     # ouvre la feuille sur un simulateur et regarde
+```
+
+`appareil-ios.sh` refuse de choisir entre deux appareils, impose l'équipe payante, et
+**regarde dans le paquet** que `Partage.appex` est sous `PlugIns/` avant de poser : une
+extension posée à côté de l'application n'existe pas pour iOS, et l'installation réussit
+sans un mot d'explication.
 
 L'XCFramework ne sert **pas** à l'application, qui passe par `flutter_rust_bridge` : il
 sert à la feuille de partage iOS.
