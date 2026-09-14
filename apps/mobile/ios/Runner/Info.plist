@@ -6,8 +6,15 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<!-- « GhostBit », avec la capitale au milieu : c'est ce que dit l'application sur son
+	     propre écran d'accueil (`lib/main.dart`), et c'est le nom de la marque.
+	     `flutter create` avait écrit « Ghostbit », et cela ne se voyait nulle part dans
+	     l'application — seulement sous l'icône de l'écran d'accueil, et dans la **feuille
+	     de partage**, qui affiche le nom de l'application contenante et non celui de
+	     l'extension. Le `CFBundleDisplayName` de `Partage/Info.plist` est donc sans effet
+	     sur ce que l'utilisateur lit là. -->
 	<key>CFBundleDisplayName</key>
-	<string>Ghostbit</string>
+	<string>GhostBit</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

@@ -9,8 +9,11 @@
 .tags*
 **/.vagrant/
 **/DerivedData/
-# Les données dérivées de outils/appareil-ios.sh.
+# Les données dérivées et les résultats des scripts de outils/.
 .build-appareil/
+.build-simulateur/
+.build-temoin/
+.temoin-partage*
 Icon?
 **/Pods/
 **/.symlinks/
