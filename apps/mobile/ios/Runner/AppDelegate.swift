@@ -32,9 +32,16 @@ import UIKit
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
+    // Le messager vient de l'`applicationRegistrar`, et non du `pluginRegistry`.
+    //
+    // Le bridge expose les deux, et c'est le second qui saute aux yeux puisque la ligne
+    // au-dessus s'en sert. Mais `pluginRegistry` ne fabrique que des registrars *de
+    // greffon* ; le messager de niveau application est sur `applicationRegistrar`, dont
+    // c'est justement la raison d'être. Compilé avant d'être écrit ici : la première
+    // version ne l'était pas et n'a pas survécu à `flutter build ios`.
     let canal = FlutterMethodChannel(
       name: Self.canal,
-      binaryMessenger: engineBridge.applicationBinaryMessenger
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
     canal.setMethodCallHandler { appel, reponse in
       guard

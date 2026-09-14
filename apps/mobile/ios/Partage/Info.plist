@@ -22,8 +22,14 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>NSExtension</key>
 	<dict>
-		<key>NSExtensionMainStoryboard</key>
-		<string>MainInterface</string>
+		<!-- Une classe principale plutôt qu'un storyboard.
+		     Le gabarit d'Apple pose `NSExtensionMainStoryboard`, ce qui oblige à versionner
+		     un `MainInterface.storyboard` dont le seul rôle est d'instancier une classe.
+		     `SLComposeServiceViewController` construit son interface lui-même : le
+		     storyboard n'apporterait qu'un fichier XML illisible en revue, et un endroit
+		     de plus où la cible peut être mal câblée sans que rien ne le dise. -->
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.share-services</string>
 		<key>NSExtensionAttributes</key>

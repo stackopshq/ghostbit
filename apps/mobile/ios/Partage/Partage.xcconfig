@@ -1,0 +1,20 @@
+// La cible Partage a besoin de la version, et de rien d'autre.
+//
+// Son `Info.plist` porte `$(FLUTTER_BUILD_NAME)` et `$(FLUTTER_BUILD_NUMBER)`, comme celui
+// de l'application. Ces deux variables viennent de `Flutter/Generated.xcconfig`, que le
+// greffon Flutter réécrit à chaque `flutter pub get` — et que seule la cible Runner
+// incluait. Non définies, elles ne laissent pas une valeur par défaut : elles s'effacent,
+// et `CFBundleVersion` devient une chaîne vide. La compilation réussit, la signature
+// réussit, et c'est **l'installation** qui refuse, sur l'appareil :
+//
+//     Appex bundle … does not have a CFBundleVersion key with a non-zero length string
+//     value in its Info.plist (MIInstallerErrorDomain error 33)
+//
+// Écrire une version en dur ici serait plus court et faux : l'extension et l'application
+// doivent porter la **même**, et deux sources se désynchronisent au premier changement de
+// `pubspec.yaml`.
+//
+// On n'inclut **pas** `Flutter/Debug.xcconfig` : il tire le xcconfig de CocoaPods pour la
+// cible Runner, dont les chemins de recherche et les indicateurs de lieur ne désignent
+// rien qui concerne l'extension.
+#include "../Flutter/Generated.xcconfig"
