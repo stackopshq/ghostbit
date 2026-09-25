@@ -6,7 +6,7 @@
 [extend]
 useDefault = true
 
-[allowlist]
+[[allowlists]]
 description = """
 Le jeton d'exemple de la documentation de l'API. Il apparaît trois fois dans
 docs/api.md (corps de réponse, en-tête HTTP, commande curl) et n'a jamais été
@@ -21,3 +21,30 @@ avec le chemin, il passait sans un mot ; sans lui, il est détecté.
 """
 regexTarget = "match"
 regexes = ['''rA8mXvLqP2wKjN5sYtUcFg''']
+
+[[allowlists]]
+description = """
+Le nom de caisse `curve25519-dalek`, dans les dépendances de `Cargo.lock`.
+
+`generic-api-key` cherche une chaîne à forte entropie près d'un mot évoquant un
+secret. Dans le `Cargo.lock` du cœur Rust, la liste de dépendances de
+`xsalsa20poly1305` aligne :
+
+    "crypto_secretbox",
+    "curve25519-dalek",
+
+La règle lit le premier comme le mot déclencheur et le second comme la valeur.
+Le « secret » trouvé est donc le **nom d'une caisse publique**, que des dizaines
+de milliers de projets écrivent dans leur verrou, et qui est le nom de code de
+l'implémentation de référence de Curve25519 en Rust.
+
+Ce n'est pas la somme de contrôle voisine qui déclenche — je l'ai cru d'abord,
+et le rapport redacté le laissait croire. Les 127 lignes `checksum = "…"` du
+fichier passent toutes. C'est bien le voisinage de deux noms de caisses.
+
+L'exclusion porte sur la VALEUR, jamais sur le chemin — même raison que
+ci-dessus : un filtre de chemin s'applique avant l'évaluation des règles et
+rendrait `Cargo.lock` aveugle à tout ce qu'on y collerait.
+"""
+regexTarget = "match"
+regexes = ['''curve25519-dalek''']
