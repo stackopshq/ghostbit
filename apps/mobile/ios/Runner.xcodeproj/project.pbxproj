@@ -1,0 +1,1741 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0B5B86D553C7D2F8F1869EA9 /* ghost_crypto_ffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0718D8D9B9B455FC633EBD7E /* ghost_crypto_ffi.swift */; };
+		110CD078FEAEF2392C1F53EF /* HoteDePartage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EE6CA017826171E7D68022F /* HoteDePartage.swift */; };
+		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
+		15CB68C2C86E9EE45EA77C5D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F3829385F05167908F18BA8 /* Foundation.framework */; };
+		1D33081CD94AEC96B6D2BAF2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F3829385F05167908F18BA8 /* Foundation.framework */; };
+		1F9DAD0BEF41F044741B6325 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F3829385F05167908F18BA8 /* Foundation.framework */; };
+		2A98DBB021CF7053BF5B8C53 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA0DF6C90FC6A2CFE8F31E3D /* Pods_RunnerTests.framework */; };
+		2AD4E935AB058854C6572FEA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F3829385F05167908F18BA8 /* Foundation.framework */; };
+		2F44449FE2CB7F4D78897741 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1CCCC08FE1B39FCE9875BC /* ShareViewController.swift */; };
+		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
+		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		486B814015C5F5E12AC231F7 /* ClientGhostbit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D652D6EEEF2EC41E61E978 /* ClientGhostbit.swift */; };
+		578CD9FAC528BDD8B62CB2D2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F3829385F05167908F18BA8 /* Foundation.framework */; };
+		5D4B64D7734A75BE14650D16 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF64B9F0C16208F463E3E2D /* Pods_Runner.framework */; };
+		6AB8C2A46C04E98464980FCE /* Historique.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8EDC5CBF793E76465139DA3 /* Historique.swift */; };
+		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
+		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
+		7C0DC5DBFDB60C0B0EE928F8 /* Fragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5427F963645350857775D3 /* Fragment.swift */; };
+		9140BED1A08427FBF8F2D9F7 /* HoteDePartage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BAD5845BE78F1F4A50DABF /* HoteDePartage.swift */; };
+		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
+		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
+		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		B349FE64FD6B6306F5409F3A /* Partage.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 601CD6794E281D5004C3E1FF /* Partage.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BF807643EDAA3CB8C568777F /* TemoinPartage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C964A1FED0563ADDCE0F563B /* TemoinPartage.swift */; };
+		DE4636BED05FC555384197A6 /* GhostbitCrypto.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5DEC64CE8999646DE16175C /* GhostbitCrypto.xcframework */; };
+		E7FCF12B314D4C3BA5B0DFC0 /* TemoinPartage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EC8526604F80319A35AD98 /* TemoinPartage.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		19762758881F9F44057722E9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
+			remoteInfo = Runner;
+		};
+		331C8085294A63A400263BE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
+			remoteInfo = Runner;
+		};
+		4733B0ECEEB0A5A3FFD7EAC1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
+			remoteInfo = Runner;
+		};
+		4D6C3BC2DD96E632EAF38185 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0473467C7A7606F0393E1238;
+			remoteInfo = HoteDePartage;
+		};
+		70ACE109EC466E7C76F45321 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C8FAEA1C6E19859E380BDBD2;
+			remoteInfo = Partage;
+		};
+		8766841B3E3B186CF056459D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B9B243ECE7017B5A7F6E86D2;
+			remoteInfo = HoteDePartage;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8A9A99DC6637F42F26320D18 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B349FE64FD6B6306F5409F3A /* Partage.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0443A126A8FD38DA58D68BA6 /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0718D8D9B9B455FC633EBD7E /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		07C6D610B142E70D22302DF5 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		07CE2B7D39BE7AC243C7C7BE /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		08A6BCD5D0946027ED442D7F /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		08D76D9DEC2C891F642668DE /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		0CF946302B81E5DEA00D5D89 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D7FD0FB5FB2780B6D5D7768 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		0E3D1FBC2ECB5BAB95AB375B /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		1133F34EB996F4A195F36E9D /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
+		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
+		1A74826E0491ACFE59DA2AF6 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AF64B9F0C16208F463E3E2D /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		23EB4F09B376321276414FEA /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2657CEBD88ACAB04A8850FDA /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		2C0813445D9FD722EDA3EF05 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		2D2E61095D6B43044407BE41 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		2D50D27E766FD1BBB7EC6015 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		31FF7C7F3E455A63DCE06CB9 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
+		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3679359415CBF2AE8F45E705 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		3839D0055642363BA8AECD6C /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		399C7C3FD82F909F2FA12569 /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3C096DF455E7A0A44CD7188D /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3EE6CA017826171E7D68022F /* HoteDePartage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoteDePartage.swift; sourceTree = "<group>"; };
+		4065088CA64489EFB5BBC494 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		46C556144CA63994F2B65F3E /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B1747F51B2CDDB6ECBA2FE0 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		500F7DB8B3E8FEAF14635D7D /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51B69297619893BC67BB0129 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		51E0D02D5307F2499D0C69DB /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		541438A77A26035A64638A87 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		5735D7D1B137F1F0CE22E736 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		57CFD7A8A3D3DEC5A5F752EF /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		5835C42FD199F71F0393B6E3 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		58D652D6EEEF2EC41E61E978 /* ClientGhostbit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClientGhostbit.swift; sourceTree = "<group>"; };
+		5A4D0920B768B2E1A150C145 /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5CAAFCCBAA07B5E1036B4F96 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DF51DEE3A3750191F7D388C /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E1CCCC08FE1B39FCE9875BC /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		601CD6794E281D5004C3E1FF /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6093710DB790F18326942E45 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		63D5384817D0C3976D49A7D1 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		652F5BADE25573148B591860 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		6694A06E4ACE7C9729A9FD0F /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		67126566394B123888C9A1CF /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AD9B508F65B316096CF0A62 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		6DFFCE3531C7128CBF0B0CF6 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		6F3829385F05167908F18BA8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		71584397D662D15872B094B1 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		72107C7D474D43518915A42B /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
+		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		75A727E668EE3925F36A1C29 /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		768B608533E008385ED05C27 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		775DB79FC045C919D7AD0112 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
+		7A5427F963645350857775D3 /* Fragment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Fragment.swift; sourceTree = "<group>"; };
+		7AF68137D31A772CEEDB75D4 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
+		7B1C37393F3179658F1A1C05 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		8323C2175FBB9185CE98310B /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		84AE7EDF74BFFD7CFE215E96 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		893633E3AC9E3988BE118CF4 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		8A1CEF48568FE0CD01432A5A /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		8BA0E99E26A04FE7BE68010E /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BFD855A79884C781911F77A /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		8E1FF8713809525839008608 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		91F43EA8E5E4EB59605C2AC4 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		9360DD08E9112C0D72CC7A29 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		95C71256A03A8B65A22B065C /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9647E4D287D03E4E9B2DB88F /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		972F8256B04F424E2CE37F7C /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
+		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
+		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		991286F7E568B0EC675784AB /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AA83EAF12C64FF85703C7A1 /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B51CB89F63EC7FCBEB90E4B /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B78F2CF7524BDB463F9A8B6 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		A328554A161DDC9526AADC37 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		A47D1420280AD81B055B69E5 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		A60BA2B148229F968A84C361 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		AD632AB28D0A501BEC2A3543 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
+		ADC470E753BF1D4DB8ABF265 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF432A49A79A646DFA3233EC /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		B01969F083C26D9783E52A5B /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		B10012F2E6DDEE886D93FF8A /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		B197ECE866BD4718AE164749 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1AE01E5648C98A794BA0D09 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B30A3CC456EF78FE963F870B /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA0DF6C90FC6A2CFE8F31E3D /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBA31F2C560CCADACA0C8358 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		C0D623FAA3593521AF1791EE /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C122156698D62A19EF9E9F1F /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		C3BB5441ADEB7D4860E50592 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		C8EDC5CBF793E76465139DA3 /* Historique.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Historique.swift; sourceTree = "<group>"; };
+		C964A1FED0563ADDCE0F563B /* TemoinPartage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TemoinPartage.swift; sourceTree = "<group>"; };
+		CC54E1F79D62281910F7404E /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		CCBE23ACEF3E2BCDB73C1BA9 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		D200BC49BD0F07AF6E914A06 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D339BB8FD65D2727C9BB3D3B /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6C08A1EC430B76656D8D86D /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		D7D24E6E6CAC82198DA3A859 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D8D3AB40ABCCC1829E12AF59 /* TemoinPartage.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TemoinPartage.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9EC8526604F80319A35AD98 /* TemoinPartage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TemoinPartage.swift; sourceTree = "<group>"; };
+		DA7ABBCF27F0DADA344C5700 /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		DAE93B78B22C401318D67DE0 /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		DE4C304E439C3DE0B1F7FBEF /* ghost_crypto_ffi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ghost_crypto_ffi.swift; sourceTree = "<group>"; };
+		DE98A7820CBD36C8F1C57161 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF4ED8761559332692818928 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5DEC64CE8999646DE16175C /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		E868B898B7EE4F402BCF3C8D /* Partage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Partage.xcconfig; path = Partage/Partage.xcconfig; sourceTree = "<group>"; };
+		ED1BBB8519FC58C4D1BE4814 /* GhostbitCrypto.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; path = GhostbitCrypto.xcframework; sourceTree = "<group>"; };
+		F2A65643949CAE4822F19F98 /* HoteDePartage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HoteDePartage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3BAD5845BE78F1F4A50DABF /* HoteDePartage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HoteDePartage.swift; sourceTree = "<group>"; };
+		F5290CAAF223F3B18946CB05 /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6BB17330CA03D64B7C7C9BA /* Partage.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Partage.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4409E2EC61CB0D7A20BAC967 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				15CB68C2C86E9EE45EA77C5D /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5351DDE37E5AF91B2B054FBE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A98DBB021CF7053BF5B8C53 /* Pods_RunnerTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5D002A4B6AD28E1F35C375D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				578CD9FAC528BDD8B62CB2D2 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97C146EB1CF9000F007C117D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
+				5D4B64D7734A75BE14650D16 /* Pods_Runner.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E4E730F0E631EF1F35437A24 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D33081CD94AEC96B6D2BAF2 /* Foundation.framework in Frameworks */,
+				DE4636BED05FC555384197A6 /* GhostbitCrypto.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		239CB9910A8B7E534884C07F /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				BBA31F2C560CCADACA0C8358 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		2C782DB971DBB23115461647 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				AF432A49A79A646DFA3233EC /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		2DCA321A5603FEC9E4CFE7EB /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				07CE2B7D39BE7AC243C7C7BE /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		2FDD7B408E4ADFA069D4A64C /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				0718D8D9B9B455FC633EBD7E /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		331C8082294A63A400263BE5 /* RunnerTests */ = {
+			isa = PBXGroup;
+			children = (
+				331C807B294A618700263BE5 /* RunnerTests.swift */,
+			);
+			path = RunnerTests;
+			sourceTree = "<group>";
+		};
+		3AE95E516401A5BCAF951BE3 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				9B78F2CF7524BDB463F9A8B6 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		3FAF85D7D5C9D36BADD5C8DC /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				7AF68137D31A772CEEDB75D4 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		4001321A037793DF7509F0D6 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6F3829385F05167908F18BA8 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		475D08A0C5B7ECC2302E6134 /* TemoinPartage */ = {
+			isa = PBXGroup;
+			children = (
+				D9EC8526604F80319A35AD98 /* TemoinPartage.swift */,
+			);
+			name = TemoinPartage;
+			path = TemoinPartage;
+			sourceTree = "<group>";
+		};
+		4F9368766AF9191D1D326440 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				0D7FD0FB5FB2780B6D5D7768 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		54D83F0D873719905F9EFAA6 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				775DB79FC045C919D7AD0112 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		61B42A12F6D791C39845AA9D /* HoteDePartage */ = {
+			isa = PBXGroup;
+			children = (
+				3EE6CA017826171E7D68022F /* HoteDePartage.swift */,
+			);
+			name = HoteDePartage;
+			path = HoteDePartage;
+			sourceTree = "<group>";
+		};
+		71B516E5FDD07CCAAE655318 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				CC54E1F79D62281910F7404E /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		78BE2F53002143233495BE02 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				0E3D1FBC2ECB5BAB95AB375B /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		7A910C835B9DBBE9E7DE6908 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				2C0813445D9FD722EDA3EF05 /* Pods-Runner.debug.xcconfig */,
+				3839D0055642363BA8AECD6C /* Pods-Runner.release.xcconfig */,
+				4065088CA64489EFB5BBC494 /* Pods-Runner.profile.xcconfig */,
+				D7D24E6E6CAC82198DA3A859 /* Pods-RunnerTests.debug.xcconfig */,
+				B01969F083C26D9783E52A5B /* Pods-RunnerTests.release.xcconfig */,
+				AD632AB28D0A501BEC2A3543 /* Pods-RunnerTests.profile.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		95CB2F50CB48410C8FBC0E59 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				6DFFCE3531C7128CBF0B0CF6 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		9740EEB11CF90186004384FC /* Flutter */ = {
+			isa = PBXGroup;
+			children = (
+				78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */,
+				3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */,
+				9740EEB21CF90195004384FC /* Debug.xcconfig */,
+				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
+				9740EEB31CF90195004384FC /* Generated.xcconfig */,
+			);
+			name = Flutter;
+			sourceTree = "<group>";
+		};
+		97C146E51CF9000F007C117D = {
+			isa = PBXGroup;
+			children = (
+				9740EEB11CF90186004384FC /* Flutter */,
+				97C146F01CF9000F007C117D /* Runner */,
+				97C146EF1CF9000F007C117D /* Products */,
+				331C8082294A63A400263BE5 /* RunnerTests */,
+				F9FE5C3DEDA989F3DCB5AC37 /* Frameworks */,
+				3AE95E516401A5BCAF951BE3 /* Generated */,
+				C3BB5441ADEB7D4860E50592 /* GhostbitCrypto.xcframework */,
+				78BE2F53002143233495BE02 /* Generated */,
+				7B1C37393F3179658F1A1C05 /* GhostbitCrypto.xcframework */,
+				7A910C835B9DBBE9E7DE6908 /* Pods */,
+				F8575B348A8CCA0009B7A14C /* Generated */,
+				3679359415CBF2AE8F45E705 /* GhostbitCrypto.xcframework */,
+				71B516E5FDD07CCAAE655318 /* Generated */,
+				CCBE23ACEF3E2BCDB73C1BA9 /* GhostbitCrypto.xcframework */,
+				8E1FF8713809525839008608 /* Partage.xcconfig */,
+				DBACA432AB8D1997EE24B906 /* Generated */,
+				8BFD855A79884C781911F77A /* GhostbitCrypto.xcframework */,
+				57CFD7A8A3D3DEC5A5F752EF /* Partage.xcconfig */,
+				CFD9E2A5C44BCE97059E4E3C /* Generated */,
+				84AE7EDF74BFFD7CFE215E96 /* GhostbitCrypto.xcframework */,
+				DAE93B78B22C401318D67DE0 /* Partage.xcconfig */,
+				4F9368766AF9191D1D326440 /* Generated */,
+				08D76D9DEC2C891F642668DE /* GhostbitCrypto.xcframework */,
+				2D50D27E766FD1BBB7EC6015 /* Partage.xcconfig */,
+				DEF759F6867F966C3096EC5B /* Generated */,
+				6AD9B508F65B316096CF0A62 /* GhostbitCrypto.xcframework */,
+				51B69297619893BC67BB0129 /* Partage.xcconfig */,
+				54D83F0D873719905F9EFAA6 /* Generated */,
+				ED1BBB8519FC58C4D1BE4814 /* GhostbitCrypto.xcframework */,
+				8A1CEF48568FE0CD01432A5A /* Partage.xcconfig */,
+				99B7A6A5DCFD566E07ADE92D /* Generated */,
+				A328554A161DDC9526AADC37 /* GhostbitCrypto.xcframework */,
+				893633E3AC9E3988BE118CF4 /* Partage.xcconfig */,
+				2DCA321A5603FEC9E4CFE7EB /* Generated */,
+				B10012F2E6DDEE886D93FF8A /* GhostbitCrypto.xcframework */,
+				C122156698D62A19EF9E9F1F /* Partage.xcconfig */,
+				981E5168CE36FCC7373CB9E3 /* Generated */,
+				9360DD08E9112C0D72CC7A29 /* GhostbitCrypto.xcframework */,
+				07C6D610B142E70D22302DF5 /* Partage.xcconfig */,
+				2C782DB971DBB23115461647 /* Generated */,
+				652F5BADE25573148B591860 /* GhostbitCrypto.xcframework */,
+				E868B898B7EE4F402BCF3C8D /* Partage.xcconfig */,
+				95CB2F50CB48410C8FBC0E59 /* Generated */,
+				768B608533E008385ED05C27 /* GhostbitCrypto.xcframework */,
+				2D2E61095D6B43044407BE41 /* Partage.xcconfig */,
+				239CB9910A8B7E534884C07F /* Generated */,
+				A47D1420280AD81B055B69E5 /* GhostbitCrypto.xcframework */,
+				A60BA2B148229F968A84C361 /* Partage.xcconfig */,
+				3FAF85D7D5C9D36BADD5C8DC /* Generated */,
+				8323C2175FBB9185CE98310B /* GhostbitCrypto.xcframework */,
+				541438A77A26035A64638A87 /* Partage.xcconfig */,
+				C8046F4E545FF0744BCA2D8F /* Partage */,
+				2FDD7B408E4ADFA069D4A64C /* Generated */,
+				E5DEC64CE8999646DE16175C /* GhostbitCrypto.xcframework */,
+				61B42A12F6D791C39845AA9D /* HoteDePartage */,
+				475D08A0C5B7ECC2302E6134 /* TemoinPartage */,
+			);
+			sourceTree = "<group>";
+		};
+		97C146EF1CF9000F007C117D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				97C146EE1CF9000F007C117D /* Runner.app */,
+				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
+				DE98A7820CBD36C8F1C57161 /* Partage.appex */,
+				5835C42FD199F71F0393B6E3 /* Partage.appex */,
+				6694A06E4ACE7C9729A9FD0F /* Partage.appex */,
+				71584397D662D15872B094B1 /* Partage.appex */,
+				F6BB17330CA03D64B7C7C9BA /* Partage.appex */,
+				B30A3CC456EF78FE963F870B /* Partage.appex */,
+				5735D7D1B137F1F0CE22E736 /* HoteDePartage.app */,
+				08A6BCD5D0946027ED442D7F /* TemoinPartage.xctest */,
+				1133F34EB996F4A195F36E9D /* Partage.appex */,
+				72107C7D474D43518915A42B /* HoteDePartage.app */,
+				5A4D0920B768B2E1A150C145 /* TemoinPartage.xctest */,
+				31FF7C7F3E455A63DCE06CB9 /* HoteDePartage.app */,
+				9B51CB89F63EC7FCBEB90E4B /* TemoinPartage.xctest */,
+				3C096DF455E7A0A44CD7188D /* HoteDePartage.app */,
+				75A727E668EE3925F36A1C29 /* TemoinPartage.xctest */,
+				ADC470E753BF1D4DB8ABF265 /* Partage.appex */,
+				D339BB8FD65D2727C9BB3D3B /* HoteDePartage.app */,
+				9AA83EAF12C64FF85703C7A1 /* TemoinPartage.xctest */,
+				DF4ED8761559332692818928 /* Partage.appex */,
+				B1AE01E5648C98A794BA0D09 /* HoteDePartage.app */,
+				972F8256B04F424E2CE37F7C /* TemoinPartage.xctest */,
+				8BA0E99E26A04FE7BE68010E /* Partage.appex */,
+				4B1747F51B2CDDB6ECBA2FE0 /* HoteDePartage.app */,
+				399C7C3FD82F909F2FA12569 /* TemoinPartage.xctest */,
+				6093710DB790F18326942E45 /* Partage.appex */,
+				0CF946302B81E5DEA00D5D89 /* HoteDePartage.app */,
+				0443A126A8FD38DA58D68BA6 /* TemoinPartage.xctest */,
+				B197ECE866BD4718AE164749 /* Partage.appex */,
+				5DF51DEE3A3750191F7D388C /* HoteDePartage.app */,
+				500F7DB8B3E8FEAF14635D7D /* TemoinPartage.xctest */,
+				67126566394B123888C9A1CF /* Partage.appex */,
+				9647E4D287D03E4E9B2DB88F /* HoteDePartage.app */,
+				C0D623FAA3593521AF1791EE /* TemoinPartage.xctest */,
+				D200BC49BD0F07AF6E914A06 /* Partage.appex */,
+				51E0D02D5307F2499D0C69DB /* HoteDePartage.app */,
+				23EB4F09B376321276414FEA /* TemoinPartage.xctest */,
+				5CAAFCCBAA07B5E1036B4F96 /* Partage.appex */,
+				991286F7E568B0EC675784AB /* HoteDePartage.app */,
+				D8D3AB40ABCCC1829E12AF59 /* TemoinPartage.xctest */,
+				F5290CAAF223F3B18946CB05 /* Partage.appex */,
+				F2A65643949CAE4822F19F98 /* HoteDePartage.app */,
+				46C556144CA63994F2B65F3E /* TemoinPartage.xctest */,
+				601CD6794E281D5004C3E1FF /* Partage.appex */,
+				1A74826E0491ACFE59DA2AF6 /* HoteDePartage.app */,
+				95C71256A03A8B65A22B065C /* TemoinPartage.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		97C146F01CF9000F007C117D /* Runner */ = {
+			isa = PBXGroup;
+			children = (
+				97C146FA1CF9000F007C117D /* Main.storyboard */,
+				97C146FD1CF9000F007C117D /* Assets.xcassets */,
+				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
+				97C147021CF9000F007C117D /* Info.plist */,
+				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
+				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
+				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
+				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
+				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+			);
+			path = Runner;
+			sourceTree = "<group>";
+		};
+		981E5168CE36FCC7373CB9E3 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				63D5384817D0C3976D49A7D1 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		99B7A6A5DCFD566E07ADE92D /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				DA7ABBCF27F0DADA344C5700 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		C8046F4E545FF0744BCA2D8F /* Partage */ = {
+			isa = PBXGroup;
+			children = (
+				58D652D6EEEF2EC41E61E978 /* ClientGhostbit.swift */,
+				7A5427F963645350857775D3 /* Fragment.swift */,
+				C8EDC5CBF793E76465139DA3 /* Historique.swift */,
+				5E1CCCC08FE1B39FCE9875BC /* ShareViewController.swift */,
+			);
+			name = Partage;
+			path = Partage;
+			sourceTree = "<group>";
+		};
+		CFD9E2A5C44BCE97059E4E3C /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				DE4C304E439C3DE0B1F7FBEF /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		DBACA432AB8D1997EE24B906 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				2657CEBD88ACAB04A8850FDA /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		DEF759F6867F966C3096EC5B /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				D6C08A1EC430B76656D8D86D /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		F8575B348A8CCA0009B7A14C /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				91F43EA8E5E4EB59605C2AC4 /* ghost_crypto_ffi.swift */,
+			);
+			name = Generated;
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		F9FE5C3DEDA989F3DCB5AC37 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4001321A037793DF7509F0D6 /* iOS */,
+				1AF64B9F0C16208F463E3E2D /* Pods_Runner.framework */,
+				BA0DF6C90FC6A2CFE8F31E3D /* Pods_RunnerTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0473467C7A7606F0393E1238 /* HoteDePartage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DACA8822681117D850073A17 /* Build configuration list for PBXNativeTarget "HoteDePartage" */;
+			buildPhases = (
+				C27DB6B55EB8984A2E1F4E91 /* Sources */,
+				4409E2EC61CB0D7A20BAC967 /* Frameworks */,
+				308EF5DC45A8DE107512BF48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HoteDePartage;
+			productName = HoteDePartage;
+			productReference = 1A74826E0491ACFE59DA2AF6 /* HoteDePartage.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2F8325CC459A248966285FD6 /* TemoinPartage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0B4342523C4823FF26A4231 /* Build configuration list for PBXNativeTarget "TemoinPartage" */;
+			buildPhases = (
+				4F288CEBA29124D946ABD037 /* Sources */,
+				5D002A4B6AD28E1F35C375D4 /* Frameworks */,
+				3E0A3D29D6190562B9C9A7ED /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F104D3A62D8FF6894A4C1FF4 /* PBXTargetDependency */,
+				BDF6104129DA25403C6911FB /* PBXTargetDependency */,
+			);
+			name = TemoinPartage;
+			productName = TemoinPartage;
+			productReference = 95C71256A03A8B65A22B065C /* TemoinPartage.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		331C8080294A63A400263BE5 /* RunnerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */;
+			buildPhases = (
+				EB1712EBB44DFD87D6D2D430 /* [CP] Check Pods Manifest.lock */,
+				331C807D294A63A400263BE5 /* Sources */,
+				331C807F294A63A400263BE5 /* Resources */,
+				5351DDE37E5AF91B2B054FBE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				331C8086294A63A400263BE5 /* PBXTargetDependency */,
+			);
+			name = RunnerTests;
+			productName = RunnerTests;
+			productReference = 331C8081294A63A400263BE5 /* RunnerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		97C146ED1CF9000F007C117D /* Runner */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
+			buildPhases = (
+				39B19E0F0F4BACC678C22878 /* [CP] Check Pods Manifest.lock */,
+				9740EEB61CF901F6004384FC /* Run Script */,
+				97C146EA1CF9000F007C117D /* Sources */,
+				97C146EB1CF9000F007C117D /* Frameworks */,
+				97C146EC1CF9000F007C117D /* Resources */,
+				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				8A9A99DC6637F42F26320D18 /* Embed App Extensions */,
+				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
+				5F8C1B510404E18EB29DD75A /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				00AD036127A1FCBF7149AF7A /* PBXTargetDependency */,
+			);
+			name = Runner;
+			packageProductDependencies = (
+				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
+			);
+			productName = Runner;
+			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C8FAEA1C6E19859E380BDBD2 /* Partage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F365ACBB846277DEE6AC2E2 /* Build configuration list for PBXNativeTarget "Partage" */;
+			buildPhases = (
+				23B6BA0E37B74F9390B6C5A7 /* Sources */,
+				E4E730F0E631EF1F35437A24 /* Frameworks */,
+				1A58D6BE10510F369F2704A2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Partage;
+			productName = Partage;
+			productReference = 601CD6794E281D5004C3E1FF /* Partage.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		97C146E61CF9000F007C117D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1510;
+				ORGANIZATIONNAME = "";
+				TargetAttributes = {
+					331C8080294A63A400263BE5 = {
+						CreatedOnToolsVersion = 14.0;
+						TestTargetID = 97C146ED1CF9000F007C117D;
+					};
+					97C146ED1CF9000F007C117D = {
+						CreatedOnToolsVersion = 7.3.1;
+						LastSwiftMigration = 1100;
+					};
+				};
+			};
+			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 97C146E51CF9000F007C117D;
+			packageReferences = (
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
+			);
+			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				97C146ED1CF9000F007C117D /* Runner */,
+				331C8080294A63A400263BE5 /* RunnerTests */,
+				C8FAEA1C6E19859E380BDBD2 /* Partage */,
+				0473467C7A7606F0393E1238 /* HoteDePartage */,
+				2F8325CC459A248966285FD6 /* TemoinPartage */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1A58D6BE10510F369F2704A2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		308EF5DC45A8DE107512BF48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		331C807F294A63A400263BE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3E0A3D29D6190562B9C9A7ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97C146EC1CF9000F007C117D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
+				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
+				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
+				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		39B19E0F0F4BACC678C22878 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Runner-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
+			);
+			name = "Thin Binary";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+		};
+		5F8C1B510404E18EB29DD75A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9740EEB61CF901F6004384FC /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+		};
+		EB1712EBB44DFD87D6D2D430 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RunnerTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		23B6BA0E37B74F9390B6C5A7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				486B814015C5F5E12AC231F7 /* ClientGhostbit.swift in Sources */,
+				7C0DC5DBFDB60C0B0EE928F8 /* Fragment.swift in Sources */,
+				6AB8C2A46C04E98464980FCE /* Historique.swift in Sources */,
+				2F44449FE2CB7F4D78897741 /* ShareViewController.swift in Sources */,
+				0B5B86D553C7D2F8F1869EA9 /* ghost_crypto_ffi.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		331C807D294A63A400263BE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F288CEBA29124D946ABD037 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E7FCF12B314D4C3BA5B0DFC0 /* TemoinPartage.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97C146EA1CF9000F007C117D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C27DB6B55EB8984A2E1F4E91 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				110CD078FEAEF2392C1F53EF /* HoteDePartage.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		00AD036127A1FCBF7149AF7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Partage;
+			target = C8FAEA1C6E19859E380BDBD2 /* Partage */;
+			targetProxy = 70ACE109EC466E7C76F45321 /* PBXContainerItemProxy */;
+		};
+		331C8086294A63A400263BE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 97C146ED1CF9000F007C117D /* Runner */;
+			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
+		};
+		BDF6104129DA25403C6911FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Runner;
+			target = 97C146ED1CF9000F007C117D /* Runner */;
+			targetProxy = 4733B0ECEEB0A5A3FFD7EAC1 /* PBXContainerItemProxy */;
+		};
+		F104D3A62D8FF6894A4C1FF4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HoteDePartage;
+			target = 0473467C7A7606F0393E1238 /* HoteDePartage */;
+			targetProxy = 4D6C3BC2DD96E632EAF38185 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				97C146FB1CF9000F007C117D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				97C147001CF9000F007C117D /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		249021D3217E4FDB00AE95B9 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		249021D4217E4FDB00AE95B9 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = Runner/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Profile;
+		};
+		331C8088294A63A400263BE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D7D24E6E6CAC82198DA3A859 /* Pods-RunnerTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = Debug;
+		};
+		331C8089294A63A400263BE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B01969F083C26D9783E52A5B /* Pods-RunnerTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = Release;
+		};
+		331C808A294A63A400263BE5 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AD632AB28D0A501BEC2A3543 /* Pods-RunnerTests.profile.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = Profile;
+		};
+		5A5310E8E74BDEEA4D4D7612 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.temoin-partage";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HoteDePartage;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		757F07B829D95F2776B47961 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoteDePartage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.hote-temoin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		764E767649519C44BF9CD13E /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.temoin-partage";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HoteDePartage;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		77FC7FACD8437629E3C38E58 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoteDePartage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.hote-temoin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8ECCF7305F2CDFACB0FB159C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 541438A77A26035A64638A87 /* Partage.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Partage/Partage.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = Partage/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit.Partage;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		97C147031CF9000F007C117D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		97C147041CF9000F007C117D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		97C147061CF9000F007C117D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = Runner/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		97C147071CF9000F007C117D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = Runner/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		999D7BF42D76ED6A5D5541EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 541438A77A26035A64638A87 /* Partage.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Partage/Partage.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = Partage/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit.Partage;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9AC2ECC59CF3DB9B2E04803D /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 541438A77A26035A64638A87 /* Partage.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Partage/Partage.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = Partage/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ghostbit.ghostbit.Partage;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		A0E2F12AF94BA848BC4D3D75 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoteDePartage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.hote-temoin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		A763DF2AB834F385413A6558 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.temoin-partage";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HoteDePartage;
+			};
+			name = Debug;
+		};
+		BB9383EDED9A273C76631EE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoteDePartage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.hote-temoin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CD573EF1F4B70260AD8B58C1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoteDePartage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.hote-temoin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D8633B0ED4CB54EBB2E73B90 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.temoin-partage";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HoteDePartage;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E0EE11E9068DA576F3226AF0 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.temoin-partage";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HoteDePartage;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		ED4FEFE7EF7B43B47B0B69E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.temoin-partage";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HoteDePartage;
+			};
+			name = Debug;
+		};
+		FBB752773480CA1955673EAC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9WHCJ5W7S6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HoteDePartage/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "dev.ghostbit.hote-temoin";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				331C8088294A63A400263BE5 /* Debug */,
+				331C8089294A63A400263BE5 /* Release */,
+				331C808A294A63A400263BE5 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4F365ACBB846277DEE6AC2E2 /* Build configuration list for PBXNativeTarget "Partage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8ECCF7305F2CDFACB0FB159C /* Release */,
+				999D7BF42D76ED6A5D5541EA /* Debug */,
+				9AC2ECC59CF3DB9B2E04803D /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97C147031CF9000F007C117D /* Debug */,
+				97C147041CF9000F007C117D /* Release */,
+				249021D3217E4FDB00AE95B9 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97C147061CF9000F007C117D /* Debug */,
+				97C147071CF9000F007C117D /* Release */,
+				249021D4217E4FDB00AE95B9 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C0B4342523C4823FF26A4231 /* Build configuration list for PBXNativeTarget "TemoinPartage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8633B0ED4CB54EBB2E73B90 /* Release */,
+				A763DF2AB834F385413A6558 /* Debug */,
+				E0EE11E9068DA576F3226AF0 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DACA8822681117D850073A17 /* Build configuration list for PBXNativeTarget "HoteDePartage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				77FC7FACD8437629E3C38E58 /* Release */,
+				CD573EF1F4B70260AD8B58C1 /* Debug */,
+				A0E2F12AF94BA848BC4D3D75 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FlutterGeneratedPluginSwiftPackage;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 97C146E61CF9000F007C117D /* Project object */;
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<!-- « GhostBit », avec la capitale au milieu : c'est ce que dit l'application sur son
+	     propre écran d'accueil (`lib/main.dart`), et c'est le nom de la marque.
+	     `flutter create` avait écrit « Ghostbit », et cela ne se voyait nulle part dans
+	     l'application — seulement sous l'icône de l'écran d'accueil, et dans la **feuille
+	     de partage**, qui affiche le nom de l'application contenante et non celui de
+	     l'extension. Le `CFBundleDisplayName` de `Partage/Info.plist` est donc sans effet
+	     sur ce que l'utilisateur lit là. -->
+	<key>CFBundleDisplayName</key>
+	<string>GhostBit</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>ghostbit</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<!-- **false, et délibérément.** Depuis Flutter 3.24, le routage de liens profonds est
+	     actif par défaut : le moteur intercepte le lien universel et le pousse comme route
+	     initiale. Cette application a un `MaterialApp` avec `home:` et sans table de routes,
+	     donc « /abc123#clé » ne correspond à rien et Flutter retombe sur l'accueil — le lien
+	     ouvre l'application, sans le paste, et sans que rien ne le dise.
+
+	     Laisser les deux mécanismes actifs serait pire encore : le lien serait traité deux
+	     fois, et rouvrir un paste marqué « brûler après lecture » consomme une vue.
+
+	     Les liens arrivent donc par `SceneDelegate.swift`, qui les remet au même canal que
+	     le partage emprunte déjà. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
+</plist>
