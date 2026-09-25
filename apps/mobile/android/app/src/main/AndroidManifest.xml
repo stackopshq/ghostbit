@@ -24,6 +24,43 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Les liens de paste, quand ils viennent d'un des domaines de la suite.
+
+                 `autoVerify="true"` demande au système d'aller lire
+                 `https://<hôte>/.well-known/assetlinks.json` à l'installation et d'y
+                 chercher l'empreinte SHA-256 du certificat qui a signé cet APK. S'il ne
+                 la trouve pas — fichier absent, empreinte d'une autre clé, un seul
+                 caractère de travers — **il n'y a aucun message**. Android n'ouvre
+                 simplement pas l'application, et le lien part au navigateur, ce qui est
+                 indiscernable d'un lien qui marche. La seule façon de voir l'état réel
+                 est de le demander :
+
+                     adb shell pm get-app-links dev.ghostbit.ghostbit
+
+                 qui répond `verified`, `none` ou un code d'échec par hôte.
+
+                 `pathAdvancedPattern` reprend le motif d'identifiant du serveur
+                 (`^[A-Za-z0-9_-]{1,20}$`, voir `app/main.py`), pour que les URL qui ne
+                 sont pas des pastes restent dans le navigateur. L'attribut date d'API 31 ;
+                 en deçà, le parseur l'ignore et le filtre vaut pour tout l'hôte, ce qui
+                 dégrade proprement — un `/privacy` ouvrirait l'application, et
+                 `lib/main.dart` sait le dire.
+
+                 **À la différence d'iOS, on ne peut pas filtrer sur le fragment** : un
+                 `IntentFilter` ne le voit pas. Le tri final est donc côté Dart. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="ghostbit.dev"
+                    android:pathAdvancedPattern="/[A-Za-z0-9_-]{1,20}"/>
+                <data
+                    android:scheme="https"
+                    android:host="bit.ghostsuite.cloud"
+                    android:pathAdvancedPattern="/[A-Za-z0-9_-]{1,20}"/>
+            </intent-filter>
             <!-- Le partage de texte vise **cette activité**, et non une extension séparée.
                  Android ne contraint pas la mémoire d'une feuille de partage comme iOS le
                  fait : le texte arrive donc dans le moteur Flutter déjà chargé, et suit
@@ -41,6 +78,15 @@
                 <data android:mimeType="text/*"/>
             </intent-filter>
         </activity>
+        <!-- **false, et délibérément**, comme `FlutterDeepLinkingEnabled` côté iOS.
+             Depuis Flutter 3.24 le moteur intercepte le lien et le pousse comme route
+             initiale ; ce `MaterialApp` a un `home:` et pas de table de routes, donc la
+             route ne correspond à rien et l'application s'ouvre sur l'accueil, sans le
+             paste et sans un mot. Les liens passent par `MainActivity`, qui les remet au
+             canal que le partage emprunte déjà. -->
+        <meta-data
+            android:name="flutter_deeplinking_enabled"
+            android:value="false" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

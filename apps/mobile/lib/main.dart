@@ -86,12 +86,20 @@ class _CoquilleState extends State<Coquille> {
     // pose son écouteur, il faut donc aussi aller la chercher.
     _canal.invokeMethod<String>('partageInitial').then((texte) {
       if (texte != null && texte.isNotEmpty) _ouvrirAvec(texte);
-    }).catchError((_) => null); // iOS n'implémente pas ce canal.
+    }).catchError((_) => null); // iOS remet le texte partagé par son extension.
+    // Le lien universel qui a lancé l'application, pour la même raison : il est arrivé
+    // avant que cet écouteur n'existe. `lienInitial` sert aussi de signal à iOS — c'est
+    // par cet appel que le pont natif apprend que Dart écoute (voir `AppDelegate.swift`).
+    _canal.invokeMethod<String>('lienInitial').then((lien) {
+      if (lien != null && lien.isNotEmpty) _ouvrirUnLien(lien);
+    }).catchError((_) => null);
   }
 
   Future<dynamic> _recevoirLePartage(MethodCall appel) async {
     if (appel.method == 'partage' && appel.arguments is String) {
       _ouvrirAvec(appel.arguments as String);
+    } else if (appel.method == 'lien' && appel.arguments is String) {
+      _ouvrirUnLien(appel.arguments as String);
     }
     return null;
   }
@@ -113,6 +121,37 @@ class _CoquilleState extends State<Coquille> {
         _onglet = 0;
       });
     }
+  }
+
+  /// Un lien universel : le système l'a vérifié, il vient donc d'un domaine de la suite.
+  ///
+  /// Il ne passe **pas** par `_ouvrirAvec`. Cette méthode-là trie du texte partagé avec
+  /// une heuristique — « commence par l'adresse du serveur configuré » — et un lien
+  /// vérifié peut parfaitement venir de l'autre hôte de la suite que celui que cet
+  /// appareil a réglé. Il serait alors pris pour du texte ordinaire, et GhostBit créerait
+  /// un paste chiffré **contenant l'URL** au lieu de l'ouvrir. La provenance est connue :
+  /// on s'en sert plutôt que de la redeviner.
+  ///
+  /// Le cas « pas de fragment » existe parce qu'Android, contrairement à iOS, ne sait pas
+  /// filtrer dessus (`AndroidManifest.xml`) : une URL du domaine qui n'est pas un paste
+  /// peut donc arriver ici. Elle est dite, et non avalée — ouvrir l'écran de lecture
+  /// afficherait « cette clé n'ouvre pas » en accusant une clé qui n'a jamais existé.
+  void _ouvrirUnLien(String lien) {
+    final t = lien.trim();
+    if (!t.contains('#')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Ce lien ne porte pas de clé : il n'y a rien à déchiffrer. "
+            'Un lien de paste se termine par « # » suivi de la clé.',
+          ),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => EcranLecture(service: _service, lien: t)),
+    );
   }
 
   @override

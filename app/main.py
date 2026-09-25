@@ -293,6 +293,132 @@ async def security_txt():
     return PlainTextResponse(_security_txt())
 
 
+# ── Association des applications mobiles ──────────────────────────────────────
+#
+# Deux fichiers, une seule raison d'être : qu'un lien de paste ouvre l'application
+# GhostBit quand elle est installée, et le site quand elle ne l'est pas.
+#
+# Le défaut que cela corrige ne ressemble pas à un défaut. Sans ces fichiers, iOS et
+# Android n'ont aucun moyen de savoir que `dev.ghostbit.ghostbit` a le droit de parler au
+# nom de ce domaine, donc ils ouvrent le navigateur — ce qui est exactement ce que fait un
+# lien qui marche. Aucune erreur, aucun journal, rien à voir. Le contrôle est resté vert
+# pendant que la fonctionnalité n'existait pas.
+#
+# Les deux fichiers sont servis par l'application plutôt que posés en fichiers statiques
+# parce que leur contenu dépend de l'instance : voir `ios_app_ids` et
+# `android_cert_fingerprints` dans `config.py`.
+
+
+def _valeurs(brut: str) -> list[str]:
+    return [v.strip() for v in brut.split(",") if v.strip()]
+
+
+def _aasa_document() -> dict:
+    # Format « components », iOS 13+. Le projet cible iOS 15 (IPHONEOS_DEPLOYMENT_TARGET),
+    # donc l'ancien tableau `paths` serait du poids mort — et il ne saurait de toute façon
+    # pas exprimer la règle qui suit.
+    #
+    # L'ordre compte : iOS retient la **première** règle qui correspond.
+    #
+    # La dernière ligne est le cœur de l'affaire. `"#": "?*"` — au moins un caractère après
+    # le dièse — ne réclame l'application que pour les liens qui **portent un fragment**,
+    # c'est-à-dire ceux qui portent la clé de déchiffrement. C'est précisément le même test
+    # que `_ouvrirAvec` fait côté Dart (`apps/mobile/lib/main.dart`). Un lien vers la page
+    # d'accueil, vers la notice de confidentialité ou vers un paste amputé de sa clé reste
+    # dans le navigateur, où il a quelque chose de sensé à montrer ; ouvrir l'application
+    # sur un paste indéchiffrable ne ferait que déplacer l'échec.
+    composants = [
+        {"/": "/api/*", "exclude": True, "comment": "API REST"},
+        {"/": "/static/*", "exclude": True, "comment": "ressources statiques"},
+        {"/": "/.well-known/*", "exclude": True, "comment": "fichiers d'association"},
+        {"/": "/privacy", "exclude": True, "comment": "notice de confidentialite"},
+        {"/": "/metrics", "exclude": True},
+        {"/": "/healthz", "exclude": True},
+        {"/": "/readyz", "exclude": True},
+        {"/": "/robots.txt", "exclude": True},
+        {"/": "/sitemap.xml", "exclude": True},
+        {"/": "/*", "#": "?*", "comment": "un paste, cle comprise"},
+    ]
+    return {
+        "applinks": {
+            "apps": [],
+            "details": [{"appIDs": _valeurs(settings.ios_app_ids), "components": composants}],
+        }
+    }
+
+
+def _reponse_aasa() -> Response:
+    app_ids = _valeurs(settings.ios_app_ids)
+    if not app_ids:
+        return JSONResponse(
+            {
+                "detail": (
+                    "IOS_APP_IDS is not configured on this instance, so no "
+                    "apple-app-site-association can be served. Set it to "
+                    "<TeamID>.<bundleID> to let the iOS app claim this domain."
+                )
+            },
+            status_code=503,
+        )
+    # `application/json` explicitement, et **sans extension `.json` sur le chemin** :
+    # ce sont les deux exigences d'Apple, et une StaticFiles mal configurée rate la
+    # seconde. Aucune redirection non plus — la CDN d'Apple ne les suit pas.
+    return JSONResponse(_aasa_document(), media_type="application/json")
+
+
+@app.get("/.well-known/apple-app-site-association", include_in_schema=False)
+async def apple_app_site_association():
+    return _reponse_aasa()
+
+
+# Le même document à la racine. Apple n'interroge plus que `/.well-known/` depuis iOS 9.3,
+# donc cette route ne sert pas l'association : elle sert à ce que `curl` sur le chemin que
+# la moitié de la documentation du web cite encore rende le fichier, et non le 422 du
+# `/{paste_id}` attrape-tout, dont le motif `^[A-Za-z0-9_-]{1,20}$` refuse les 26
+# caractères de « apple-app-site-association ». Ce 422 a coûté du temps : il ressemble à
+# une route d'API qui intercepte, alors que c'est une page de paste qui refuse un nom.
+# Même raison que les redirections d'icônes plus bas.
+@app.get("/apple-app-site-association", include_in_schema=False)
+async def apple_app_site_association_racine():
+    return _reponse_aasa()
+
+
+@app.get("/.well-known/assetlinks.json", include_in_schema=False)
+async def assetlinks_json():
+    empreintes = _valeurs(settings.android_cert_fingerprints)
+    if not empreintes:
+        # Le troisième état, dit à voix haute. Servir un `assetlinks.json` avec une liste
+        # d'empreintes vide serait syntaxiquement valide et fonctionnellement mort :
+        # Android n'ouvrirait pas l'application et ne le dirait à personne. Un 503 qui
+        # nomme la variable manquante est la seule forme d'échec qu'un humain puisse
+        # trouver avec un `curl`.
+        return JSONResponse(
+            {
+                "detail": (
+                    "ANDROID_CERT_FINGERPRINTS is not configured on this instance, so no "
+                    "assetlinks.json can be served. Set it to the SHA-256 fingerprint(s) "
+                    "of the certificate that signs the APK (`keytool -list -v`, or the "
+                    "Play Console under Setup > App signing). Serving the file without "
+                    "them would fail Android's verifier silently."
+                )
+            },
+            status_code=503,
+        )
+    return JSONResponse(
+        [
+            {
+                "relation": ["delegate_permission/common.handle_all_urls"],
+                "target": {
+                    "namespace": "android_app",
+                    "package_name": settings.android_package_name,
+                    "sha256_cert_fingerprints": empreintes,
+                },
+            }
+        ],
+        media_type="application/json",
+    )
+
+
 @app.get("/privacy", include_in_schema=False)
 async def privacy(request: Request):
     # GDPR art. 13 / nLPD art. 19 notice. The operator identity comes from

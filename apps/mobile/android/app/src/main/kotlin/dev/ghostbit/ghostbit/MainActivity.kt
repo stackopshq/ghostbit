@@ -32,12 +32,28 @@ import io.flutter.plugin.common.MethodChannel
  *
  * N'implémenter que le second cas donne le défaut le plus déroutant qui soit : partager
  * marche, sauf la première fois.
+ *
+ * ─── Et les liens universels, qui empruntent le même canal ───
+ *
+ * Une intention `ACTION_VIEW` sur un lien de paste vérifié arrive exactement de la même
+ * façon, aux deux mêmes moments, et repart par le même canal — sous un autre nom de
+ * méthode, `lien` plutôt que `partage`.
+ *
+ * Les deux **ne se confondent pas**, et c'est délibéré. Un texte partagé est trié côté Dart
+ * par une heuristique : « commence par l'adresse du serveur configuré, et contient un
+ * dièse ». Un lien universel, lui, vient forcément d'un domaine que le système a vérifié —
+ * mais pas nécessairement de celui que cet appareil a configuré. Le faire passer par la
+ * même heuristique le ferait prendre pour du texte ordinaire, et GhostBit créerait un paste
+ * chiffré **contenant l'URL** au lieu de l'ouvrir. Deux provenances, deux noms.
  */
 class MainActivity : FlutterActivity() {
     private var canal: MethodChannel? = null
 
     /** Le texte reçu avant que Dart n'ait pu écouter. Consommé une fois, puis oublié. */
     private var partageEnAttente: String? = null
+
+    /** Le lien reçu avant que Dart n'ait pu écouter. Même cycle de vie. */
+    private var lienEnAttente: String? = null
 
     override fun configureFlutterEngine(engine: FlutterEngine) {
         super.configureFlutterEngine(engine)
@@ -50,11 +66,18 @@ class MainActivity : FlutterActivity() {
                         reponse.success(partageEnAttente)
                         partageEnAttente = null
                     }
+                    "lienInitial" -> {
+                        // Même raison, et elle pèse plus lourd ici : rouvrir un paste
+                        // marqué « brûler après lecture » le consomme pour de bon.
+                        reponse.success(lienEnAttente)
+                        lienEnAttente = null
+                    }
                     else -> reponse.notImplemented()
                 }
             }
         }
         partageEnAttente = texteDe(intent)
+        lienEnAttente = lienDe(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -65,6 +88,10 @@ class MainActivity : FlutterActivity() {
         texteDe(intent)?.let { texte ->
             val c = canal
             if (c != null) c.invokeMethod("partage", texte) else partageEnAttente = texte
+        }
+        lienDe(intent)?.let { lien ->
+            val c = canal
+            if (c != null) c.invokeMethod("lien", lien) else lienEnAttente = lien
         }
     }
 
@@ -80,6 +107,21 @@ class MainActivity : FlutterActivity() {
         if (intent == null || intent.action != Intent.ACTION_SEND) return null
         val texte = intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()
         return texte?.takeIf { it.isNotBlank() }
+    }
+
+    /**
+     * Extrait l'URL d'une intention de lien universel.
+     *
+     * `data.toString()` et non `data.path` : **la clé de déchiffrement vit dans le
+     * fragment**, après le `#`. Elle ne quitte jamais l'appareil — le navigateur ne
+     * l'envoie pas au serveur, et c'est tout l'intérêt du format. Reconstruire l'adresse
+     * à partir de ses morceaux est le moyen le plus sûr de la perdre, et la perte ne se
+     * voit qu'au bout de la chaîne, sur un écran qui accuse la clé d'être mauvaise alors
+     * qu'elle a simplement été coupée ici.
+     */
+    private fun lienDe(intent: Intent?): String? {
+        if (intent == null || intent.action != Intent.ACTION_VIEW) return null
+        return intent.data?.toString()?.takeIf { it.isNotBlank() }
     }
 
     private companion object {

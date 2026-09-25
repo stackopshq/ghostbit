@@ -5,6 +5,28 @@
 	<!-- Les mêmes deux droits que l'extension de partage, et pour la même raison : ce sont
 	     les deux seuls canaux par lesquels les deux processus se parlent. Voir
 	     ios/Partage/Partage.entitlements. -->
+	<!-- Les domaines dont cette application a le droit d'ouvrir les liens.
+	     C'est la moitié *cliente* de l'association ; l'autre moitié est le fichier
+	     `/.well-known/apple-app-site-association` que le serveur publie
+	     (`app/main.py`). **Il faut les deux** : chacune seule ne produit aucune erreur,
+	     seulement un lien qui s'ouvre dans le navigateur — c'est-à-dire quelque chose qui
+	     ressemble trait pour trait à un fonctionnement normal. C'est pour cela que ce
+	     défaut a pu durer.
+
+	     Les deux hôtes sont ceux que la suite déploie. Un auto-hébergeur qui sert
+	     GhostBit sur son propre domaine doit ajouter le sien ici et reconstruire :
+	     cette liste ne peut pas être configurée à l'exécution, iOS la lit dans la
+	     signature de l'application.
+
+	     Pour déboguer sur un domaine dont le fichier n'est pas encore publié, on ajoute
+	     temporairement `?mode=developer` au domaine et on active « Associated Domains
+	     Development » dans les réglages du système. Ne jamais livrer ainsi : ce mode
+	     court-circuite la vérification. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:ghostbit.dev</string>
+		<string>applinks:bit.ghostsuite.cloud</string>
+	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.dev.ghostbit</string>

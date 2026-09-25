@@ -58,6 +58,33 @@ class Settings(BaseSettings):
     # disclose every visitor's IP to GitHub, paste readers included.
     github_repo: str = "stackopshq/ghostbit"
 
+    # ── Association des applications mobiles ────────────────────────────────
+    #
+    # Ces trois réglages ne servent qu'à deux fichiers : `/.well-known/apple-app-site-association`
+    # et `/.well-known/assetlinks.json`. Sans eux, un lien de paste s'ouvre toujours dans le
+    # navigateur, même quand l'application est installée — et rien ne le signale, puisque
+    # « le navigateur s'est ouvert » est exactement ce à quoi ressemble un fonctionnement
+    # normal. C'est la panne que ces deux routes existent pour supprimer.
+    #
+    # En configuration plutôt qu'en dur parce que ce dépôt s'auto-héberge : une instance
+    # tierce qui publierait l'App ID de StackOps annoncerait une application qu'elle ne
+    # signe pas, et l'association échouerait sans rien dire non plus.
+    ios_app_ids: str = "9WHCJ5W7S6.dev.ghostbit.ghostbit"
+    android_package_name: str = "dev.ghostbit.ghostbit"
+
+    # SHA-256 du certificat qui signe l'APK, en hexadécimal séparé par deux-points — la
+    # sortie de `keytool -list -v -keystore <clé>`. Plusieurs valeurs séparées par des
+    # virgules : Play App Signing en impose deux, la clé d'envoi et celle de Google.
+    #
+    # **Vide par défaut, et c'est délibéré.** Il n'existe pas de valeur par défaut honnête
+    # ici : l'empreinte dépend de la clé qui signe *ce* build-là. Une valeur inventée
+    # produirait un `assetlinks.json` syntaxiquement parfait que le vérificateur d'Android
+    # rejetterait — sans message, sans journal que l'utilisateur puisse voir, et avec pour
+    # seul symptôme un lien qui s'ouvre dans le navigateur. Tant qu'elle n'est pas
+    # renseignée, la route rend 503 en nommant la variable manquante, plutôt qu'un fichier
+    # faux qui aurait l'air juste.
+    android_cert_fingerprints: str = ""
+
     # Ignore extra env vars (e.g. a stale ENCRYPTION_KEY from pre-E2E setups)
     # instead of failing at startup.
     model_config = {"env_file": ".env", "extra": "ignore"}
@@ -71,6 +98,30 @@ class Settings(BaseSettings):
         if v and not v.startswith(("http://", "https://")):
             raise ValueError("BASE_URL must start with http:// or https://")
         return v
+
+    @field_validator("android_cert_fingerprints")
+    @classmethod
+    def _normalize_fingerprints(cls, v: str) -> str:
+        # Échouer au démarrage plutôt que de servir une empreinte que seul le vérificateur
+        # d'Android rejettera, silencieusement et des jours plus tard. Une faute de frappe
+        # dans 64 chiffres hexadécimaux ne se voit pas à l'œil : c'est le genre d'erreur
+        # dont on a besoin qu'une machine la trouve.
+        sorties = []
+        for brut in v.split(","):
+            fp = brut.strip().upper()
+            if not fp:
+                continue
+            octets = fp.split(":")
+            if len(octets) != 32 or not all(
+                len(o) == 2 and all(c in "0123456789ABCDEF" for c in o) for o in octets
+            ):
+                raise ValueError(
+                    "ANDROID_CERT_FINGERPRINTS must be SHA-256 fingerprints as 32 "
+                    "colon-separated hex pairs (the `keytool -list -v` format), "
+                    f"got {brut.strip()!r}"
+                )
+            sorties.append(fp)
+        return ",".join(sorties)
 
 
 settings = Settings()

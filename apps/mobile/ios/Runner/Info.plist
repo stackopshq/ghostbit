@@ -31,6 +31,19 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<!-- **false, et délibérément.** Depuis Flutter 3.24, le routage de liens profonds est
+	     actif par défaut : le moteur intercepte le lien universel et le pousse comme route
+	     initiale. Cette application a un `MaterialApp` avec `home:` et sans table de routes,
+	     donc « /abc123#clé » ne correspond à rien et Flutter retombe sur l'accueil — le lien
+	     ouvre l'application, sans le paste, et sans que rien ne le dise.
+
+	     Laisser les deux mécanismes actifs serait pire encore : le lien serait traité deux
+	     fois, et rouvrir un paste marqué « brûler après lecture » consomme une vue.
+
+	     Les liens arrivent donc par `SceneDelegate.swift`, qui les remet au même canal que
+	     le partage emprunte déjà. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

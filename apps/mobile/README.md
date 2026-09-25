@@ -298,6 +298,98 @@ n'était pas branché — `adb devices` ne montrait qu'un émulateur — et un A
 construit n'est pas un APK qui se lance. Le partage par `ACTION_SEND` en particulier n'a
 jamais été déclenché.
 
+## Les liens universels : ouvrir un paste dans l'application
+
+Un lien de paste doit ouvrir **l'application quand elle est installée, et le site
+sinon**. C'est la demande, et jusqu'ici elle n'était satisfaite dans aucun des deux
+cas : le lien ouvrait toujours le navigateur.
+
+Le défaut avait survécu pour une raison qui mérite d'être écrite, parce qu'elle se
+reproduira ailleurs : **il ne produit rien qui ressemble à une panne**. Un lien
+universel mal configuré n'échoue pas, il retombe — sur le navigateur, qui affiche le
+paste correctement. Aucune erreur, aucune trace, rien à regarder. Personne ne pouvait
+le voir sans aller le chercher.
+
+### Les deux moitiés, dont aucune ne suffit
+
+| Moitié | Où | Sans elle |
+|---|---|---|
+| Le **site** déclare quelles applications il autorise | `/.well-known/apple-app-site-association` et `/.well-known/assetlinks.json`, servis par `app/main.py` | le système ne trouve rien à vérifier, et ouvre le navigateur |
+| L'**application** déclare quels domaines elle réclame | `ios/Runner/Runner.entitlements`, `android/app/src/main/AndroidManifest.xml` | le système ne demande rien, et ouvre le navigateur |
+
+Les deux symptômes sont identiques, et identiques à celui d'un lien qui marche. La
+seule façon de savoir où l'on en est est de le demander explicitement :
+
+```bash
+# Le fichier est-il servi, en application/json, sans redirection ?
+curl -sSD- https://ghostbit.dev/.well-known/apple-app-site-association | head -20
+curl -sSD- https://ghostbit.dev/.well-known/assetlinks.json | head -20
+
+# Android : l'état réel de la vérification, hôte par hôte. `verified` ou rien.
+adb shell pm get-app-links dev.ghostbit.ghostbit
+```
+
+Un **code 200 ne prouve rien** : sur certains hôtes, une page de redirection est servie
+pour n'importe quel chemin. Il faut lire le corps.
+
+### Trois pièges rencontrés, dont deux muets
+
+1. **`/apple-app-site-association` à la racine rendait 422, pas 404.** Cela ressemble à
+   une route d'API qui intercepte ; ce n'en est pas une. Le chemin tombait sur
+   l'attrape-tout `/{paste_id}`, dont le motif `^[A-Za-z0-9_-]{1,20}$` refuse les 26
+   caractères du nom. Le serveur sert désormais le document aux deux emplacements.
+
+2. **Sous `UIScene`, `application(_:continueUserActivity:…)` n'est jamais appelé.**
+   C'est pourtant ce que montre presque toute la documentation. L'activité va à la
+   scène, et à elle seule — d'où `SceneDelegate.swift`. Avec le délégué d'application,
+   tout est correct et le lien ouvre l'application… sur son écran d'accueil.
+
+3. **Le routage de liens profonds de Flutter est actif par défaut depuis 3.24**, et
+   pousse le lien comme route initiale. Ce `MaterialApp` a un `home:` et pas de table
+   de routes : la route ne correspond à rien, et l'application s'ouvre sans le paste.
+   Il est coupé des deux côtés (`FlutterDeepLinkingEnabled`, `flutter_deeplinking_enabled`)
+   et les liens passent par le canal `dev.ghostbit/partage`, celui que le partage
+   emprunte déjà.
+
+### L'empreinte de signature, qui n'est pas dans ce dépôt
+
+`assetlinks.json` a besoin du SHA-256 du certificat qui signe l'APK. **Il n'y a pas de
+valeur par défaut, et il ne doit pas y en avoir** : l'empreinte dépend de la clé, et une
+empreinte fausse produit un fichier syntaxiquement parfait qu'Android rejette sans
+prévenir. Tant que `ANDROID_CERT_FINGERPRINTS` n'est pas réglée, la route rend **503 en
+nommant la variable** — un échec qu'un humain peut trouver, au lieu d'un fichier qui a
+l'air juste.
+
+Aujourd'hui, `android/app/build.gradle.kts` signe encore la release avec la clé de
+**débogage** (`signingConfig = signingConfigs.getByName("debug")`, un `TODO` de
+`flutter create`). Cette clé est locale à la machine qui construit : publier son
+empreinte associerait le domaine à des APK que personne d'autre ne peut produire, et
+l'association casserait au premier vrai build. Il faut donc une clé de release avant de
+pouvoir remplir cette variable.
+
+### Ce qui est éprouvé, et ce qui ne l'est pas
+
+Éprouvé :
+
+- les deux fichiers sont servis en `application/json`, sans redirection, avec l'App ID
+  complet et l'empreinte — vérifié par `curl` contre le serveur lancé, et par
+  `tests/test_app_association.py`, dont chaque assertion a été éprouvée par mutation ;
+- une empreinte mal formée — tronquée, un seul caractère non hexadécimal, les
+  deux-points manquants — fait échouer le **démarrage** du serveur ;
+- le manifeste Android fusionné porte bien `autoVerify="true"` et les deux hôtes
+  (lu dans `build/app/intermediates/merged_manifest/…`) ;
+- `MainActivity.kt` compile, l'application iOS compile, `flutter analyze` est propre et
+  les témoins Dart passent ;
+- un lien venu d'un hôte que l'appareil n'a pas configuré est **nommé** au lieu d'être
+  annoncé comme un paste disparu (`test/lien_entrant_test.dart`).
+
+**Pas éprouvé, et il faut le dire :** rien n'a tourné sur un appareil. Aucun lien
+universel n'a été touché du doigt, ni sur iPhone ni sur Android. La vérification réelle
+ne peut avoir lieu qu'après le déploiement des fichiers sur les hôtes, puisque c'est le
+système qui va les lire à l'installation. Il reste aussi, côté iOS, à activer la
+capacité **Associated Domains** sur l'App ID chez Apple et à régénérer le profil de
+provisionnement : sans cela, la signature échoue — bruyamment, pour une fois.
+
 ## Construire
 
 ```bash

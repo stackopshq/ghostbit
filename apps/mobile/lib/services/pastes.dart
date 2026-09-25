@@ -106,6 +106,24 @@ class ServicePastes {
     }
     final id = uri.pathSegments.last;
 
+    // Le lien peut venir d'un hôte que cet appareil n'a pas configuré : la suite en
+    // déploie deux, et c'est le serveur GhostPass qui décide chez lequel il relaie le
+    // partage. Sans ce contrôle, on irait demander `id` au serveur configuré, qui ne le
+    // connaît pas, et l'écran afficherait « ce paste n'existe plus » — ce qui est faux, et
+    // envoie chercher une explication du côté de l'expéditeur plutôt que des réglages.
+    //
+    // On ne va pas le lire sur l'autre hôte de sa propre initiative : le serveur qu'on
+    // interroge est un choix que l'utilisateur a fait (voir `reglages.dart`, qui refuse
+    // d'en coder un en dur), et l'élargir en silence le déferait.
+    if (uri.hasAuthority && uri.host.isNotEmpty && uri.host != client.base.host) {
+      throw PasteIllisible(
+        'Ce lien est hébergé par ${uri.host}, alors que cette application interroge '
+        '${client.base.host}. Un paste ne vit que sur le serveur qui l\'a créé : '
+        'changez de serveur dans les réglages pour l\'ouvrir ici, ou ouvrez le lien '
+        'dans votre navigateur.',
+      );
+    }
+
     // `Uri.fragment` décode les échappements de pourcentage ; on relit donc la chaîne
     // brute. Une clé base64url n'en contient normalement pas, mais un lien passé par un
     // messagerie qui ré-encode `~` en `%7E` couperait au mauvais endroit — et le message
