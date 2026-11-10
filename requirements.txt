@@ -15,3 +15,9 @@ argon2-cffi==25.1.0
 pydantic-settings==2.15.0
 pygments==2.21.0
 prometheus-client==0.26.0
+# Transitive, pinned so that osv-scanner and Trivy see the versions shipped
+# rather than the lowest the ranges allow.
+anyio==4.16.0  # starlette, httpx; above PYSEC-2026-4024 and PYSEC-2026-4025
+certifi==2026.10.23  # httpx; above PYSEC-2026-4320
+h11==0.16.0  # uvicorn; above PYSEC-2026-348
+idna==3.20  # anyio, httpx; above PYSEC-2026-215
