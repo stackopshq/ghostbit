@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits"],
+  "labels": ["dependencies"],
+  "schedule": ["before 6am on monday"],
+  "packageRules": [
+    {
+      "description": "One MR for the CI image bumps",
+      "matchManagers": ["gitlabci"],
+      "groupName": "ci images"
+    },
+    {
+      "description": "Minor, patch, pin and digest updates merge themselves once the pipeline is green; majors stay in review",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "platformAutomerge": true
+    }
+  ]
+}

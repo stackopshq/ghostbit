@@ -1,0 +1,339 @@
+# ghostbit CI, ported from .github/workflows/ (test, docker, docs, release,
+# run by Gitea Actions) when the repository moved to GitLab.
+#
+# Every job runs on the group's own runners (core-run-03/04, rootless podman,
+# tag `linux`): no billed minutes.
+#
+# - main publishes ghcr.io/stackopshq/ghostbit:sha-<short>. Publishing deploys
+#   nothing. Credentials: GHCR_USERNAME / GHCR_TOKEN, protected group variables.
+# - main deploys docs.ghostbit.dev when docs/ or mkdocs.yml change: the gh-pages
+#   branch is rewritten here, and the push mirror carries it to GitHub, which
+#   serves it (GitHub Pages). gh-pages is protected so the mirror pushes it.
+# - main tags v<version> when cli/pyproject.toml carries a version not tagged
+#   yet; the tag pipeline publishes ghostbit-cli to PyPI (Trusted Publishing:
+#   namespace stackopsplatform/products/ghostsuite, project ghostbit,
+#   .gitlab-ci.yml, environment `pypi`) and creates the GitLab release.
+#   Tags and gh-pages are pushed with RENOVATE_TOKEN (stackops-bot, Maintainer).
+#
+# Schedules are told apart by their description (the project allows no
+# pipeline variables): "Weekly security", "Weekly renovate".
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/
+    # No branch pipeline on top of an MR pipeline for the same commit.
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+stages:
+  - verify
+  - security
+  - publish
+
+default:
+  tags: [linux]
+  interruptible: true
+  timeout: 15m
+
+variables:
+  PYTHON_IMAGE: docker.io/library/python:3.14-slim
+  OSV_SCANNER_IMAGE: ghcr.io/google/osv-scanner:v2.3.6
+  GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1
+  BUILDAH_IMAGE: quay.io/buildah/stable:v1.43.5
+  TRIVY_VERSION: "0.76.2"
+  GHCR_IMAGE: ghcr.io/stackopshq/ghostbit
+  PIP_CACHE_DIR: /tmp/pip-cache
+
+.code:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG
+      when: never
+    - when: on_success
+
+.security:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PIPELINE_SCHEDULE_DESCRIPTION != "Weekly security"
+      when: never
+    - when: on_success
+
+.main:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+
+.release-tag:
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/
+
+.python:
+  image: $PYTHON_IMAGE
+  before_script:
+    - pip install --root-user-action=ignore -q -r requirements-dev.txt
+    - pip install --root-user-action=ignore -q -e '.[dev]' -e cli/
+
+lint:
+  stage: verify
+  extends: [.code, .python]
+  script:
+    - ruff check app/ tests/ cli/
+    - ruff format --check app/ tests/ cli/
+
+test:
+  stage: verify
+  extends: [.code, .python]
+  needs: [lint]
+  parallel:
+    matrix:
+      - STORAGE_BACKEND: [sqlite, redis]
+  # Redis on its own job network (FF_NETWORK_PER_BUILD), reached as `redis`.
+  services:
+    - name: docker.io/library/redis:7-alpine
+      alias: redis
+  variables:
+    REDIS_URL: redis://redis:6379
+  script:
+    - pytest tests/ -v
+
+osv-scanner:
+  stage: security
+  extends: [.security]
+  needs: []
+  image:
+    name: $OSV_SCANNER_IMAGE
+    entrypoint: [""]
+  script:
+    - /osv-scanner scan source --lockfile=requirements.txt --lockfile=requirements-dev.txt
+
+# Working tree only (`dir`), as before: .gitleaks.toml allowlists by value.
+gitleaks:
+  stage: security
+  extends: [.security]
+  needs: []
+  image:
+    name: $GITLEAKS_IMAGE
+    entrypoint: [""]
+  script:
+    - gitleaks dir . --config .gitleaks.toml --no-banner --redact --exit-code 1
+
+# Trivy on the sources (fixable HIGH/CRITICAL vulns, secrets, misconfig fail
+# the job), then the image is built; main publishes it with its SBOM.
+image:build:
+  stage: publish
+  extends: [.code]
+  needs: [test]
+  image: $BUILDAH_IMAGE
+  timeout: 30m
+  interruptible: false
+  variables:
+    STORAGE_DRIVER: vfs
+    BUILDAH_ISOLATION: chroot
+    BUILDAH_FORMAT: docker
+    TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db,ghcr.io/aquasecurity/trivy-db:2
+    TRIVY_CACHE_DIR: /tmp/trivy-cache
+  script:
+    - SHORT="${CI_COMMIT_SHA:0:7}"
+    - curl -sSfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz -C /usr/local/bin trivy
+    - trivy fs . --severity CRITICAL,HIGH --exit-code 1 --ignore-unfixed --scanners vuln,secret,misconfig
+    - >-
+      buildah build
+      --label org.opencontainers.image.title=Ghostbit
+      --label "org.opencontainers.image.description=Self-hosted, end-to-end encrypted paste service"
+      --label "org.opencontainers.image.vendor=StackOps HQ"
+      --label org.opencontainers.image.licenses=Elastic-2.0
+      --label org.opencontainers.image.documentation=https://docs.ghostbit.dev
+      --label org.opencontainers.image.source=https://github.com/stackopshq/ghostbit
+      --label org.opencontainers.image.revision="$CI_COMMIT_SHA"
+      -f Dockerfile -t ghostbit:ci .
+    - |
+      set -eu
+      if [ "${CI_COMMIT_BRANCH:-}" != "$CI_DEFAULT_BRANCH" ]; then
+        echo "not $CI_DEFAULT_BRANCH: built, not published"
+        exit 0
+      fi
+      if [ -z "${GHCR_USERNAME:-}" ] || [ -z "${GHCR_TOKEN:-}" ]; then
+        echo "GHCR_USERNAME / GHCR_TOKEN missing: built, NOT published"
+        exit 1
+      fi
+      trap 'buildah logout --all >/dev/null 2>&1 || true' EXIT
+      printf '%s' "$GHCR_TOKEN" | buildah login -u "$GHCR_USERNAME" --password-stdin ghcr.io
+      buildah tag ghostbit:ci "$GHCR_IMAGE:sha-$SHORT"
+      buildah push "$GHCR_IMAGE:sha-$SHORT"
+      echo "published $GHCR_IMAGE:sha-$SHORT"
+      buildah push ghostbit:ci "docker-archive:/tmp/image.tar:ghostbit:ci"
+      trivy image --input /tmp/image.tar --format cyclonedx --scanners license --output "sbom-$SHORT.cdx.json"
+  artifacts:
+    when: on_success
+    expire_in: 30 days
+    paths:
+      - sbom-*.cdx.json
+
+docs:
+  stage: publish
+  extends: [.main]
+  rules:
+    - !reference [.main, rules]
+    - changes: [docs/**/*, mkdocs.yml, static/logo.png]
+  needs: []
+  image: $PYTHON_IMAGE
+  interruptible: false
+  resource_group: gh-pages
+  variables:
+    # git-revision-date needs the full history.
+    GIT_DEPTH: 0
+  script:
+    - |
+      test -n "${RENOVATE_TOKEN:-}" || { echo "RENOVATE_TOKEN missing, cannot push gh-pages"; exit 1; }
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends git >/dev/null
+    - pip install --root-user-action=ignore -q mkdocs==1.6.1 mkdocs-material==9.8.1 mkdocs-minify-plugin==0.8.0
+    - cp static/logo.png docs/assets/logo.png
+    - git config user.name "stackops-bot"
+    - git config user.email "renovate@stackops.ch"
+    - git remote set-url origin "https://stackops-bot:${RENOVATE_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+    - mkdocs gh-deploy --force --clean --message "Deployed ${CI_COMMIT_SHORT_SHA} with MkDocs version {version}"
+
+# Tags v<version> from cli/pyproject.toml when that version is new.
+cli:tag:
+  stage: publish
+  extends: [.main]
+  rules:
+    - !reference [.main, rules]
+    - changes: [cli/**/*]
+    - if: $CI_PIPELINE_SOURCE == "web"
+  needs: [test]
+  image: $PYTHON_IMAGE
+  interruptible: false
+  script:
+    - |
+      python - <<'PY'
+      import json, os, sys, tomllib, urllib.error, urllib.parse, urllib.request
+      version = tomllib.load(open("cli/pyproject.toml", "rb"))["project"]["version"]
+      tag = f"v{version}"
+      api = f"{os.environ['CI_API_V4_URL']}/projects/{os.environ['CI_PROJECT_ID']}/repository/tags"
+      headers = {"PRIVATE-TOKEN": os.environ.get("RENOVATE_TOKEN", "")}
+      try:
+          urllib.request.urlopen(urllib.request.Request(f"{api}/{urllib.parse.quote(tag, safe='')}", headers=headers), timeout=30)
+          print(f"{tag} already exists: nothing to release")
+          sys.exit(0)
+      except urllib.error.HTTPError as err:
+          if err.code != 404:
+              sys.exit(f"cannot read tag {tag} ({err.code})")
+      if not headers["PRIVATE-TOKEN"]:
+          sys.exit("RENOVATE_TOKEN missing: cannot create the release tag")
+      data = urllib.parse.urlencode({"tag_name": tag, "ref": os.environ["CI_COMMIT_SHA"]}).encode()
+      try:
+          urllib.request.urlopen(urllib.request.Request(api, data=data, headers=headers), timeout=30)
+      except urllib.error.HTTPError as err:
+          sys.exit(f"cannot create tag {tag} ({err.code}): {err.read().decode()}")
+      print(f"created {tag}: its pipeline publishes to PyPI")
+      PY
+
+cli:build:
+  stage: verify
+  extends: [.release-tag, .python]
+  script:
+    - pytest tests/ -v
+    - |
+      VERSION=$(python -c 'import tomllib; print(tomllib.load(open("cli/pyproject.toml", "rb"))["project"]["version"])')
+      if [ "$CI_COMMIT_TAG" != "v$VERSION" ]; then
+        echo "Tag $CI_COMMIT_TAG does not match cli/pyproject.toml version $VERSION" >&2
+        exit 1
+      fi
+    - pip install --root-user-action=ignore -q build==1.6.1 twine==7.0.0
+    - python -m build cli/ --outdir dist/
+    - twine check --strict dist/*
+  artifacts:
+    paths: [dist/]
+    expire_in: 30 days
+
+pypi:
+  stage: publish
+  extends: [.release-tag]
+  needs: [cli:build]
+  image: $PYTHON_IMAGE
+  interruptible: false
+  environment:
+    name: pypi
+    url: https://pypi.org/project/ghostbit-cli/
+  id_tokens:
+    PYPI_ID_TOKEN:
+      aud: pypi
+  script:
+    - pip install --root-user-action=ignore -q twine==7.0.0
+    - |
+      TWINE_PASSWORD=$(python - <<'PY'
+      import json, os, sys, urllib.error, urllib.request
+      req = urllib.request.Request(
+          "https://pypi.org/_/oidc/mint-token",
+          data=json.dumps({"token": os.environ["PYPI_ID_TOKEN"]}).encode(),
+          headers={"Content-Type": "application/json"},
+      )
+      try:
+          with urllib.request.urlopen(req, timeout=30) as resp:
+              print(json.load(resp)["token"])
+      except urllib.error.HTTPError as err:
+          sys.exit(f"PyPI token exchange failed ({err.code}): {err.read().decode()}")
+      PY
+      ) || exit 1
+      export TWINE_USERNAME=__token__ TWINE_PASSWORD
+      twine upload --non-interactive dist/*
+
+release:
+  stage: publish
+  extends: [.release-tag]
+  needs: [cli:build, pypi]
+  image: $PYTHON_IMAGE
+  interruptible: false
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends git >/dev/null
+    - |
+      python - <<'PY'
+      import json, os, subprocess, sys, urllib.error, urllib.request
+      tag = os.environ["CI_COMMIT_TAG"]
+      tags = subprocess.run(["git", "tag", "--sort=-version:refname"], capture_output=True, text=True, check=True).stdout.split()
+      prev = next((t for t in tags if t != tag and t.startswith("v")), None)
+      log = subprocess.run(["git", "log", f"{prev}..{tag}" if prev else tag, "--pretty=format:- %s"],
+                           capture_output=True, text=True, check=True).stdout.splitlines()[:50]
+      notes = "\n".join(log) + f"\n\n```bash\npip install ghostbit-cli=={tag[1:]}\n```\n"
+      req = urllib.request.Request(
+          f"{os.environ['CI_API_V4_URL']}/projects/{os.environ['CI_PROJECT_ID']}/releases",
+          data=json.dumps({"tag_name": tag, "name": tag, "description": notes}).encode(),
+          headers={"JOB-TOKEN": os.environ["CI_JOB_TOKEN"], "Content-Type": "application/json"},
+      )
+      try:
+          urllib.request.urlopen(req, timeout=30)
+      except urllib.error.HTTPError as err:
+          sys.exit(f"release creation failed ({err.code}): {err.read().decode()}")
+      print(f"released {tag}")
+      PY
+
+# Dependency updates, opened as merge requests here.
+renovate:
+  stage: verify
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_PIPELINE_SCHEDULE_DESCRIPTION == "Weekly renovate" && $RENOVATE_TOKEN
+  needs: []
+  image:
+    name: docker.io/renovate/renovate:44.132.5
+    entrypoint: [""]
+  timeout: 30m
+  variables:
+    RENOVATE_PLATFORM: gitlab
+    RENOVATE_ENDPOINT: $CI_API_V4_URL
+    RENOVATE_REPOSITORIES: $CI_PROJECT_PATH
+    RENOVATE_AUTODISCOVER: "false"
+    RENOVATE_ONBOARDING: "false"
+    RENOVATE_REQUIRE_CONFIG: required
+    RENOVATE_GIT_AUTHOR: "Renovate Bot <renovate@stackops.ch>"
+    LOG_LEVEL: info
+  script:
+    - renovate
