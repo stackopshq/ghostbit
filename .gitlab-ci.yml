@@ -18,6 +18,11 @@
 # Schedules are told apart by their description (the project allows no
 # pipeline variables): "Weekly security", "Weekly renovate".
 
+include:
+  - project: stackopsplatform/ci-components
+    ref: v1.2.0
+    file: diagnostic/pipeline-doctor.yml
+
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
